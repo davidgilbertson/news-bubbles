@@ -1,0 +1,95 @@
+.chart {
+  &-wrapper {
+    transition: width $move-dur; //turned off while dragging
+    position: absolute;
+    left: 0px;
+    width: 100%; //reset on load
+    height: 100%;
+    .overlay {
+      pointer-events: all;
+      fill: none;
+      cursor: ew-resize;
+    }
+    .stripes {
+      opacity: 0;
+      .stripe-odd {
+        fill: white;
+      }
+      .stripe-even {
+        fill: none;
+      }
+
+    }
+  }
+  &-axis {
+    shape-rendering: crispEdges;
+    text {
+      fill: white;
+      opacity: 0.4;
+      font-size: 12px;
+      letter-spacing: 1px;
+    }
+    path {
+      fill: #777;
+      stroke-width: 1;
+    }
+  }
+  &-legend {
+    display: none;
+    text {
+      font-size: 14px;
+      stroke: none;
+      fill: $col-text-light;
+    }
+  }
+  &-plot-area {
+    clip-path: url(/#plot-area-clip);
+  }
+}
+
+.story-circle {
+  transition: opacity 500ms;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-tap-highlight-color: transparent;
+  fill: $story-color;
+  opacity: 0.7;
+  stroke: lighten($story-color, 5%);
+  transition: 200ms;
+  cursor: pointer;
+  &-show {
+    fill: $show-color;
+    stroke: lighten($show-color, 5%);
+  }
+  &-ask {
+    fill: $ask-color;
+    stroke: lighten($ask-color, 5%);
+  }
+  &.read {
+    fill-opacity: 0.1;
+    stroke-opacity: 0.3;
+  }
+  &.selected {
+    stroke-width: 5px;
+    stroke-opacity: 0.8;
+    stroke: #FFF;
+  }
+}
+.tick {
+  line {
+    stroke: white;
+    opacity: 0.05;
+  }
+}
+#tooltip {
+  @include shadow();
+  visibility: hidden;
+  position: fixed;
+  left: 100px;
+  top: 100px;
+  background: $primary-color;
+  color: white;
+  text-align: center;
+  padding: 10px;
+  max-width: 200px;
+  z-index: 9;
+}

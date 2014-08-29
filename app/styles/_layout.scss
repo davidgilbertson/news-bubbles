@@ -1,0 +1,62 @@
+.header {
+  @include shadow();
+  height: $header-height;
+  background: $header-color;
+  position: relative;
+  z-index: 2;
+  &-title {
+    float: left;
+    padding: 5px 8px;
+    margin: 0;
+    font-size: 22px;
+    color: white;
+    font-weight: normal;
+    letter-spacing: 1px;
+    @media (max-width: 500px) {
+      letter-spacing: 0;
+      font-size: 18px;
+      padding: 12px 5px;
+    }
+    @media (max-width: 350px) {
+      font-size: 15px;
+      padding: 12px 3px;
+    }
+  }
+  .news-sources {
+    float: right;
+    padding: 8px 17px;
+    color: white;
+    a {
+      color: inherit;
+      font-size: 15px;
+      &:hover {
+        color: #333;
+      }
+    }
+  }
+  &-btn {
+    float: right;
+    font-size: 16px;
+    height: 100%;
+    padding: 12px 15px;
+    background-color: white;
+    color: $primary-color;
+    cursor: pointer;
+    @media (max-width: 500px) {
+      padding: 12px 5px;
+      font-size: 14px;
+    }
+    @media (max-width: 350px) {
+      padding: 14px 8px;
+      font-size: 12px;
+    }
+  }
+}
+.content-wrapper {
+  position: absolute;
+  top: $header-height;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  overflow: hidden;
+}

@@ -1,0 +1,42 @@
+
+/*  --  Colors  --  */
+
+$asbestos: #7f8c8d;
+$aliezarin: #e74c3c;
+$green-sea: #16a085;
+$nephritis: #27ae60;
+$orange: #f39c12;
+$pumpkin: #d35400;
+
+
+$primary-color: $aliezarin;
+
+$header-color: $primary-color;
+$grabber-color: $primary-color;
+
+$resizer-width: 24px; //matches HB.RESIZER_WIDTH
+
+$story-color: #2980b9;
+$ask-color: $nephritis;
+$show-color: $pumpkin;
+
+$move-dur: 200ms; //Should be matched by JS global
+
+
+/*  --  TYPOGRAPHY  --  */
+$font-family: 'Roboto', sans-serif;
+$col-text-primary: $primary-color;
+$col-text-light: #ddd;
+
+
+/*  --  Dimensions  --  */
+$header-height: 40px;
+$break-sm: 400px;
+$break-md: 700px;
+
+
+
+
+@mixin shadow() {
+  box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.5);
+}

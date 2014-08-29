@@ -1,0 +1,46 @@
+html, body {
+  height: 100%;
+  overflow: hidden;
+  min-width: 300px;
+}
+body { 
+  font-family: $font-family;
+  font-weight: 300;
+  letter-spacing: 0.3px;
+  color: #333;
+  background-image: linear-gradient(0deg, #000, #1C2732);
+}
+h1, h2, h3, h4, h5, h6 {
+  color: $header-color;
+  font-weight: normal;
+}
+a {
+/*   text-decoration: none; */
+/*   color: darken($header-color, 10%); */
+  color: $header-color;
+}
+a:hover {
+  color: darken($header-color, 50%);
+  text-decoration: underline;
+}
+p {
+  line-height: 1.5;
+  margin-bottom: 30px;
+  font-weight: 300;
+}
+
+//Logic for setting font faces like so:
+//http://www.smashingmagazine.com/2013/02/14/setting-weights-and-styles-at-font-face-declaration/
+@font-face {
+  font-family: 'Roboto';
+  font-weight: 400;
+  scr: local('Roboto')
+    , url(http://fonts.gstatic.com/s/roboto/v13/CWB0XYA8bzo0kSThX0UTuA.woff2);
+}
+@font-face {
+  font-family: 'RobotoLight';
+  font-weight: 300;
+  scr: local('Roboto-Light')
+    , local('Roboto Light')
+    , url(http://fonts.gstatic.com/s/roboto/v13/Hgo13k-tfSpn0qi1SFdUfVtXRa8TVwTICgirnJhmVJw.woff2);
+}

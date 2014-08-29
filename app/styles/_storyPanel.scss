@@ -1,0 +1,108 @@
+.story {
+  &-panel {
+    transition: $move-dur; //turned off while dragging
+    position: absolute;
+    display: none; //overridden on startup
+    left: 100%; //overridden on startup
+    height: 100%;
+    @include shadow();
+    right: 0px;
+    padding-left: 28px;
+    background-color: white;
+    z-index: 1;
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+    &-resizer {
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 28px;
+      background-color: $primary-color;
+      background-color: white;
+      overflow-y: hidden;
+      cursor: ew-resize;
+      &.active .story-panel-resizer-dots {
+/*         background-color: $primary-color; */
+        border: 2px dotted lighten($primary-color, 20%);
+      }
+      &-dots {
+        float: left;
+        margin-top: -10%;
+        height: 120%;
+        width: 8px;
+        margin-left: 4px;
+        border: 2px dotted lighten($primary-color, 30%);
+      }
+    }
+    &-toggle {
+      position: absolute;
+      top: 50%;
+      left: 0px;
+      margin-top: -50px;
+      width: 100%;
+      height: 100px;
+      font-size: 40px;
+      line-height: 95px;
+      text-align: center;
+      color: $primary-color;
+      cursor: pointer;
+      background-color: white;
+    }
+  }
+  &-control-bar {
+    position: absolute;
+    width: 100%;
+    height: 45px;
+    padding: 5px;
+    background: #1C5E54;
+    z-index: 1;
+  }
+  &-wrapper {
+    height: 100%;
+    min-width: 200px;
+    overflow-y: auto;
+    padding: 10px 20px 50px 10px;
+    background-color: white;
+    z-index: 0;
+    @media (max-width: 500px) {
+      padding: 7px;
+    }
+  }
+}
+.show-story-panel {
+  .story-panel {
+    margin-right: 0px;
+    &-grabber-inner {
+      transform: scaleX(1);
+    }
+    &-closer:before {
+      content: '»';
+    }
+  }
+  #more-btn {
+    right: 425px;
+  }
+}
+
+.story-title {
+  h1 {
+    font-size: 24px;
+    font-weight: 300;
+    color: #222;
+    line-height: 26px;
+    a {
+      text-decoration: none;
+      font-size: inherit;
+    }
+  }
+  .sub-title {
+    a {
+      text-decoration: none;
+    }
+    font-size: 12px;
+    color: #777;
+  }
+}

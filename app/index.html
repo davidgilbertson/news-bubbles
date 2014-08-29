@@ -1,0 +1,99 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>News Bubbles</title>
+    <meta name="description" content="A visual display for hacker news stories.">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+    <!-- build:css styles/main.css -->
+    <link type="text/css" rel="stylesheet" href="styles/main.css">
+    <!-- endbuild -->
+
+    <link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/apple-touch-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="/apple-touch-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/apple-touch-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/apple-touch-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon-152x152.png">
+    <link rel="icon" type="image/png" href="/favicon-196x196.png" sizes="196x196">
+    <link rel="icon" type="image/png" href="/favicon-160x160.png" sizes="160x160">
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96">
+    <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
+    <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="msapplication-TileImage" content="/mstile-144x144.png">
+
+    <!-- <link href='http://fonts.googleapis.com/css?family=Roboto:400,300,300italic,400italic' rel='stylesheet' type='text/css'> -->
+
+  </head>
+  <body>
+    <!--[if lt IE 10]>
+    <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+    <![endif]-->
+    <header class="header">
+      <h1 class="header-title">NEWS BUBBLES</h1>
+      <div class="news-sources">
+        <a href="?src=reddit">Reddit</a>
+        /
+        <a href="?src=hacker-news">Hacker News</a>
+      </div>
+    </header>
+    <main id="content-wrapper" class="content-wrapper">
+      <div id="chart-wrapper" class="chart-wrapper">
+
+        <svg id="svg-bubble-chart" >
+          <defs>
+            <clipPath id="plot-area-clip">
+              <rect x="100" y="100" width="900" height="900" />
+            </clipPath>
+            <radialGradient id="radial-gradient-sphere-story" gradientTransform="matrix(1, 0.8, -0.8, 1, 0.2, -0.5)">
+              <stop style="stop-color:#64B3F5" offset="0%"/>
+              <stop style="stop-color:#092D7B" offset="100%"/>
+            </radialGradient>
+            <radialGradient id="radial-gradient-sphere-ask" gradientTransform="matrix(1, 0.8, -0.8, 1, 0.2, -0.5)">
+              <stop style="stop-color:#53C853" offset="0"/>
+              <stop style="stop-color:#207C20" offset="1"/>
+            </radialGradient>
+            <radialGradient id="radial-gradient-sphere-show" gradientTransform="matrix(1, 0.8, -0.8, 1, 0.2, -0.5)">
+              <stop style="stop-color:#FFA500" offset="0"/>
+              <stop style="stop-color:#A66C00" offset="1"/>
+            </radialGradient>
+          </defs>
+        </svg>
+      </div>
+      <div id="story-panel" class="story-panel">
+        <div id="story-panel-resizer" class="story-panel-resizer">
+          <div class="story-panel-resizer-dots"></div>
+          <div class="story-panel-resizer-dots"></div>
+          <div id="story-panel-toggle" class="story-panel-toggle">«</div>
+        </div>
+        <div class="story-wrapper">
+          <div id="story-title" class="story-title">News Bubbles</div>
+          <hr>
+          <div id="story-content" class="story-content">Select a bubble on the left to view the story here.</div>
+        </div>
+
+      </div>
+    </main>
+    <div id="tooltip">tooltip</div>
+
+    <!-- build:js scripts/vendor.js -->
+    <!-- bower:js -->
+    <script src="bower_components/jquery/dist/jquery.js"></script>
+    <script src="bower_components/d3/d3.js"></script>
+    <!-- endbower -->
+    <!-- endbuild -->
+
+    <!-- build:js scripts/main.js -->
+    <script src="scripts/init.js"></script>
+    <script src="scripts/data.js"></script>
+    <script src="scripts/layout.js"></script>
+    <script src="scripts/chart.js"></script>
+    <script src="scripts/events.js"></script>
+    <script src="scripts/main.js"></script>
+    <!-- endbuild -->
+  </body>
+</html>
