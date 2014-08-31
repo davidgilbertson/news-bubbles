@@ -96,7 +96,7 @@ HB.Chart = (function() {
     }
     titleText += '<p class="sub-title">' + Math.round(d.score) + ' points | ';
     if (HB.source === 'hn') {
-      titleText += '<a href="https://news.ycombinator.com/item?id=' + d.id + '" target="_blank">' + d.commentCount + ' comments</a> | ';
+      titleText += '<a href="https://news.ycombinator.com/item?id=' + d.sourceId + '" target="_blank">' + d.commentCount + ' comments</a> | ';
     }
     titleText += 'posted by ' + d.author + '</p>';
 
@@ -217,6 +217,8 @@ HB.Chart = (function() {
     }
     
     maxCircle = document.body.offsetHeight / 20;
+    margins.top = 40 + maxCircle / 2;
+//     margins.left = maxCircle / 2;
 
     chartWrapper
       .attr('width', w)
@@ -322,11 +324,11 @@ HB.Chart = (function() {
     yAxisG = chartAxes.append('g')
       .classed('chart-axis-y', true);
       
-    yAxisTitle = yAxisG
-      .append('text')
-      .style('font-size', '13px')
-      .text('Points')
-      .attr('transform', 'translate(0, 53)');
+//     yAxisTitle = yAxisG
+//       .append('text')
+//       .style('font-size', '13px')
+//       .text('Points')
+//       .attr('transform', 'translate(0, 53)');
 
 //     legend = chartWrapper.append('g')
 //       .classed('chart-legend', true)

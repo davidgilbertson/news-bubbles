@@ -43,6 +43,8 @@ HB.Data = (function() {
       d.name = d.title;
       d.score = d.points;
       d.id = 'hn-' + d.objectID;
+      d.sourceId = d.objectID;
+      d.source = 'hn';
     });
     sortBy(data, 'commentCount');
     return data;
@@ -66,6 +68,8 @@ HB.Data = (function() {
       d.commentCount = commentCount;
       d.score = d.data.score;
       d.id = 'rd-' + d.data.name;
+      d.sourceId = d.data.name;
+      d.source = 'rd';
       d.name = d.data.title;
       d.url = d.data.url;
       d.author = d.data.author;
