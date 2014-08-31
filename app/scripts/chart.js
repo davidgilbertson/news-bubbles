@@ -3,13 +3,13 @@ var HB = HB || {};
 
 HB.Chart = (function() {
   var Chart = {}
-    , stories = []
+//     , stories = []
     , chartWrapper
     , plotArea
     , plotAreaClip
     , chartOverlay
-    , stripesG
-    , stripes = []
+//     , stripesG
+//     , stripes = []
     , legend
 //     , maxCircle = document.body.offsetHeight / 20
     , margins = {top: 70, right: 0, bottom: 30, left: 0} //keep in mind max circle size
@@ -20,8 +20,11 @@ HB.Chart = (function() {
     , z
     , w
     , h
-    , minDate
-    , maxDate
+    , minDate = Infinity
+    , maxDate = 0
+    , maxScore = 0
+    , minCommentCount = Infinity
+    , maxCommentCount = 0
     , xAxis
     , yAxis
     , xAxisG
@@ -54,7 +57,7 @@ HB.Chart = (function() {
 
     var titleText = '';
     if (d.url) {
-      titleText += '<h1><a class="title" href="' + d.url + '" target="_blank">' + d.title + '</a></h1>';
+      titleText += '<h1><a class="title" href="' + d.url + '" target="_blank">' + d.name + '</a></h1>';
       
       if (d.data && d.data.is_self) { //TODO, I think this means the url points to reddit comments page
 //         console.log('d.url matches reddit.com. The d is:', d);
@@ -89,7 +92,7 @@ HB.Chart = (function() {
       }
 
     } else {
-      titleText += '<h1>' + d.title + '</h1>';
+      titleText += '<h1>' + d.name + '</h1>';
     }
     titleText += '<p class="sub-title">' + Math.round(d.score) + ' points | ';
     if (HB.source === 'hn') {
@@ -123,7 +126,7 @@ HB.Chart = (function() {
   }
   
   function bubbleMouseover(d) {
-    tooltip.text(d.title);
+    tooltip.text(d.name);
     var tipWidth = parseInt(tooltip.style('width'));
     var tipHeight = parseInt(tooltip.style('height'));
     var thisDims = this.getBoundingClientRect();
@@ -149,13 +152,18 @@ HB.Chart = (function() {
 
 
 
-  function drawStories(animate) {
+  function drawStories(animate, isUpdate) {
 //     console.log('drawStories()');
 
+
+    //NB data may be only a few new or changed stories
     var points = plotArea.selectAll('circle')
-      .data(stories, function(d) {
+      .data(HB.Data.stories, function(d) {
         return d.id;
       });
+
+    points
+      .classed('updating', true);
 
     points
       .enter()
@@ -164,13 +172,9 @@ HB.Chart = (function() {
         return z(d.commentCount);
       })
       .attr('cx', function() { return x(maxDate); })
-//       .attr('cy', function(d) { return y(d.score); })
-//       .attr('cx', function(d) { return x(d.dateTime); })
       .attr('cy', function(d) { return y(0); })
       .classed('story-circle', true)
       .classed('read', function(d) { return HB.Data.isRead(d.id); })
-//       .classed('story-circle-show', function(d) { return d._tags.indexOf('show_hn') > 0; })
-//       .classed('story-circle-ask', function(d) { return d._tags.indexOf('ask_hn') > 0; })
       .on('click', bubbleClicked)
       .on('mouseover', bubbleMouseover)
       .on('mouseout', bubbleMouseout);
@@ -183,12 +187,17 @@ HB.Chart = (function() {
     //Update
     points
       .transition()
-      .duration(duration + 500)
+      .duration(duration)
       .attr('r', function(d) {
         return z(d.commentCount); //z may change because maxCircle changes on resize
       })
-      .attr('cx', function(d) { return x(d.dateTime); })
+      .attr('cx', function(d) { return x(d.postDate); })
       .attr('cy', function(d) { return y(d.score); });
+
+
+    //DO NOT do points.exit() because the passed in data is only a delta
+//     points
+//       .exit()
 
   }
 
@@ -196,7 +205,7 @@ HB.Chart = (function() {
 
 
   //Call this when the screen layout/size changes
-  function setDimensions() {
+  function setDimensions(update) {
 //     console.log('setDimensions()');
     h = parseInt(d3.select('#chart-wrapper').style('height'), 10) - 4; //I don't know why
     w = HB.splitPos;
@@ -253,13 +262,17 @@ HB.Chart = (function() {
 
   //Call this when data changes
   function setScales() {
-//     console.log('setScales()');
-    minDate = d3.min(stories, function(d) { return d.dateTime; });
-    maxDate = d3.max(stories, function(d) { return d.dateTime; });
 
-    x.domain(d3.extent(stories, function(d) { return d.dateTime; }));
-    y.domain([HB.MIN_POINTS, d3.max(stories, function(d) { return d.score; })]);
-    z.domain(d3.extent(stories, function(d) { return d.commentCount; }));
+    minDate = Math.min(minDate, d3.min(HB.Data.stories, function(d) { return d.postDate; }));
+    maxDate = Math.max(maxDate, d3.max(HB.Data.stories, function(d) { return d.postDate; }));
+    maxScore = Math.max(maxScore, d3.max(HB.Data.stories, function(d) { return d.score; }));
+
+    minCommentCount = Math.min(minCommentCount, d3.min(HB.Data.stories, function(d) { return d.commentCount; }));
+    maxCommentCount = Math.max(maxCommentCount, d3.max(HB.Data.stories, function(d) { return d.commentCount; }));
+
+    x.domain([minDate, maxDate]);
+    y.domain([HB.MIN_POINTS, maxScore]);
+    z.domain([minCommentCount, maxCommentCount]);
 
     zoom.x(x);
   }
@@ -297,8 +310,8 @@ HB.Chart = (function() {
       .tickSize(0, 0);
 
 
-    stripesG = chartWrapper.append('g')
-      .classed('stripes', true);
+//     stripesG = chartWrapper.append('g')
+//       .classed('stripes', true);
 
     var chartAxes = chartWrapper.append('g')
       .classed('chart-axis', true);
@@ -315,38 +328,38 @@ HB.Chart = (function() {
       .text('Points')
       .attr('transform', 'translate(0, 53)');
 
-    legend = chartWrapper.append('g')
-      .classed('chart-legend', true)
-      .attr('transform', 'translate(20, 20)');
+//     legend = chartWrapper.append('g')
+//       .classed('chart-legend', true)
+//       .attr('transform', 'translate(20, 20)');
 
-    var legendData = [
-      {title: 'Ask HN', className: 'story-circle story-circle-ask'},
-      {title: 'Show HN', className: 'story-circle story-circle-show'},
-      {title: 'Story', className: 'story-circle'}
-    ];
-    var legendEntries = legend.selectAll('g')
-      .data(legendData)
-      .enter()
-      .append('g')
-      .attr('transform', function(d, i) {
-        return 'translate(' + (i * 100) + ',0)';
-      })
-      .attr('class', function(d) {
-        return d.className;
-      });
+//     var legendData = [
+//       {name: 'Ask HN', className: 'story-circle story-circle-ask'},
+//       {name: 'Show HN', className: 'story-circle story-circle-show'},
+//       {name: 'Story', className: 'story-circle'}
+//     ];
+//     var legendEntries = legend.selectAll('g')
+//       .data(legendData)
+//       .enter()
+//       .append('g')
+//       .attr('transform', function(d, i) {
+//         return 'translate(' + (i * 100) + ',0)';
+//       })
+//       .attr('class', function(d) {
+//         return d.className;
+//       });
 
-    legendEntries
-      .append('circle')
-      .attr('cx', 0)
-      .attr('cy', 0)
-      .attr('r', 7);
-    legendEntries
-      .append('text')
-      .text(function(d) {
-        return d.title;
-      })
-      .attr('dx', 12)
-      .attr('dy', '0.35em');
+//     legendEntries
+//       .append('circle')
+//       .attr('cx', 0)
+//       .attr('cy', 0)
+//       .attr('r', 7);
+//     legendEntries
+//       .append('text')
+//       .text(function(d) {
+//         return d.name;
+//       })
+//       .attr('dx', 12)
+//       .attr('dy', '0.35em');
 
     initZoom();
 
@@ -361,29 +374,38 @@ HB.Chart = (function() {
       .attr('class', 'overlay');
       
     chartOverlay.on('touchstart.zoom', null); //Do not get this, but otherwise a single tap starts a zoom
-    plotAreaClip = d3.select('#plot-area-clip rect');
+    plotAreaClip = d3.select('#plot-area-clip rect'); //TODO maybe not needed now I go to the edges of the screen anyway.
 
   }
 
 
 /*  --  Exported Methods  --  */
 
-  Chart.drawStories = function(data) {
+  Chart.drawStories = function() {
 //     console.log('Chart.drawStories() - count:', data.length);
-    stories = data;
+//     stories = data;
     setScales();
     setDimensions();
     drawStories(true);
   };
 
-  Chart.addStories = function(data) {
-    console.log('Chart.addStories()');
-    stories = stories.concat(data);
-    setScales();
-    drawStories(true);
-  };
+  //Updating is delta only, could be new or changed stories.
+//   Chart.updateStories = function() {
+//     stories = data;
+//     setScales();
+//     setDimensions();
+//     drawStories(true); //true = animate
+//   };
+
+//   Chart.addStories = function() {
+//     console.log('Chart.addStories()');
+//     stories = stories.concat(data);
+//     setScales();
+//     drawStories(true);
+//   };
 
   Chart.resize = function(animate) {
+    if (!HB.Data.stories.length) { return; }
     setDimensions();
     setScales();
     drawStories(animate);

@@ -74,28 +74,32 @@ gulp.task('fonts', function () {
     .pipe($.size());
 });
 
+
 gulp.task('extras', function () {
   return gulp.src(['app/*.*', '!app/*.html'], { dot: true })
     .pipe(gulp.dest('dist'));
 });
 
+
 gulp.task('clean', function () {
   return gulp.src(['.tmp', 'dist'], { read: false }).pipe($.clean());
 });
+
 
 gulp.task('express', ['mongod'], function () {
   var express = require('express')
     , app = express();
 
-    app.use(require('connect-livereload')({ port: 35729 }));
-    app.use(express.static('app'));
-    app.use(express.static('.tmp'));
-    process.env.DEV = true;
+  app.use(require('connect-livereload')({ port: 35729 }));
+  app.use(express.static('app'));
+  app.use(express.static('.tmp'));
+  process.env.DEV = true;
 
-    require(path.join(__dirname, 'server', 'server.js'))(app);
+  require(path.join(__dirname, 'server', 'server.js'))(app);
 
-    app.listen(9000);
+  // app.listen(9000);
 });
+
 
 gulp.task('mongod', function() {
   //From here: http://stackoverflow.com/questions/18334181/spawn-on-node-js-windows-server-2012

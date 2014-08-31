@@ -39,7 +39,8 @@ HB.Layout = (function() {
     
     HB.splitPos = document.body.offsetWidth - HB.RESIZER_WIDTH;
     setChartAndStoryPanelSize();
-    HB.Chart.resize(true);
+//     HB.Chart.resize(true);
+    HB.Chart.resize();
   }
 
   Layout.render = function() {

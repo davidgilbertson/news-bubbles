@@ -15,4 +15,4 @@ app.use(express.static('dist'));
 
 require(path.join(__dirname, 'server', 'server.js'))(app);
 
-app.listen(port);
+// app.listen(port);

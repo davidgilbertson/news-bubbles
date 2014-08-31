@@ -36,9 +36,9 @@
     <header class="header">
       <h1 class="header-title">NEWS BUBBLES</h1>
       <div class="news-sources">
-        <a href="?src=reddit">Reddit</a>
+        <a href="?src=rd">Reddit</a>
         /
-        <a href="?src=hacker-news">Hacker News</a>
+        <a href="?src=hn">Hacker News</a>
       </div>
     </header>
     <main id="content-wrapper" class="content-wrapper">
@@ -82,18 +82,21 @@
 
     <!-- build:js scripts/vendor.js -->
     <!-- bower:js -->
-    <script src="bower_components/jquery/dist/jquery.js"></script>
-    <script src="bower_components/d3/d3.js"></script>
+      <script src="bower_components/jquery/dist/jquery.js"></script>
+      <script src="bower_components/d3/d3.js"></script>
     <!-- endbower -->
     <!-- endbuild -->
 
+    <script src="/socket.io/socket.io.js"></script>
+
     <!-- build:js scripts/main.js -->
-    <script src="scripts/init.js"></script>
-    <script src="scripts/data.js"></script>
-    <script src="scripts/layout.js"></script>
-    <script src="scripts/chart.js"></script>
-    <script src="scripts/events.js"></script>
-    <script src="scripts/main.js"></script>
+      <script src="scripts/init.js"></script>
+      <script src="scripts/data.js"></script>
+      <script src="scripts/layout.js"></script>
+      <script src="scripts/chart.js"></script>
+      <script src="scripts/events.js"></script>
+      <script src="scripts/main.js"></script>
     <!-- endbuild -->
+
   </body>
 </html>

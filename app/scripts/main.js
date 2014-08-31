@@ -5,23 +5,25 @@ HB.main = (function() {
   HB.splitPos = document.body.offsetWidth - HB.RESIZER_WIDTH;
   HB.Layout.render();
   HB.Layout.init();
-  HB.source = 'reddit'; //some default
+  HB.source = 'rd'; //some default
   
   var src = document.location.search.replace('?src=', ''); //TODO this would fail with multiple params
   
-  if (src === 'reddit') {
-    HB.source = 'reddit';
-  } else if (src === 'hacker-news') {
-    HB.source = 'hacker-news';
+  if (src === 'rd') {
+    HB.source = 'rd';
+  } else if (src === 'hn') {
+    HB.source = 'hn';
   }
 
-  if (HB.source === 'reddit') {
+  //On page load, use the APIs directly from the client to get a fresh batch of results
+  //The server will be emitting new/changed stories as they become available.
+  if (HB.source === 'rd') {
     HB.Data.getRedditData(function(data) {
       HB.Chart.drawStories(data);
     });
   } else {
-    HB.Data.getHNStories(function(data) {
-      HB.Chart.drawStories(data);
+    HB.Data.getHNStories(function() {
+      HB.Chart.drawStories();
     });
   }
 

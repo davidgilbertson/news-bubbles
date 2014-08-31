@@ -5,6 +5,7 @@
 
 var path = require('path')
   , request = require('request')
+  , io
   , models = require(path.join(__dirname, 'models'))
   , Story = models.Story
   , HITS_PER_PAGE_LIMIT = 1000
@@ -32,8 +33,9 @@ var path = require('path')
 //Takes a story and saves it if new, or
 //gets the existing story, comment count and score into the 'history' array
 //and updates the current comment count and score and saves the doc
-function upsertStory(obj) {
+function upsertStory(obj, cb) {
   var id = 'hn-' + obj.objectID;
+  var newOrChangedStory = false;
 
   Story.findOne({id: id}, function(err, doc) {
     if (doc) {
@@ -45,10 +47,20 @@ function upsertStory(obj) {
       };
       historyArray.push(historyItem);
 
+      if (doc.commentCount !== obj.num_comments || doc.score !== obj.points) {
+        newOrChangedStory = true;
+      }
       doc.commentCount = obj.num_comments;
       doc.score = obj.points;
       doc.history = historyArray;
       doc.save();
+      if (newOrChangedStory) {
+        // console.log('Updated story:', doc.id, ',', doc.name);
+        cb(doc);
+      } else {
+        // console.log('Existing story, no change', doc.id, ',', doc.name);
+        cb(null);
+      }
 
       // console.log('Updated the existing story:', doc.name);
 
@@ -69,15 +81,36 @@ function upsertStory(obj) {
         tags: obj.tags
       });
       story.save();
-      // console.log('Saved a new story:', story.name);
+      // console.log('New story:', story.id, ',', story.name);
+      cb(story);
     }
   });
 }
 
-//Yep, I don't do much.
 function saveStories(data) {
-  console.log('Saving', data.length, 'stories');
-  data.forEach(upsertStory);
+  // console.log('  --  Saving', data.length, 'stories  --');
+  var newOrUpdatedStories = [];
+  var savedStories = 0;
+  data.forEach(function(d, i) {
+    upsertStory(d, function(newOrUpdatedStory) {
+      if (newOrUpdatedStory) {
+        // console.log('pushing a new story to be returned');
+        newOrUpdatedStories.push(newOrUpdatedStory);
+      }
+      savedStories++;
+      // console.log('i:', i);
+      // console.log('data.length - 1:', data.length - 1);
+      if (savedStories === data.length) {
+        savedStories = 0;
+        // console.log('upserted all stories');
+        //TODO only if there's new stories
+        if (newOrUpdatedStories.length) {
+          // console.log('Emitting new/changed to client now');
+          io.emit('data', {source: 'hn', data: newOrUpdatedStories});
+        }
+      }
+    });
+  });
 }
 
 
@@ -100,8 +133,10 @@ function buildUrl(props) {
 
 
 
-exports.startCrawler = function() {
-
+exports.startCrawler = function(globalIo) {
+  io = globalIo;
+  // console.log('Starting Hacker News crawler');
+  io.emit('data update', {data: 'yes, there will totally be data here'});
   //Get stories from last 30 mins
   setInterval(function() {
     var now = new Date().getTime() / 1000;
@@ -122,7 +157,7 @@ exports.startCrawler = function() {
         saveStories(data.hits);
       });
     }, every5Mins);
-  }, 10000);
+  }, 10000); //stagger
 
   // //Get stories from 2 to 6 hours
   setTimeout(function() {
@@ -134,5 +169,5 @@ exports.startCrawler = function() {
         saveStories(data.hits);
       });
     }, every10Mins);
-  }, 20000);
+  }, 20000); //stagger
 };
