@@ -92,11 +92,11 @@ HB.Data = (function() {
         return existingStory.id === d.id;
       })[0];
       if (existing) {
-        console.log('Updated', existing);
+//         console.log('Updated', existing);
         existing.commentCount = d.commentCount;
         existing.score = d.score;
       } else {
-        console.log('Added new:', d);
+//         console.log('Added new:', d);
         Data.stories.push(d);
       }
     });
@@ -184,7 +184,6 @@ HB.Data = (function() {
 
   Data.getRedditData = function(cb) {
     getRedditData(cb, false);
-      var url = 'http://www.reddit.com/new.json';
   };
 
   //Get stories in chunks, returning to the callback several times.
@@ -193,9 +192,12 @@ HB.Data = (function() {
 //     getHNStories(cb, true); //true = append
   };
 
-  Data.stopPolling = function() {
-    window.clearInterval(timer);
-  };
+  Data.getStoriesFromServer = function() {
+    $.get('/api/getall', function(data) {
+      mergeStories(parseStoryData(data));
+      HB.Chart.drawStories();
+    });
+  }
 
   init();
   return Data;

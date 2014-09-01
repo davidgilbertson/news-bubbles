@@ -29,7 +29,7 @@
     a {
       color: inherit;
       font-size: 15px;
-      &:hover {
+      body.no-touch &:hover {
         color: #333;
       }
     }

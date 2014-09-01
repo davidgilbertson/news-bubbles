@@ -287,7 +287,7 @@ HB.Chart = (function() {
   function initZoom() {
     zoom = d3.behavior.zoom()
       .x(x)
-      .scaleExtent([1, 100])
+      .scaleExtent([1, Infinity])
       .on('zoom', zoomChart);
   }
 

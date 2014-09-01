@@ -27,4 +27,9 @@ HB.main = (function() {
     });
   }
 
+  if (!('ontouchstart' in window) && !(window.DocumentTouch && document instanceof DocumentTouch)) {
+    d3.select('body').classed('no-touch', true);
+    HB.hasTouch = false;
+  }
+
 })();
