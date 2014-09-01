@@ -16,7 +16,7 @@ module.exports = function(app) {
     });
   });
 
-  if (process.env.DEV) {
+  // if (process.env.DEV) {
     app.get('/api/getall', function(req, res) {
       Story.find(function(err, stories) {
         if (err) {
@@ -27,14 +27,14 @@ module.exports = function(app) {
       //lean: http://mongoosejs.com/docs/api.html#query_Query-lean
 
     });
-    app.get('/api/hn/:qry', function(req, res) {
-      // var Story = mongoose.model('Story');
-      Story.find(function(err, stories) {
-        if (err) { return res.json(err); }
-        res.json({feed: 'hn (local)', data: stories});
-      });
-    });
-  }
+    // app.get('/api/hn/:qry', function(req, res) {
+    //   // var Story = mongoose.model('Story');
+    //   Story.find(function(err, stories) {
+    //     if (err) { return res.json(err); }
+    //     res.json({feed: 'hn (local)', data: stories});
+    //   });
+    // });
+  // }
 
 
 };

@@ -1,7 +1,7 @@
 'use strict';
-var HB = HB || {};
+var NB = NB || {};
 
-HB.Chart = (function() {
+NB.Chart = (function() {
   var Chart = {}
 //     , stories = []
     , chartWrapper
@@ -48,8 +48,8 @@ HB.Chart = (function() {
     //Now select the item just clicked
     el.classed('selected', true);
 
-    HB.Data.markAsRead(d.id);
-    HB.Layout.showStoryPanel();
+    NB.Data.markAsRead(d.id);
+    NB.Layout.showStoryPanel();
 
     //TODO remove jQuery
     $('#story-content').html('');
@@ -95,7 +95,7 @@ HB.Chart = (function() {
       titleText += '<h1>' + d.name + '</h1>';
     }
     titleText += '<p class="sub-title">' + Math.round(d.score) + ' points | ';
-    if (HB.source === 'hn') {
+    if (NB.source === 'hn') {
       titleText += '<a href="https://news.ycombinator.com/item?id=' + d.sourceId + '" target="_blank">' + d.commentCount + ' comments</a> | ';
     }
     titleText += 'posted by ' + d.author + '</p>';
@@ -158,7 +158,7 @@ HB.Chart = (function() {
 
     //NB data may be only a few new or changed stories
     var points = plotArea.selectAll('circle')
-      .data(HB.Data.stories, function(d) {
+      .data(NB.Data.stories, function(d) {
         return d.id;
       });
 
@@ -174,14 +174,14 @@ HB.Chart = (function() {
       .attr('cx', function() { return x(maxDate); })
       .attr('cy', function(d) { return y(0); })
       .classed('story-circle', true)
-      .classed('read', function(d) { return HB.Data.isRead(d.id); })
+      .classed('read', function(d) { return NB.Data.isRead(d.id); })
       .on('click', bubbleClicked)
       .on('mouseover', bubbleMouseover)
       .on('mouseout', bubbleMouseout);
 
     var duration = 0;
     if (animate) {
-      duration = HB.DUR;
+      duration = NB.DUR;
     }
 
     //Update
@@ -208,7 +208,7 @@ HB.Chart = (function() {
   function setDimensions(update) {
 //     console.log('setDimensions()');
     h = parseInt(d3.select('#chart-wrapper').style('height'), 10) - 4; //I don't know why
-    w = HB.splitPos;
+    w = NB.splitPos;
     
     if (w - margins.left - margins.right < 600) {
       xAxis.ticks(5);
@@ -265,15 +265,15 @@ HB.Chart = (function() {
   //Call this when data changes
   function setScales() {
 
-    minDate = Math.min(minDate, d3.min(HB.Data.stories, function(d) { return d.postDate; }));
-    maxDate = Math.max(maxDate, d3.max(HB.Data.stories, function(d) { return d.postDate; }));
-    maxScore = Math.max(maxScore, d3.max(HB.Data.stories, function(d) { return d.score; }));
+    minDate = Math.min(minDate, d3.min(NB.Data.stories, function(d) { return d.postDate; }));
+    maxDate = Math.max(maxDate, d3.max(NB.Data.stories, function(d) { return d.postDate; }));
+    maxScore = Math.max(maxScore, d3.max(NB.Data.stories, function(d) { return d.score; }));
 
-    minCommentCount = Math.min(minCommentCount, d3.min(HB.Data.stories, function(d) { return d.commentCount; }));
-    maxCommentCount = Math.max(maxCommentCount, d3.max(HB.Data.stories, function(d) { return d.commentCount; }));
+    minCommentCount = Math.min(minCommentCount, d3.min(NB.Data.stories, function(d) { return d.commentCount; }));
+    maxCommentCount = Math.max(maxCommentCount, d3.max(NB.Data.stories, function(d) { return d.commentCount; }));
 
     x.domain([minDate, maxDate]);
-    y.domain([HB.MIN_POINTS, maxScore]);
+    y.domain([NB.MIN_POINTS, maxScore]);
     z.domain([minCommentCount, maxCommentCount]);
 
     zoom.x(x);
@@ -407,7 +407,7 @@ HB.Chart = (function() {
 //   };
 
   Chart.resize = function(animate) {
-    if (!HB.Data.stories.length) { return; }
+    if (!NB.Data.stories.length) { return; }
     setDimensions();
     setScales();
     drawStories(animate);

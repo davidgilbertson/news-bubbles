@@ -1,7 +1,7 @@
 'use strict';
-var HB = HB || {};
+var NB = NB || {};
 
-HB.Events = (function() {
+NB.Events = (function() {
   var Events = {}
     , storyPanel
     , chartWrapper
@@ -20,7 +20,7 @@ HB.Events = (function() {
     storyPanelResizer = d3.select('#story-panel-resizer').classed('active', true);
 
     body = d3.select('body');
-    offsetX = d3.mouse(document.body)[0] - HB.splitPos;
+    offsetX = d3.mouse(document.body)[0] - NB.splitPos;
 
     body.on('mousemove', resizerMousemove);
     body.on('mouseup', resizerMouseup);
@@ -30,9 +30,9 @@ HB.Events = (function() {
 
   function resizerMousemove() {
     d3.event.preventDefault();
-    HB.splitPos = Math.max(100, d3.mouse(document.body)[0] - offsetX);
-    HB.Layout.moveSplitPos();
-    HB.Chart.resize();
+    NB.splitPos = Math.max(100, d3.mouse(document.body)[0] - offsetX);
+    NB.Layout.moveSplitPos();
+    NB.Chart.resize();
   }
   
   function resizerMouseup() {
@@ -41,8 +41,8 @@ HB.Events = (function() {
     storyPanelResizer.classed('active', false);
 
     //Snap the splitter to the right if it's less that xpx
-    if (document.body.offsetWidth - HB.splitPos < 100) {
-      HB.Layout.hideStoryPanel();
+    if (document.body.offsetWidth - NB.splitPos < 100) {
+      NB.Layout.hideStoryPanel();
     }
 
     body.on('mousemove', null);
@@ -59,19 +59,19 @@ HB.Events = (function() {
     console.log('#story-panel-toggle clicked');
     d3.event.preventDefault();
 //     body = d3.select('body');
-    HB.Layout.toggleStoryPanel();
+    NB.Layout.toggleStoryPanel();
     return false;
   });
 
   $('#more-btn').on('click', function() {
-    HB.Data.getNextPage(function(data) {
-      HB.Chart.addStories(data);
+    NB.Data.getNextPage(function(data) {
+      NB.Chart.addStories(data);
     });
   });
 
   window.onresize = function() {
-    HB.Layout.render();
-    HB.Chart.resize();
+    NB.Layout.render();
+    NB.Chart.resize();
   };
 
   return Events;

@@ -215,7 +215,7 @@ exports.startCrawler = function(globalIo) {
 
   //Get stories from 1 to 30 days over 100 points
   setTimeout(function() {
-    // setInterval(function() {
+    setInterval(function() {
       var now = new Date().getTime() / 1000;
       var url = buildUrl({minDate: now - oneDay * 30, maxDate: now - oneDay, minPoints: 100});
 
@@ -223,12 +223,12 @@ exports.startCrawler = function(globalIo) {
         devLog('Got stories from 1 to 30 days over 100 points. Count is: ' + data.hits.length);
         saveStories(data.hits, true);
       });
-    // }, every1Day);
-  }, 1000); //stagger
+    }, every1Day);
+  }, 50000); //stagger
 
   //Get stories from 30 to 90 days over 150 points
   setTimeout(function() {
-    // setInterval(function() {
+    setInterval(function() {
       var now = new Date().getTime() / 1000;
       var url = buildUrl({minDate: now - oneDay * 90, maxDate: now - oneDay * 30, minPoints: 150});
 
@@ -236,12 +236,12 @@ exports.startCrawler = function(globalIo) {
         devLog('Got stories from 30 to 90 days over 150 points. Count is: ' + data.hits.length);
         saveStories(data.hits, true);
       });
-    // }, every1Day);
-  }, 1000); //stagger
+    }, every1Day);
+  }, 50000); //stagger
 
   //Get stories from 90 to 200 days over 200 points
   setTimeout(function() {
-    // setInterval(function() {
+    setInterval(function() {
       var now = new Date().getTime() / 1000;
       var url = buildUrl({minDate: now - oneDay * 200, maxDate: now - oneDay * 90, minPoints: 150});
 
@@ -249,12 +249,12 @@ exports.startCrawler = function(globalIo) {
         devLog('Got stories from 90 to 200 days over 200 points. Count is: ' + data.hits.length);
         saveStories(data.hits, true);
       });
-    // }, every1Day);
-  }, 1000); //stagger
+    }, every1Day);
+  }, 50000); //stagger
 
   //Get stories from 200 to 365 days over 250 points
   setTimeout(function() {
-    // setInterval(function() {
+    setInterval(function() {
       var now = new Date().getTime() / 1000;
       var url = buildUrl({minDate: now - oneDay * 365, maxDate: now - oneDay * 200, minPoints: 250});
 
@@ -262,12 +262,12 @@ exports.startCrawler = function(globalIo) {
         devLog('Got stories from 200 to 365 days over 250 points. Count is: ' + data.hits.length);
         saveStories(data.hits, true);
       });
-    // }, every1Day);
-  }, 1000); //stagger
+    }, every1Day);
+  }, 50000); //stagger
 
   //Get stories from 365 to 600 days over 300 points
   setTimeout(function() {
-    // setInterval(function() {
+    setInterval(function() {
       var now = new Date().getTime() / 1000;
       var url = buildUrl({minDate: now - oneDay * 600, maxDate: now - oneDay * 365, minPoints: 300});
 
@@ -275,12 +275,12 @@ exports.startCrawler = function(globalIo) {
         devLog('Got stories from 365 to 600 days over 300 points. Count is: ' + data.hits.length);
         saveStories(data.hits, true);
       });
-    // }, every1Day);
-  }, 1000); //stagger
+    }, every1Day);
+  }, 50000); //stagger
 
   //Get stories over 600 days old and over 400 points
   setTimeout(function() {
-    // setInterval(function() {
+    setInterval(function() {
       var now = new Date().getTime() / 1000;
       var url = buildUrl({minDate: 0, maxDate: now - oneDay * 600, minPoints: 400});
 
@@ -288,7 +288,7 @@ exports.startCrawler = function(globalIo) {
         devLog('Got stories over 600 days old and over 400 points. Count is: ' + data.hits.length);
         saveStories(data.hits, true);
       });
-    // }, every1Day);
-  }, 1000); //stagger
+    }, every1Day);
+  }, 50000); //stagger
 
 };

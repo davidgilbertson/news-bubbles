@@ -1,7 +1,7 @@
 'use strict';
-var HB = HB || {};
+var NB = NB || {};
 
-HB.Data = (function() {
+NB.Data = (function() {
   var Data = {};
 
   var store = {}
@@ -23,7 +23,7 @@ HB.Data = (function() {
   function saveData(data) {
 //     console.log('saveData() - count:', data.length);
     localStorage.stories = JSON.stringify(data);
-    HB.Data.stories = data;
+    NB.Data.stories = data;
   }
 
   function sortBy(arr, key) {
@@ -116,8 +116,8 @@ HB.Data = (function() {
 //     }
     var qry = 'search_by_date?';
     qry += 'tags=(story,show_hn,ask_hn)';
-    qry += '&hitsPerPage=' + HB.HITS_PER_PAGE;
-    qry += '&numericFilters=points>=' + HB.MIN_POINTS;
+    qry += '&hitsPerPage=' + NB.HITS_PER_PAGE;
+    qry += '&numericFilters=points>=' + NB.MIN_POINTS;
 
     $.get('https://hn.algolia.com/api/v1/' + qry, function(data) {
       console.log('Updated data at', Date());
@@ -149,10 +149,10 @@ HB.Data = (function() {
     socket.on('data', function(msg) {
       console.log('Got data from:', msg.source);
       console.log(msg.data);
-      if (msg.data.length && msg.source === HB.source) { //e.g. if it's the reddit view and the data is reddit data
+      if (msg.data.length && msg.source === NB.source) { //e.g. if it's the reddit view and the data is reddit data
         var stories = parseStoryData(msg.data); //convert date strings to dates
         mergeStories(stories);
-        HB.Chart.drawStories();
+        NB.Chart.drawStories();
       }
     });
   }
@@ -192,10 +192,12 @@ HB.Data = (function() {
 //     getHNStories(cb, true); //true = append
   };
 
-  Data.getStoriesFromServer = function() {
+  Data.goBananas = function() {
+    console.log('Get comfortable...');
     $.get('/api/getall', function(data) {
       mergeStories(parseStoryData(data));
-      HB.Chart.drawStories();
+      console.log('Got', data.length, 'stories');
+      NB.Chart.drawStories();
     });
   }
 

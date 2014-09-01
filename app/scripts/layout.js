@@ -1,7 +1,7 @@
 'use strict';
-var HB = HB || {};
+var NB = NB || {};
 
-HB.Layout = (function() {
+NB.Layout = (function() {
   
   var Layout = {}
     , chartWrapper =  d3.select('#chart-wrapper')
@@ -10,8 +10,8 @@ HB.Layout = (function() {
   ;
 
   function setChartAndStoryPanelSize() {
-    chartWrapper.style('width', HB.splitPos + 'px');
-    storyPanel.style('left', HB.splitPos + 'px');
+    chartWrapper.style('width', NB.splitPos + 'px');
+    storyPanel.style('left', NB.splitPos + 'px');
   }
 
   function init() {
@@ -27,9 +27,9 @@ HB.Layout = (function() {
 
     d3.select('#story-panel-toggle').text('»');
 
-    HB.splitPos = document.body.offsetWidth * 0.618;
+    NB.splitPos = document.body.offsetWidth * 0.618;
     setChartAndStoryPanelSize();
-    HB.Chart.resize(true);
+    NB.Chart.resize(true);
   }
   function hideStoryPanel(force) {
     if (!force && !storyPanelVisible) { return; }
@@ -37,10 +37,10 @@ HB.Layout = (function() {
 
     d3.select('#story-panel-toggle').text('«');
     
-    HB.splitPos = document.body.offsetWidth - HB.RESIZER_WIDTH;
+    NB.splitPos = document.body.offsetWidth - NB.RESIZER_WIDTH;
     setChartAndStoryPanelSize();
-//     HB.Chart.resize(true);
-    HB.Chart.resize();
+//     NB.Chart.resize(true);
+    NB.Chart.resize();
   }
 
   Layout.render = function() {
@@ -48,10 +48,10 @@ HB.Layout = (function() {
     
     //If the orientation flips, don't loose the panel, just hide it:
     
-    if (document.body.offsetWidth - HB.splitPos < 100) {
+    if (document.body.offsetWidth - NB.splitPos < 100) {
       hideStoryPanel(true);
     }
-    if (!storyPanelVisible && (HB.splitPos + HB.RESIZER_WIDTH !== document.body.offsetWidth)) {
+    if (!storyPanelVisible && (NB.splitPos + NB.RESIZER_WIDTH !== document.body.offsetWidth)) {
       hideStoryPanel(true);
     }
   };
