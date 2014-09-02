@@ -50,79 +50,10 @@ NB.Chart = (function() {
 
     NB.Data.markAsRead(d.id);
     NB.Layout.showStoryPanel();
-
-    //TODO remove jQuery
-    $('#story-content').html('');
     tooltip.style('visibility', 'hidden');
 
-    var titleText = '';
-    if (d.url) {
-      titleText += '<h1><a class="title" href="' + d.url + '" target="_blank">' + d.name + '</a></h1>';
-      
-      if (d.data && d.data.is_self) { //TODO, I think this means the url points to reddit comments page
-//         console.log('d.url matches reddit.com. The d is:', d);
-        $('#story-title').html(titleText);
-        var html = [
-          d.data.selftext + '<hr>',
-          '<p>Built-in reddit comments coming soon. For now, head over to ',
-            '<a href="' + d.url + '" target="_blank">reddit to read more</a>.',
-          '</p>'
-          ].join('');
-          $('#story-content').html(html);
-        return;
-      }
-      if (d.url.match(/\.(gif|png|jpg)\?*.*$/)) { //any old image link imgur or not
-        $('#story-title').html(titleText);
-        $('#story-content').html('<a href="' + d.url + '" target="_blank"><img src="' + d.url + '"></a>');
-        return;
-      }
-      if (d.data && d.data.domain === 'imgur.com') {
-        var imgUrl = d.url.replace('imgur.com', 'i.imgur.com') + '.jpg';
-        $('#story-title').html(titleText);
+    NB.StoryPanel.render(d);
 
-        var html = [
-          '<p>Embedded imgur magic coming soon.',
-            '<a href="' + d.url + '" target="_blank"><img src="' + imgUrl + '"></a>',
-            '<br>',
-            '<a href="' + d.url + '" target="_blank">Go to imgur.</a>.',
-          '</p>'
-          ].join('');
-        $('#story-content').html(html);
-        return;
-      }
-
-    } else {
-      titleText += '<h1>' + d.name + '</h1>';
-    }
-    titleText += '<p class="sub-title">' + Math.round(d.score) + ' points | ';
-    if (NB.source === 'hn') {
-      titleText += '<a href="https://news.ycombinator.com/item?id=' + d.sourceId + '" target="_blank">' + d.commentCount + ' comments</a> | ';
-    }
-    titleText += 'posted by ' + d.author + '</p>';
-
-    if (d.url) {
-      var urlBase = '/readability/';
-      var pageUrl = d.url;
-
-      var fullUrl = urlBase + encodeURIComponent(pageUrl);
-
-      //TODO remove jQuery
-      $.get(fullUrl, function(data) {
-        if (data.error) {
-          var msg = [
-            '<h2>Oh no.</h2>',
-            '<p>This article could not be fetched. You can visit the full page ',
-              '<a href="' + d.url + '" target="_blank">here</a>.',
-            '</p>'
-            ].join('');
-          $('#story-content').html(msg);
-        }
-        $('#story-content').html(data.content);
-      });
-    } else {
-      $('#story-content').html(d.story_text);
-    }
-    $('#story-title').html(titleText);
   }
   
   function bubbleMouseover(d) {

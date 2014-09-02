@@ -6,13 +6,13 @@
 var path = require('path')
   , express = require('express')
   , app = express()
-  , port = process.env.PORT || 9000
 ;
 
 app.use(express.static('dist'));
 
 //TODO add compression or does Heroku have that?
 
-require(path.join(__dirname, 'server', 'server.js'))(app);
+var server = require(path.join(__dirname, 'server', 'server.js'));
 
-// app.listen(port);
+server.start(app);
+

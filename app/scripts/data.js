@@ -62,7 +62,7 @@ NB.Data = (function() {
 
   function parseRedditData(data) {
     data.forEach(function(d) {
-      var jsDate = new Date(d.data.created);
+      var jsDate = new Date(d.data.created * 1000);
       d.postDate = jsDate;
       var commentCount = d.data.num_comments; //TODO one row?
       d.commentCount = commentCount;
@@ -92,7 +92,6 @@ NB.Data = (function() {
         return existingStory.id === d.id;
       })[0];
       if (existing) {
-//         console.log('Updated', existing);
         existing.commentCount = d.commentCount;
         existing.score = d.score;
       } else {
@@ -135,7 +134,7 @@ NB.Data = (function() {
   function getRedditData(cb) {
     var url = 'http://www.reddit.com/hot.json?limit=100';
     $.get(url, function(data) {
-      console.log('got data from reddit:', data);
+//       console.log('got data from reddit:', data);
       data = data.data.children;
       Data.stories = parseRedditData(data);
       cb();
@@ -147,7 +146,7 @@ NB.Data = (function() {
     socket = io(); //TODO only get the server to send data for reddit or hn?
 
     socket.on('data', function(msg) {
-      console.log('Got data from:', msg.source);
+//       console.log('Got data from:', msg.source);
       console.log(msg.data);
       if (msg.data.length && msg.source === NB.source) { //e.g. if it's the reddit view and the data is reddit data
         var stories = parseStoryData(msg.data); //convert date strings to dates
@@ -194,7 +193,7 @@ NB.Data = (function() {
 
   Data.goBananas = function() {
     console.log('Get comfortable...');
-    $.get('/api/getall', function(data) {
+    $.get('/api/hn/getall', function(data) {
       mergeStories(parseStoryData(data));
       console.log('Got', data.length, 'stories');
       NB.Chart.drawStories();

@@ -15,6 +15,8 @@ var storySchema = mongoose.Schema({
   score:            {type: Number, index: true},
   author:           String,
   thumbnail:        String,
+  reddit:           {}, //reddit specific stuff
+  hn:               {}, //hacker news specific stuff
   tags:             [],
   history:          [
                       {

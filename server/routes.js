@@ -1,7 +1,6 @@
 'use strict';
 var path = require('path')
-  , crawlers = require(path.join(__dirname, 'crawlers'))
-  , readabilityApi = crawlers.readability
+  , readabilityApi = require(path.join(__dirname, 'readability'))
   // , mongoose = require('mongoose')
   , models = require(path.join(__dirname, 'models'))
   , Story = models.Story
@@ -17,8 +16,18 @@ module.exports = function(app) {
   });
 
   // if (process.env.DEV) {
-    app.get('/api/getall', function(req, res) {
-      Story.find(function(err, stories) {
+    app.get('/api/hn/getall', function(req, res) {
+      Story.find({source: 'hn'}, function(err, stories) {
+        if (err) {
+          return res.json(err);
+        }
+        res.json(stories);
+      }).lean();
+      //lean: http://mongoosejs.com/docs/api.html#query_Query-lean
+
+    });
+    app.get('/api/rd/getall', function(req, res) {
+      Story.find({source: 'rd'}, function(err, stories) {
         if (err) {
           return res.json(err);
         }

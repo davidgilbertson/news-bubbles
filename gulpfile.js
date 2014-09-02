@@ -95,9 +95,9 @@ gulp.task('express', ['mongod'], function () {
   app.use(express.static('.tmp'));
   process.env.DEV = true;
 
-  require(path.join(__dirname, 'server', 'server.js'))(app);
+  var server = require(path.join(__dirname, 'server', 'server.js'));
+  server.start(app);
 
-  // app.listen(9000);
 });
 
 
