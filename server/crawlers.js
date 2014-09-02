@@ -85,21 +85,25 @@ function buildRedditUrl(props) {
 
 exports.startRedditCrawler = function(globalIo) {
   io = globalIo;
-  console.log('Starting reddit crawler');
+  devLog('Starting reddit crawler');
   var count = 0;
   var url = '';
 
   function go(after) {
-    url = buildRedditUrl({after: after});
+    devLog('Doing go() with the after value:', after, 'and count is currently', count);
+    url = buildRedditUrl({after: after, list: 'hot'});
     goGetReddit(url, function(response) {
-      console.log('Got', response.data.children.length, 'stories');
+      devLog('Got', response.data.children.length, 'stories');
       saveRedditStories(response.data.children);
 
-      if (count < 3) {
-        count++;
+      count++;
+      if (count < 5) {
         setTimeout(function() {
           go(response.data.after);
-        }, 2000);
+        }, 60000);
+      } else {
+        count = 0;
+        go();
       }
 
     }, 'davidgilbertson');

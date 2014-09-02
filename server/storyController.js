@@ -32,9 +32,6 @@ exports.upsertRedditStory = function(obj, cb) {
 
   obj = obj.data;
 
-
-  //TODO add a new method of Story called 'upsertAndMerge'
-  //TODO maybe a different method for HN and reddit, maybe shared?
   Story.findOne({id: id}, function(err, doc) {
     if (doc) {
       var historyArray = doc.history || [];

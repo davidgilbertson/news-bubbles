@@ -57,7 +57,8 @@ NB.Chart = (function() {
   }
   
   function bubbleMouseover(d) {
-    tooltip.text(d.name);
+    var extra = d.reddit ? ' - ' + d.reddit.domain : '';
+    tooltip.text(d.name + extra);
     var tipWidth = parseInt(tooltip.style('width'));
     var tipHeight = parseInt(tooltip.style('height'));
     var thisDims = this.getBoundingClientRect();

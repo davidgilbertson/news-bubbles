@@ -132,9 +132,13 @@ NB.Data = (function() {
 
 
   function getRedditData(cb) {
+//     $.get('/api/rd/getall', function(data) {
+//       mergeStories(parseStoryData(data));
+//       console.log('Got', data.length, 'stories');
+//       NB.Chart.drawStories();
+//     });
     var url = 'http://www.reddit.com/hot.json?limit=100';
     $.get(url, function(data) {
-//       console.log('got data from reddit:', data);
       data = data.data.children;
       Data.stories = parseRedditData(data);
       cb();
@@ -194,6 +198,13 @@ NB.Data = (function() {
   Data.goBananas = function() {
     console.log('Get comfortable...');
     $.get('/api/hn/getall', function(data) {
+      mergeStories(parseStoryData(data));
+      console.log('Got', data.length, 'stories');
+      NB.Chart.drawStories();
+    });
+  }
+  Data.getAllReddit = function() {
+    $.get('/api/rd/getall', function(data) {
       mergeStories(parseStoryData(data));
       console.log('Got', data.length, 'stories');
       NB.Chart.drawStories();
