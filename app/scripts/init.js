@@ -6,6 +6,7 @@ var NB = NB || {};
 NB.DUR = 200; //should match _variables.scss duration variable
 NB.RESIZER_WIDTH = 24;
 NB.splitPos = 0;
+NB.AddedOnOtherBranch = 1;
 
 NB.MIN_POINTS = 1;
 NB.HITS_PER_PAGE = 200;
