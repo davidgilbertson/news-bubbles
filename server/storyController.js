@@ -90,6 +90,13 @@ exports.upsertRedditStory = function(obj, cb) {
   });
 };
 
+exports.getStories = function(source, limit, cb) {
+  Story.find({source: source}, {history: false}).sort('-postDate').limit(limit).exec(function(err, docs) {
+    console.log('Got some stuff:', docs.length);
+    cb(docs);
+  });
+};
+
 
 exports.upsertHNStory = function(obj, cb) {
   var id = 'hn-' + obj.objectID;

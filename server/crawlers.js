@@ -35,7 +35,11 @@ var path = require('path')
 
 function devLog(msg) {
   if (process.env.DEV) {
-    console.log(msg);
+    var result = '';
+    for (var i = 0; i < arguments.length; i++) {
+      result += ' ' +  arguments[i];
+    }
+    console.log(result);
   }
 }
 
@@ -106,7 +110,7 @@ exports.startRedditCrawler = function(globalIo) {
         go();
       }
 
-    }, 'davidgilbertson');
+    });
   }
 
   go();
