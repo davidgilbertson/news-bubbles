@@ -34,51 +34,41 @@ NB.Data = (function() {
   }
 
   //parse HN data that came straight from the HN API
-  function parseHNRawStoryData(data) {
-    data.forEach(function(d) {
-      var jsDate = new Date(d.created_at);
-      d.postDate = jsDate;
-      var commentCount = d.num_comments; //TODO one row?
-      d.commentCount = commentCount;
-      d.name = d.title;
-      d.score = d.points;
-      d.id = 'hn-' + d.objectID;
-      d.sourceId = d.objectID;
-      d.source = 'hn';
-    });
-    sortBy(data, 'commentCount');
-    return data;
-  }
+//   function parseHNRawStoryData(data) {
+//     data.forEach(function(d) {
+//       var jsDate = new Date(d.created_at);
+//       d.postDate = jsDate;
+//       var commentCount = d.num_comments; //TODO one row?
+//       d.commentCount = commentCount;
+//       d.name = d.title;
+//       d.score = d.points;
+//       d.id = 'hn-' + d.objectID;
+//       d.sourceId = d.objectID;
+//       d.source = 'hn';
+//     });
+//     sortBy(data, 'commentCount');
+//     return data;
+//   }
 
-  //parse story data
-  function parseStoryData(data) {
-    data.forEach(function(d) {
-      var jsDate = new Date(d.postDate);
-      d.postDate = jsDate;
-    });
-    sortBy(data, 'commentCount');
-    return data;
-  }
-
-  function parseRedditData(data) {
-    data.forEach(function(d) {
-      var jsDate = new Date(d.data.created * 1000);
-      d.postDate = jsDate;
-      var commentCount = d.data.num_comments; //TODO one row?
-      d.commentCount = commentCount;
-      d.score = d.data.score;
-      d.id = 'rd-' + d.data.name;
-      d.sourceId = d.data.name;
-      d.source = 'rd';
-      d.name = d.data.title;
-      d.url = d.data.url;
-      d.author = d.data.author;
-      d.thumb = d.data.thumbnail;
-    });
-    sortBy(data, 'commentCount');
-    console.log('parsed reddit data:', data);
-    return data;
-  }
+//   function parseRedditData(data) {
+//     data.forEach(function(d) {
+//       var jsDate = new Date(d.data.created * 1000);
+//       d.postDate = jsDate;
+//       var commentCount = d.data.num_comments; //TODO one row?
+//       d.commentCount = commentCount;
+//       d.score = d.data.score;
+//       d.id = 'rd-' + d.data.name;
+//       d.sourceId = d.data.name;
+//       d.source = 'rd';
+//       d.name = d.data.title;
+//       d.url = d.data.url;
+//       d.author = d.data.author;
+//       d.thumb = d.data.thumbnail;
+//     });
+//     sortBy(data, 'commentCount');
+//     console.log('parsed reddit data:', data);
+//     return data;
+//   }
 
   function mergeStories(delta) {
     delta.forEach(function(d) {
@@ -89,17 +79,42 @@ NB.Data = (function() {
         existing.commentCount = d.commentCount;
         existing.score = d.score;
       } else {
-        Data.stories.push(d);
+        if (d.postDate > NB.oldestStory) { //I don't want to add stories that are older than what's on the chart
+          Data.stories.push(d);
+        }
+        
       }
     });
+  }
+
+  //parse story data
+  function parseStoryData(data, captureOldest) {
+    data.forEach(function(d) {
+//       var jsDate = new Date(d.postDate);
+      d.postDate = new Date(d.postDate);
+    });
+    sortBy(data, 'commentCount');
+    return data;
+  }
+
+  function parseData(data, captureOldest) {
+    data.forEach(function(s) {
+      s.postDate = new Date(s.postDate);
+      if (captureOldest) {
+        NB.oldestStory = Math.min(NB.oldestStory, s.postDate);
+      }
+    });
+    sortBy(data, 'commentCount');
+    return data;
   }
 
 
   function getHnData(limit) {
     limit = limit || NB.HITS_PER_PAGE;
     $.get('/api/hn/' + limit, function(data) {
-      mergeStories(parseStoryData(data));
+      Data.stories = parseData(data, true);
       NB.Chart.drawStories();
+//       console.log('oldest of this lot is:', new Date(NB.oldestStory).toString())
     });
   }
 
@@ -107,8 +122,9 @@ NB.Data = (function() {
   function getRedditData(limit) {
     limit = limit || NB.HITS_PER_PAGE;
     $.get('/api/rd/' + limit, function(data) {
-      mergeStories(parseStoryData(data));
+      Data.stories = parseData(data, true);
       NB.Chart.drawStories();
+//       console.log('oldest of this lot is:', new Date(NB.oldestStory).toString())
     });
   }
 
@@ -117,11 +133,9 @@ NB.Data = (function() {
     socket = io(); //TODO only get the server to send data for reddit or hn?
 
     socket.on('data', function(msg) {
-//       console.log('Got data from:', msg.source);
-      console.log(msg.data);
+//       console.log(msg.data);
       if (msg.data.length && msg.source === NB.source) { //e.g. if it's the reddit view and the data is reddit data
-        var stories = parseStoryData(msg.data); //convert date strings to dates
-        mergeStories(stories);
+        mergeStories(parseStoryData(msg.data));
         NB.Chart.drawStories();
       }
     });

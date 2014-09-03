@@ -5,25 +5,35 @@ var path = require('path')
 ;
 
 
-  function parseRedditData(data) {
-    data.forEach(function(d) {
-      var jsDate = new Date(obj.created);
-      d.postDate = jsDate;
-      var commentCount = obj.num_comments; //TODO one row?
-      d.commentCount = commentCount;
-      d.score = obj.score;
-      d.id = 'rd-' + obj.name;
-      d.sourceId = obj.name;
-      d.source = 'rd';
-      d.name = obj.title;
-      d.url = obj.url;
-      d.author = obj.author;
-      d.thumb = obj.thumbnail;
+exports.getRecentStoriesByCount = function(source, limit, cb) {
+  Story
+    .find({source: source, score: {$gte: 2}}, {history: false})
+    .sort('-postDate')
+    .limit(limit)
+    .exec(function(err, docs) {
+      cb(docs);
     });
-    sortBy(data, 'commentCount');
-    console.log('parsed reddit data:', data);
-    return data;
-  }
+};
+
+function parseRedditData(data) {
+  data.forEach(function(d) {
+    var jsDate = new Date(obj.created);
+    d.postDate = jsDate;
+    var commentCount = obj.num_comments; //TODO one row?
+    d.commentCount = commentCount;
+    d.score = obj.score;
+    d.id = 'rd-' + obj.name;
+    d.sourceId = obj.name;
+    d.source = 'rd';
+    d.name = obj.title;
+    d.url = obj.url;
+    d.author = obj.author;
+    d.thumb = obj.thumbnail;
+  });
+  sortBy(data, 'commentCount');
+  console.log('parsed reddit data:', data);
+  return data;
+}
 
 exports.upsertRedditStory = function(obj, cb) {
   var newOrChangedStory = false;
@@ -89,14 +99,6 @@ exports.upsertRedditStory = function(obj, cb) {
     }
   });
 };
-
-exports.getStories = function(source, limit, cb) {
-  Story.find({source: source}, {history: false}).sort('-postDate').limit(limit).exec(function(err, docs) {
-    console.log('Got some stuff:', docs.length);
-    cb(docs);
-  });
-};
-
 
 exports.upsertHNStory = function(obj, cb) {
   var id = 'hn-' + obj.objectID;

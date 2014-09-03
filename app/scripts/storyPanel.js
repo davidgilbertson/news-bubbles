@@ -138,7 +138,7 @@ NB.StoryPanel = (function() {
   /*  --  PUBLIC  --  */
 
   StoryPanel.render = function(story) {
-    console.log('Will draw story panel for', story);
+//     console.log('Will draw story panel for', story);
 
     var storyPanel = $('#story-panel-content').empty();
 

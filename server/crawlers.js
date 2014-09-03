@@ -94,8 +94,10 @@ exports.startRedditCrawler = function(globalIo) {
   var url = '';
 
   function go(after) {
-    devLog('Doing go() with the after value:', after, 'and count is currently', count);
+    // devLog('Doing go() with the after value:', after, 'and count is currently', count);
     url = buildRedditUrl({after: after, list: 'hot'});
+    devLog('Getting data with the URL:', url);
+
     goGetReddit(url, function(response) {
       devLog('Got', response.data.children.length, 'stories');
       saveRedditStories(response.data.children);
@@ -162,11 +164,24 @@ function buildHNUrl(props) {
   url += 'search_by_date?';
   url += 'tags=(story,show_hn,ask_hn)';
   url += '&hitsPerPage=' + (props.hitsPerPage || HITS_PER_PAGE_LIMIT);
+  url += props.page ? '&page=' + props.page : '';
   url += '&numericFilters=created_at_i>' + props.minDate + ',created_at_i<' + props.maxDate;
   url += ',points>' + (props.minPoints || MIN_POINTS);
 
   return url;
 }
+
+
+//Force get the last 1000 stories over 1 point. Handy if the server goes down or something.
+exports.forceHnFetch = function() {
+  var now = new Date().getTime() / 1000;
+  var url = buildHNUrl({minDate: 0, maxDate: now, minPoints: 1});
+
+  goGetHn(url, function(data) {
+    devLog('Got stories from last 30 mins. Count is: ' + data.hits.length);
+    saveHNStories(data.hits);
+  });
+};
 
 
 exports.startHNCrawler = function(globalIo) {
