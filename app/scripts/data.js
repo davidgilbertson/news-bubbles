@@ -81,12 +81,6 @@ NB.Data = (function() {
   }
 
   function mergeStories(delta) {
-//     console.log('mergeStories() - newest is:', data[0].title);
-//     if (!stories.length) { return delta; } //TODO bad logic, should only be called by IO.
-
-//     var existingData = stories;
-//     var delta = stories;
-
     delta.forEach(function(d) {
       var existing = Data.stories.filter(function(existingStory) {
         return existingStory.id === d.id;
@@ -95,53 +89,26 @@ NB.Data = (function() {
         existing.commentCount = d.commentCount;
         existing.score = d.score;
       } else {
-//         console.log('Added new:', d);
         Data.stories.push(d);
       }
     });
-//     return newData;
   }
 
 
-  function getHNStories(cb) {
-    //For testing, stop hammering the API
-//     if (document.location.hostname === 'localhost' && localStorage.stories) { //for dev
-//       var data = JSON.parse(localStorage.stories);
-//       data = parseHNRawStoryData(data);
-//       console.log('Getting from LS:', data);
-//       Data.stories = data;
-//       cb(data);
-//       return;
-//     }
-    var qry = 'search_by_date?';
-    qry += 'tags=(story,show_hn,ask_hn)';
-    qry += '&hitsPerPage=' + NB.HITS_PER_PAGE;
-    qry += '&numericFilters=points>=' + NB.MIN_POINTS;
-
-    $.get('https://hn.algolia.com/api/v1/' + qry, function(data) {
-      console.log('Updated data at', Date());
-
-      data = data.hits;
-
-//       data = mergeStories(data);
-      Data.stories = parseHNRawStoryData(data);
-//       saveData(data);
-      cb();
+  function getHnData(limit) {
+    limit = limit || NB.HITS_PER_PAGE;
+    $.get('/api/hn/' + limit, function(data) {
+      mergeStories(parseStoryData(data));
+      NB.Chart.drawStories();
     });
   }
 
 
-  function getRedditData(cb) {
-//     $.get('/api/rd/getall', function(data) {
-//       mergeStories(parseStoryData(data));
-//       console.log('Got', data.length, 'stories');
-//       NB.Chart.drawStories();
-//     });
-    var url = 'http://www.reddit.com/hot.json?limit=100';
-    $.get(url, function(data) {
-      data = data.data.children;
-      Data.stories = parseRedditData(data);
-      cb();
+  function getRedditData(limit) {
+    limit = limit || NB.HITS_PER_PAGE;
+    $.get('/api/rd/' + limit, function(data) {
+      mergeStories(parseStoryData(data));
+      NB.Chart.drawStories();
     });
   }
 
@@ -172,7 +139,6 @@ NB.Data = (function() {
   Data.markAsRead = function(id) {
     readList.push(id);
     localStorage.readList = JSON.stringify(readList);
-//     console.log('Wrote', id, 'to localStorage');
   };
 
   Data.isRead = function(id) {
@@ -185,26 +151,18 @@ NB.Data = (function() {
     return false;
   };
 
-  Data.getRedditData = function(cb) {
-    getRedditData(cb, false);
-  };
-
-  //Get stories in chunks, returning to the callback several times.
-  Data.getHNStories = function(cb) {
-    getHNStories(cb, false); //false = don't append
-//     getHNStories(cb, true); //true = append
-  };
+  Data.getData = function(source, limit) {
+    if (source === 'rd') {
+      getRedditData(limit);
+    }
+    if (source === 'hn') {
+      getHnData(limit);
+    }
+  }
 
   Data.goBananas = function() {
     console.log('Get comfortable...');
     $.get('/api/hn/getall', function(data) {
-      mergeStories(parseStoryData(data));
-      console.log('Got', data.length, 'stories');
-      NB.Chart.drawStories();
-    });
-  }
-  Data.getAllReddit = function() {
-    $.get('/api/rd/getall', function(data) {
       mergeStories(parseStoryData(data));
       console.log('Got', data.length, 'stories');
       NB.Chart.drawStories();

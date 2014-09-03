@@ -17,15 +17,7 @@ NB.main = (function() {
 
   //On page load, use the APIs directly from the client to get a fresh batch of results
   //The server will be emitting new/changed stories as they become available.
-  if (NB.source === 'rd') {
-    NB.Data.getRedditData(function(data) {
-      NB.Chart.drawStories(data);
-    });
-  } else {
-    NB.Data.getHNStories(function() {
-      NB.Chart.drawStories();
-    });
-  }
+  NB.Data.getData(NB.source, 200);
 
   if (!('ontouchstart' in window) && !(window.DocumentTouch && document instanceof DocumentTouch)) {
     d3.select('body').classed('no-touch', true);
