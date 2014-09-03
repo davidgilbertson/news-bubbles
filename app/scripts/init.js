@@ -16,3 +16,4 @@ NB.hasTouch = true;
 
 //Globals
 // NB.source = 'reddit';
+NB.someExtraThing = 9;
