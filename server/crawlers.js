@@ -119,6 +119,32 @@ exports.startRedditCrawler = function(globalIo) {
 
 };
 
+exports.forceRdFetch = function(limit) {
+  var loops = limit / 100
+    , count = 0
+    , url = '';
+
+  function go(after) {
+    url = buildRedditUrl({after: after, list: 'hot'});
+    devLog('Getting data with the URL:', url);
+
+    goGetReddit(url, function(response) {
+      devLog('Got', response.data.children.length, 'stories');
+      saveRedditStories(response.data.children);
+
+      if (count < loops) {
+        count++;
+        setTimeout(function() {
+          go(response.data.after);
+        }, 2000);
+      }
+
+    });
+  }
+
+  go();
+
+};
 
 
 
@@ -342,62 +368,3 @@ exports.startHNCrawler = function(globalIo) {
 
 
 
-
-//Takes a story and saves it if new, or
-//gets the existing story, comment count and score into the 'history' array
-//and updates the current comment count and score and saves the doc
-// function upsertStory(obj, cb) {
-//   var id = 'hn-' + obj.objectID;
-//   var newOrChangedStory = false;
-
-//   //TODO add a new method of Story called 'upsertAndMerge'
-//   //TODO maybe a different method for HN and reddit, maybe shared?
-//   Story.findOne({id: id}, function(err, doc) {
-//     if (doc) {
-//       var historyArray = doc.history || [];
-//       var historyItem = {
-//         dateTime: new Date(),
-//         commentCount: doc.commentCount,
-//         score: doc.score
-//       };
-//       historyArray.push(historyItem);
-
-//       if (doc.commentCount !== obj.num_comments || doc.score !== obj.points) {
-//         newOrChangedStory = true;
-//       }
-//       doc.commentCount = obj.num_comments;
-//       doc.score = obj.points;
-//       doc.history = historyArray;
-//       doc.save();
-//       if (newOrChangedStory) {
-//         // console.log('Updated story:', doc.id, ',', doc.name);
-//         cb(doc);
-//       } else {
-//         // console.log('Existing story, no change', doc.id, ',', doc.name);
-//         cb(null);
-//       }
-
-//       // console.log('Updated the existing story:', doc.name);
-
-//     } else {
-//       var story = new Story({
-//         id: id,
-//         source: 'hn',
-//         sourceId: obj.objectID,
-//         name: obj.title,
-//         desc: null,
-//         postDate: obj.created_at,
-//         postDateSeconds: obj.created_at_i,
-//         url: obj.url,
-//         commentCount: obj.num_comments,
-//         score: obj.points,
-//         author: obj.author,
-//         thumbnail: null,
-//         tags: obj.tags
-//       });
-//       story.save();
-//       // console.log('New story:', story.id, ',', story.name);
-//       cb(story);
-//     }
-//   });
-// }

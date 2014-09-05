@@ -28,6 +28,12 @@ module.exports = function(app) {
     res.send('OK, did it');
   });
 
+  app.get('/crawler/forceRdFetch/:limit', function(req, res) {
+    var crawlers = require(path.join(__dirname, 'crawlers'));
+    crawlers.forceRdFetch(req.params.limit);
+    res.send('OK, did it');
+  });
+
   // app.get('/api/hn/getall', function(req, res) {
   //   Story.find({source: 'hn'}, function(err, stories) {
   //     if (err) {

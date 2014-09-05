@@ -2,7 +2,8 @@
 var NB = NB || {};
 
 NB.StoryPanel = (function() {
-  var StoryPanel = {};
+  var StoryPanel = {}
+    , dateFormatter = d3.time.format('%-I:%M%p on %A, %-e %B %Y');
 
 
   function getReadability(story, cb) {
@@ -90,20 +91,25 @@ NB.StoryPanel = (function() {
   function renderHackerNews(story, storyPanel) {
     var panelTitle = $('<div class="story-title"></div>');
     var panelContent = $('<div class="story-content"></div>');
-    var titleText = '';
+    var titleText = '<p class="sub-title">';
+    var domainName;
 
 
 
     if (story.url) {
       panelTitle.append('<h1><a class="title" href="' + story.url + '" target="_blank">' + story.name + '</a></h1>');
+      var urlTest = story.url.match(/:\/\/([^\/]*)/);
+      titleText += urlTest[1] ? urlTest[1] + '<br>' : ''; 
     } else {
       panelTitle.append('<h1>' + story.name + '</h1>');
     }
 
-    titleText += '<p class="sub-title">' + Math.round(story.score) + ' points | ';
+    titleText += Math.round(story.score) + ' points | ';
 
-    titleText += '<a href="https://news.ycombinator.com/item?id=' + story.sourceId + '" target="_blank">' + story.commentCount + ' comments</a> | ';
-    titleText += 'posted by ' + story.author + '</p>';
+    titleText += '<a href="https://news.ycombinator.com/item?id=' + story.sourceId + '" target="_blank">';
+    titleText += story.commentCount + ' comments</a> | ';
+    titleText += 'posted by <a href="https://news.ycombinator.com/user?id=' + story.author + '" target="_blank">' + story.author + '</a><br>';
+    titleText += dateFormatter(story.postDate) + '</p>';
 
     panelTitle.append(titleText);
 
