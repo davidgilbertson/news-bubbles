@@ -7,12 +7,12 @@ NB.Data = (function() {
   var store = {}
     // , stories = []
 //     , nextPage = 0
-    , hitsPerPage = 20
-    , pageLimit = 1
+//     , hitsPerPage = 20
+//     , pageLimit = 1
     , readList = []
-    , timer
-    , storyStore
-    , stories = []
+//     , timer
+//     , storyStore
+//     , stories = []
     , socket
   ;
 
@@ -20,11 +20,11 @@ NB.Data = (function() {
     readList = JSON.parse(localStorage.readList);
   }
 
-  function saveData(data) {
-//     console.log('saveData() - count:', data.length);
-    localStorage.stories = JSON.stringify(data);
-    NB.Data.stories = data;
-  }
+//   function saveData(data) {
+// //     console.log('saveData() - count:', data.length);
+//     localStorage.stories = JSON.stringify(data);
+//     NB.Data.stories = data;
+//   }
 
   function sortBy(arr, key) {
     key = key || 'commentCount';
@@ -88,7 +88,7 @@ NB.Data = (function() {
   }
 
   //parse story data
-  function parseStoryData(data, captureOldest) {
+  function parseStoryData(data) {
     data.forEach(function(d) {
 //       var jsDate = new Date(d.postDate);
       d.postDate = new Date(d.postDate);
@@ -153,6 +153,7 @@ NB.Data = (function() {
   Data.tooltipStory = {
     name: ko.observable('some name'),
     url: ko.observable('some url'),
+    storyUrl: ko.observable(),
     domain: ko.observable('some domain'),
     author: ko.observable('hot ferret'),
     commentCount: ko.observable('some commentCount'),
@@ -162,28 +163,30 @@ NB.Data = (function() {
   };
 
   Data.panelStory = {
-    name: ko.observable('some name'),
-    url: ko.observable('some url'),
-    domain: ko.observable('some domain'),
-    author: ko.observable('hot ferret'),
-    commentCount: ko.observable('some commentCount'),
-    score: ko.observable('some score'),
-    timeString: ko.observable('some timeString'),
-    dateString: ko.observable('hot dateString'),
-    content: ko.observable('<div>I am a <strong>STRONG</strong> independent white male!</div>')
+    name: ko.observable('News Bubbles'),
+    url: ko.observable(),
+    storyUrl: ko.observable(),
+    domain: ko.observable(),
+    author: ko.observable(),
+    commentCount: ko.observable(),
+    score: ko.observable(),
+    timeString: ko.observable(),
+    dateString: ko.observable(),
+    content: ko.observable('Select a bubble on the left do display its content here.')
   };
 
   Data.setCurrentStory = function(tooltipOrPanel, story) {
     var storyObj = Data[tooltipOrPanel + 'Story'];
     var dateFormatter = d3.time.format('%a, %-e %b %Y');
     var timeFormatter = d3.time.format('%-I:%M%p');
-    var domain;
+    var domain, storyUrl;
     var name = story.name;
 
-    if (story.source === 'reddit') {
+    if (story.source === 'rd') {
       domain = story.reddit.domain;
     }
     if (story.source === 'hn') {
+      storyUrl = 'https://news.ycombinator.com/item?id=' + story.sourceId;
       if (story.name.toLowerCase().indexOf('show hn') > -1) {
         domain = 'Show HN';
         name = name.replace('Show HN: ', '');
@@ -197,20 +200,25 @@ NB.Data = (function() {
       }
     }
 
+    if (tooltipOrPanel === 'tooltip' && name.length > 50) {
+      name = name.substr(0, 47).trim() + '...';
+    }
+
     storyObj
-      .name(story.name.substr(0, 50) + (story.name.length > 50 ? '...' : ''))
+      .name(name)
       .url(story.url)
+      .storyUrl(storyUrl)
       .domain(domain)
       .author(story.author)
       .commentCount(story.commentCount)
-      .score(story.score)
+      .score(Math.round(story.score))
       .timeString(timeFormatter(story.postDate))
       .dateString(dateFormatter(story.postDate));
 
     if (tooltipOrPanel === 'panel') {
-      storyObj.content(story.content);
+        storyObj.content(story.content);
     }
-  }
+  };
 
 
 
@@ -258,16 +266,16 @@ NB.Data = (function() {
     if (source === 'hn') {
       getHnData(limit);
     }
-  }
+  };
 
-  Data.goBananas = function() {
-    console.log('Get comfortable...');
-    $.get('/api/hn/getall', function(data) {
-      mergeStories(parseStoryData(data));
-      console.log('Got', data.length, 'stories');
-      NB.Chart.drawStories();
-    });
-  }
+//   Data.goBananas = function() {
+//     console.log('Get comfortable...');
+//     $.get('/api/hn/getall', function(data) {
+//       mergeStories(parseStoryData(data));
+//       console.log('Got', data.length, 'stories');
+//       NB.Chart.drawStories();
+//     });
+//   };
 
   init();
   return Data;
