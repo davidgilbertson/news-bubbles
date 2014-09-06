@@ -24,10 +24,8 @@ NB.StoryPanel = (function() {
             '<a href="' + story.url + '" target="_blank">here</a>.',
           '</p>'
           ].join('');
-//         cb(panel.append(msg));
         cb(msg);
       } else {
-//         cb(panel.append(data.content));
         cb(data.content);
       }
       
@@ -37,13 +35,9 @@ NB.StoryPanel = (function() {
 
   function renderReddit(story, storyPanel) {
     var dom = story.reddit.domain.toLowerCase();
-//     var panel = $('<div class="story-title"></div>');
-//     var panel = $('#story-panel-content');
 
     storyPanel.append('<div class="story-title"><h1><a class="title" href="' + story.url + '" target="_blank">' + story.name + '</a></h1></div>');
     storyPanel.append('<hr>');
-//     panel.append('<div class="story-title"><h1><a class="title" href="' + story.url + '" target="_blank">' + story.name + '</a></h1></div>');
-//     panel.append('<hr>');
 
     if (story.reddit.self) {
       var html = [
@@ -55,15 +49,11 @@ NB.StoryPanel = (function() {
         '</div>'
         ].join('');
 
-//       panel.append(html);
-//       storyPanel.append(panel);
       storyPanel.append(html);
       return;
     }
 
     if (story.url.match(/\.(gif|png|jpg)\?*.*$/)) { //any old image link, might be imgur
-//       panel.append('<img src="' + story.url + '">');
-//       storyPanel.append(panel);
       storyPanel.append('<img src="' + story.url + '">');
       return;
     }
@@ -83,27 +73,20 @@ NB.StoryPanel = (function() {
 
           html += '</div>';
 
-//           panel.append(html);
-//           storyPanel.append(panel);
           storyPanel.append(html);
           return;
-
         });
       } else {
         var imgUrl = story.url.replace('imgur.com', 'i.imgur.com') + '.jpg';
 
         var html = [
           '<div class="story-content">',
-//             '<p>Embedded imgur magic coming soon.<br>',
               '<a href="' + story.url + '" target="_blank"><img src="' + imgUrl + '"></a>',
               '<br>',
               '<a href="' + story.url + '" target="_blank">Go to imgur.</a>.',
-//             '</p>',
           '</div>'
           ].join('');
 
-//         panel.append(html);
-//         storyPanel.append(panel);
         storyPanel.append(html);
         return;
 
@@ -111,8 +94,6 @@ NB.StoryPanel = (function() {
     }
 
     getReadability(story, function(content) {
-//       panel.append(content);
-//       storyPanel.append(panel);
       storyPanel.append(content);
       return;
     });
@@ -172,7 +153,8 @@ NB.StoryPanel = (function() {
   /*  --  PUBLIC  --  */
 
   StoryPanel.render = function(story) {
-    NB.Data.setCurrentStory('peek', story);
+    NB.Data.setCurrentStory('tooltip', story);
+//     NB.Data.setCurrentStory('panel', story); //TODO, finish
 
 
     var storyPanel = $('#story-panel-content').empty();

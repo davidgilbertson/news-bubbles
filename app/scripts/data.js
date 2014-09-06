@@ -150,26 +150,31 @@ NB.Data = (function() {
 
 
 
-  Data.peekCurrentStory = {
+  Data.tooltipStory = {
     name: ko.observable('some name'),
     url: ko.observable('some url'),
     domain: ko.observable('some domain'),
     author: ko.observable('hot ferret'),
     commentCount: ko.observable('some commentCount'),
-    points: ko.observable('some points'),
+    score: ko.observable('some score'),
     timeString: ko.observable('some timeString'),
     dateString: ko.observable('hot dateString')
   };
 
-  Data.panelCurrentStory = {
+  Data.panelStory = {
     name: ko.observable('some name'),
     url: ko.observable('some url'),
     domain: ko.observable('some domain'),
+    author: ko.observable('hot ferret'),
+    commentCount: ko.observable('some commentCount'),
+    score: ko.observable('some score'),
+    timeString: ko.observable('some timeString'),
+    dateString: ko.observable('hot dateString'),
     content: ko.observable('<div>I am a <strong>STRONG</strong> independent white male!</div>')
   };
 
-  Data.setCurrentStory = function(peekOrPanel, story) {
-    var storyObj = Data[peekOrPanel + 'CurrentStory'];
+  Data.setCurrentStory = function(tooltipOrPanel, story) {
+    var storyObj = Data[tooltipOrPanel + 'Story'];
     var dateFormatter = d3.time.format('%a, %-e %b %Y');
     var timeFormatter = d3.time.format('%-I:%M%p');
     var domain;
@@ -198,9 +203,13 @@ NB.Data = (function() {
       .domain(domain)
       .author(story.author)
       .commentCount(story.commentCount)
-      .points(story.points)
+      .score(story.score)
       .timeString(timeFormatter(story.postDate))
       .dateString(dateFormatter(story.postDate));
+
+    if (tooltipOrPanel === 'panel') {
+      storyObj.content(story.content);
+    }
   }
 
 
