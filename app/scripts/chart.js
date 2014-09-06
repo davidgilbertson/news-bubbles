@@ -42,11 +42,11 @@ NB.Chart = (function() {
 
     //Make the last selected item read and no longer selected
     d3.select('.selected')
-      .classed('read', true)
       .classed('selected', false);
 
     //Now select the item just clicked
-    el.classed('selected', true);
+    el.classed('selected', true)
+      .classed('read', true);
 
     if (!NB.Data.isRead(d.id)) { //save adding an already read story a second time
       NB.Data.markAsRead(d.id);
