@@ -56,7 +56,7 @@ NB.Events = (function() {
 
 
   d3.select('#story-panel-toggle').on('click', function() {
-    console.log('#story-panel-toggle clicked');
+//     console.log('#story-panel-toggle clicked');
     d3.event.preventDefault();
 //     body = d3.select('body');
     NB.Layout.toggleStoryPanel();
