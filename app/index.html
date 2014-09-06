@@ -37,6 +37,8 @@
         <a href="?src=rd">Reddit</a>
         /
         <a href="?src=hn">Hacker News</a>
+        /
+        <a id="open-settings-btn">Settings</a>
       </div>
     </header>
     <main id="content-wrapper" class="content-wrapper">
@@ -110,6 +112,57 @@
       </div>
     </div>
 
+    <div id="settings-wrapper" class="settings-wrapper">
+      <div class="settings-panel">
+        <div class="close-x settings-panel-close-x" id="cancel-settings-btn">×</div>
+        <div class="settings-panel-header">
+          <h1>SETTINGS</h1>
+          <hr>
+        </div>
+        <div class="settings-panel-body">
+          <div class="settings-panel-body-row">
+            <h2>WHEN I CLICK A BUBBLE</h2>
+            <div class="settings-panel-option">
+              <label>
+                <input type="radio" name="settings-click-bubble-option" value="storyPanel" data-bind="checked: clickAction">
+                Open the story panel
+              </label>
+            </div>
+            <div class="settings-panel-option">
+              <label>
+                <input type="radio" name="settings-click-bubble-option" value="storyDetails" data-bind="checked: clickAction">
+                Open the story in a new tab
+              </label>
+            </div>
+            <div class="settings-panel-option">
+              <label>
+                <input type="radio" name="settings-click-bubble-option" value="openTab" data-bind="checked: clickAction">
+                Show the story details as a tooltip
+              </label>
+            </div>
+          </div>
+          <div class="settings-panel-body-row">
+            <h2>WHEN I RIGHT CLICK A BUBBLE</h2>
+            <div class="settings-panel-option">
+              <label>
+                <input type="radio" name="settings-right-click-bubble-option" value="toggleRead" data-bind="checked: rightClickAction">
+                Mark the story as read/unread
+              </label>
+            </div>
+            <div class="settings-panel-option">
+              <label>
+                <input type="radio" name="settings-right-click-bubble-option" value="nothing" data-bind="checked: rightClickAction">
+                Do nothing
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="settings-save-btn"  id="save-settings-btn">SAVE & CLOSE</div>
+      </div>
+    </div>
+
+
+
     <!-- build:js scripts/vendor.js -->
       <!-- bower:js -->
         <script src="bower_components/jquery/dist/jquery.js"></script>
@@ -128,6 +181,7 @@
       <script src="scripts/chart.js"></script>
       <script src="scripts/events.js"></script>
       <script src="scripts/storyPanel.js"></script>
+      <script src="scripts/settingsPanel.js"></script>
       <script src="scripts/main.js"></script>
     <!-- endbuild -->
 

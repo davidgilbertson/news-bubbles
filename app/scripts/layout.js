@@ -9,6 +9,10 @@ NB.Layout = (function() {
     , storyPanelVisible = false
   ;
 
+
+  /*  -------------------  */
+  /*  --  Story Panel  --  */
+  /*  -------------------  */  
   function setChartAndStoryPanelSize() {
     chartWrapper.style('width', NB.splitPos + 'px');
     storyPanel.style('left', NB.splitPos + 'px');
@@ -39,7 +43,6 @@ NB.Layout = (function() {
     
     NB.splitPos = document.body.offsetWidth - NB.RESIZER_WIDTH;
     setChartAndStoryPanelSize();
-//     NB.Chart.resize(true);
     NB.Chart.resize();
   }
 
@@ -47,7 +50,6 @@ NB.Layout = (function() {
     setChartAndStoryPanelSize();
     
     //If the orientation flips, don't loose the panel, just hide it:
-    
     if (document.body.offsetWidth - NB.splitPos < 100) {
       hideStoryPanel(true);
     }
@@ -80,6 +82,17 @@ NB.Layout = (function() {
     }
 
   };
+
+
+
+
+
+
+
+
+
+
+
 
   Layout.init = function() {
     init();

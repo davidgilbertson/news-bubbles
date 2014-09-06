@@ -69,18 +69,34 @@ NB.Events = (function() {
     });
   });
 
+
+
+  /*  ----------------  */
+  /*  --  Settings  --  */
+  /*  ----------------  */
+
+  $('#open-settings-btn').on('click', function() {
+    NB.SettingsPanel.openSettings();
+  });
+  $('#save-settings-btn').on('click', function() {
+    NB.SettingsPanel.saveSettings();
+  });
+  $('#cancel-settings-btn').on('click', function() {
+    NB.SettingsPanel.cancelSettings();
+  });
+
+
+
+
+
+  /*  --------------  */
+  /*  --  Global  --  */
+  /*  --------------  */
+
   window.onresize = function() {
     NB.Layout.render();
     NB.Chart.resize();
   };
-
-//   $(document).on('contextmenu click', function(e) {
-//   d3.select(document).on('contextmenu', function(e) {
-//     console.log('Right click');
-//     d3.event.preventDefault();
-//     return false;
-//     console.log(e);
-//   });
 
   return Events;
 

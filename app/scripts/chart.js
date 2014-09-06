@@ -85,6 +85,8 @@ NB.Chart = (function() {
   }
 
   function bubbleRightClicked(d) {
+    var setting = NB.SettingsPanel.getSetting('rightClickAction');
+    if (setting === 'nothing') { return; }
     d3.event.preventDefault();
     var el = d3.select(d3.event.currentTarget);
     if (el.classed('read')) {

@@ -12,7 +12,7 @@ body {
 }
 h1, h2, h3, h4, h5, h6 {
   color: $header-color;
-  font-weight: normal;
+  font-weight: 300;
 }
 a {
 /*   text-decoration: none; */
@@ -29,6 +29,7 @@ p {
 figure {
   margin: 0;
 }
+
 //Logic for setting font faces like so:
 //http://www.smashingmagazine.com/2013/02/14/setting-weights-and-styles-at-font-face-declaration/
 @font-face {
