@@ -26,7 +26,9 @@ a:hover {
 p {
   font-weight: 300;
 }
-
+figure {
+  margin: 0;
+}
 //Logic for setting font faces like so:
 //http://www.smashingmagazine.com/2013/02/14/setting-weights-and-styles-at-font-face-declaration/
 @font-face {

@@ -6,7 +6,7 @@
     <meta name="description" content="A visual display for hacker news stories.">
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 
-    <link rel="stylesheet" href="styles/main-7f7d99e8.css">
+    <link rel="stylesheet" href="styles/main-09f500df.css">
 
     <link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
     <link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
@@ -47,7 +47,7 @@
             <clipPath id="plot-area-clip">
               <rect x="100" y="100" width="900" height="900" />
             </clipPath>
-            <radialGradient id="radial-gradient-sphere-story" gradientTransform="matrix(1, 0.8, -0.8, 1, 0.2, -0.5)">
+            <!-- <radialGradient id="radial-gradient-sphere-story" gradientTransform="matrix(1, 0.8, -0.8, 1, 0.2, -0.5)">
               <stop style="stop-color:#64B3F5" offset="0%"/>
               <stop style="stop-color:#092D7B" offset="100%"/>
             </radialGradient>
@@ -58,7 +58,7 @@
             <radialGradient id="radial-gradient-sphere-show" gradientTransform="matrix(1, 0.8, -0.8, 1, 0.2, -0.5)">
               <stop style="stop-color:#FFA500" offset="0"/>
               <stop style="stop-color:#A66C00" offset="1"/>
-            </radialGradient>
+            </radialGradient> -->
           </defs>
         </svg>
       </div>
@@ -68,7 +68,7 @@
           <div class="story-panel-resizer-dots"></div>
           <div id="story-panel-toggle" class="story-panel-toggle">«</div>
         </div>
-        <div class="story-wrapper">
+        <div id="story-panel-content" class="story-wrapper">
           <div id="story-title" class="story-title">News Bubbles</div>
           <hr>
           <div id="story-content" class="story-content">Select a bubble on the left to view the story here.</div>
@@ -78,11 +78,47 @@
     </main>
     <div id="tooltip">tooltip</div>
 
+    <div id="maxi-tooltip" class="maxi-tooltip">
+      <div class="left table">
+        <div class="row">
+          <div class="left-top btn cell">Read the Article</div>
+        </div>
+        <div class="row">
+          <div class="left-middle btn cell">Mark as Read</div>
+        </div>
+        <div class="row">
+          <div class="left-bottom btn cell">Mark as Favourite</div>
+        </div>
+      </div>
+      <div class="right">
+        <div class="right-top table">
+          <h1 id="maxi-tooltip-title" class="cell">The Title that is postentially quite a lot of text</h1>
+          <!-- <div class="right-top-cell"> -->
+            <!-- The Title that is postentially quite a lot of text -->
+          <!-- </div> -->
+
+        </div>
+        <div class="right-bottom">
+          <div class="right-bottom-left">
+            <p>nytimes.com</p>
+            <p>9:32AM</p>
+            <p>Friday 5 Sep, 2014</p>
+          </div>
+          <div class="right-bottom-right">
+            <p>12 comments</p>
+            <p>182 poitns</p>
+            <p>Posted by minirascal</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
     <script src="scripts/vendor-6364b6eb.js"></script>
 
     <script src="/socket.io/socket.io.js"></script>
 
-    <script src="scripts/main-798b6c0d.js"></script>
+    <script src="scripts/main-9ae4ccea.js"></script>
 
   </body>
 </html>

@@ -24,9 +24,11 @@ NB.StoryPanel = (function() {
             '<a href="' + story.url + '" target="_blank">here</a>.',
           '</p>'
           ].join('');
-        cb(panel.append(msg));
+//         cb(panel.append(msg));
+        cb(msg);
       } else {
-        cb(panel.append(data.content));
+//         cb(panel.append(data.content));
+        cb(data.content);
       }
       
     });
@@ -35,10 +37,13 @@ NB.StoryPanel = (function() {
 
   function renderReddit(story, storyPanel) {
     var dom = story.reddit.domain.toLowerCase();
-    var panel = $('<div class="story-title"></div>');
+//     var panel = $('<div class="story-title"></div>');
+//     var panel = $('#story-panel-content');
 
-    panel.append('<div class="story-title"><h1><a class="title" href="' + story.url + '" target="_blank">' + story.name + '</a></h1></div>');
-    panel.append('<hr>');
+    storyPanel.append('<div class="story-title"><h1><a class="title" href="' + story.url + '" target="_blank">' + story.name + '</a></h1></div>');
+    storyPanel.append('<hr>');
+//     panel.append('<div class="story-title"><h1><a class="title" href="' + story.url + '" target="_blank">' + story.name + '</a></h1></div>');
+//     panel.append('<hr>');
 
     if (story.reddit.self) {
       var html = [
@@ -50,43 +55,70 @@ NB.StoryPanel = (function() {
         '</div>'
         ].join('');
 
-      panel.append(html);
-      storyPanel.append(panel);
+//       panel.append(html);
+//       storyPanel.append(panel);
+      storyPanel.append(html);
       return;
     }
 
-    if (dom === 'i.imgur.com' || dom === 'imgur.com') {
-      var imgUrl = story.url.replace('imgur.com', 'i.imgur.com') + '.jpg';
-
-      var html = [
-        '<div class="story-content">',
-          '<p>Embedded imgur magic coming soon.<br>',
-            '<a href="' + story.url + '" target="_blank"><img src="' + imgUrl + '"></a>',
-            '<br>',
-            '<a href="' + story.url + '" target="_blank">Go to imgur.</a>.',
-          '</p>',
-        '</div>'
-        ].join('');
-
-      panel.append(html);
-      storyPanel.append(panel);
+    if (story.url.match(/\.(gif|png|jpg)\?*.*$/)) { //any old image link, might be imgur
+//       panel.append('<img src="' + story.url + '">');
+//       storyPanel.append(panel);
+      storyPanel.append('<img src="' + story.url + '">');
       return;
     }
 
-    if (story.url.match(/\.(gif|png|jpg)\?*.*$/)) { //any old image link
-      panel.append('<a href="' + story.url + '" target="_blank"><img src="' + story.url + '"></a>');
-      storyPanel.append(panel);
-      return;
+    if (dom === 'i.imgur.com' || dom === 'imgur.com' || dom === 'm.imgur.com') { //TODO does m. exist, and obviously regex
+
+      if (story.url.match(/\imgur\.com\/a\//)) { //it is an imgur album (/a/)
+        var albumId =  story.url.replace(/.*?\imgur\.com\/a\//, '');
+        var url = 'https://api.imgur.com/3/album/' + albumId + '/images';
+        var html = '';
+        $.get(url, function(response) {
+          html += '<div class="story-content">';
+
+          response.data.forEach(function(img) {
+            html += '<img src="' + img.link + '"><br>';
+          });
+
+          html += '</div>';
+
+//           panel.append(html);
+//           storyPanel.append(panel);
+          storyPanel.append(html);
+          return;
+
+        });
+      } else {
+        var imgUrl = story.url.replace('imgur.com', 'i.imgur.com') + '.jpg';
+
+        var html = [
+          '<div class="story-content">',
+//             '<p>Embedded imgur magic coming soon.<br>',
+              '<a href="' + story.url + '" target="_blank"><img src="' + imgUrl + '"></a>',
+              '<br>',
+              '<a href="' + story.url + '" target="_blank">Go to imgur.</a>.',
+//             '</p>',
+          '</div>'
+          ].join('');
+
+//         panel.append(html);
+//         storyPanel.append(panel);
+        storyPanel.append(html);
+        return;
+
+      }
     }
 
     getReadability(story, function(content) {
-      panel.append(content);
-      storyPanel.append(panel);
+//       panel.append(content);
+//       storyPanel.append(panel);
+      storyPanel.append(content);
       return;
     });
 
 
-  }
+  } //END renderReddit
 
   function renderHackerNews(story, storyPanel) {
     var panelTitle = $('<div class="story-title"></div>');
@@ -131,10 +163,6 @@ NB.StoryPanel = (function() {
       return;
     }
 
-//     storyPanel.append(panelContent);
-
-//     $('#story-title').html(titleText);
-
 
   }
 
@@ -144,12 +172,10 @@ NB.StoryPanel = (function() {
   /*  --  PUBLIC  --  */
 
   StoryPanel.render = function(story) {
-//     console.log('Will draw story panel for', story);
+    NB.Data.setCurrentStory('peek', story);
+
 
     var storyPanel = $('#story-panel-content').empty();
-
-    //TODO remove jQuery
-//     $('#story-content').html('');
 
     var titleText = '';
 

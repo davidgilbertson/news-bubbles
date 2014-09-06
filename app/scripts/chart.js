@@ -48,7 +48,10 @@ NB.Chart = (function() {
     //Now select the item just clicked
     el.classed('selected', true);
 
-    NB.Data.markAsRead(d.id);
+    if (!NB.Data.isRead(d.id)) { //save adding an already read story a second time
+      NB.Data.markAsRead(d.id);
+    }
+    
     NB.Layout.showStoryPanel();
     tooltip.style('visibility', 'hidden');
 
@@ -81,6 +84,17 @@ NB.Chart = (function() {
     tooltip.style('visibility', 'hidden');
   }
 
+  function bubbleRightClicked(d) {
+    d3.event.preventDefault();
+    var el = d3.select(d3.event.currentTarget);
+    if (el.classed('read')) {
+      el.classed('read', false);
+      NB.Data.markAsUnread(d.id);
+    } else {
+      el.classed('read', true);
+      NB.Data.markAsRead(d.id);
+    }
+  }
 
 
 
@@ -109,7 +123,9 @@ NB.Chart = (function() {
       .classed('read', function(d) { return NB.Data.isRead(d.id); })
       .on('click', bubbleClicked)
       .on('mouseover', bubbleMouseover)
-      .on('mouseout', bubbleMouseout);
+      .on('mouseout', bubbleMouseout)
+      .on('contextmenu', bubbleRightClicked);
+
 
     var duration = 0;
     if (animate) {
@@ -170,7 +186,7 @@ NB.Chart = (function() {
 
     x.range([40, w - 20]);
     y.range([h - margins.bottom - 7, margins.top]);
-    z.range([7, maxCircle]);
+    z.range([10, maxCircle]);
 
     zoom.x(x);
 
@@ -229,7 +245,7 @@ NB.Chart = (function() {
     tooltip = d3.select('#tooltip');
 
     x = d3.time.scale();
-    y = d3.scale.pow().exponent(0.5);
+    y = d3.scale.pow().exponent(0.3);
     z = d3.scale.pow().exponent(0.5);
 
     xAxis = d3.svg.axis()

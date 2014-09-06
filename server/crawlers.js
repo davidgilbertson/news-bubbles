@@ -99,7 +99,7 @@ exports.startRedditCrawler = function(globalIo) {
     devLog('Getting data with the URL:', url);
 
     goGetReddit(url, function(response) {
-      devLog('Got', response.data.children.length, 'stories');
+      // devLog('Got', response.data.children.length, 'stories');
       saveRedditStories(response.data.children);
 
       count++;
@@ -129,7 +129,7 @@ exports.forceRdFetch = function(limit) {
     devLog('Getting data with the URL:', url);
 
     goGetReddit(url, function(response) {
-      devLog('Got', response.data.children.length, 'stories');
+      // devLog('Got', response.data.children.length, 'stories');
       saveRedditStories(response.data.children);
 
       if (count < loops) {
@@ -225,7 +225,7 @@ exports.startHNCrawler = function(globalIo) {
       saveHNStories(data.hits);
     });
   // }, every1Min);
-  }, every10Secs);
+  }, every1Min);
 
   //Get stories from 30 mins to 2 hours
   setTimeout(function() {

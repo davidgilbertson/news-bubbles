@@ -7,6 +7,15 @@ var path = require('path')
   , storyController = require(path.join(__dirname, 'storyController'));
 ;
 
+function devLog(msg) {
+  if (process.env.DEV) {
+    var result = '';
+    for (var i = 0; i < arguments.length; i++) {
+      result += ' ' +  arguments[i];
+    }
+    console.log(result);
+  }
+}
 module.exports = function(app) {
 
   app.get('/readability/:url', function(req, res) {
@@ -22,13 +31,15 @@ module.exports = function(app) {
     });
   });
 
-  app.get('/crawler/forceHnFetch', function(req, res) {
+  app.get('/crawlers/forceHnFetch', function(req, res) {
+    devLog('Someone forced a hacker news fetch');
     var crawlers = require(path.join(__dirname, 'crawlers'));
     crawlers.forceHnFetch();
     res.send('OK, did it');
   });
 
-  app.get('/crawler/forceRdFetch/:limit', function(req, res) {
+  app.get('/crawlers/forceRdFetch/:limit', function(req, res) {
+    devLog('Someone forced a reddit fetch with the limit:', req.params.limit);
     var crawlers = require(path.join(__dirname, 'crawlers'));
     crawlers.forceRdFetch(req.params.limit);
     res.send('OK, did it');

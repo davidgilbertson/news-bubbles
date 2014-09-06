@@ -146,6 +146,70 @@ NB.Data = (function() {
   /*  --  PUBLIC  --  */
   Data.stories = [];
 
+
+
+
+
+  Data.peekCurrentStory = {
+    name: ko.observable('some name'),
+    url: ko.observable('some url'),
+    domain: ko.observable('some domain'),
+    author: ko.observable('hot ferret'),
+    commentCount: ko.observable('some commentCount'),
+    points: ko.observable('some points'),
+    timeString: ko.observable('some timeString'),
+    dateString: ko.observable('hot dateString')
+  };
+
+  Data.panelCurrentStory = {
+    name: ko.observable('some name'),
+    url: ko.observable('some url'),
+    domain: ko.observable('some domain'),
+    content: ko.observable('<div>I am a <strong>STRONG</strong> independent white male!</div>')
+  };
+
+  Data.setCurrentStory = function(peekOrPanel, story) {
+    var storyObj = Data[peekOrPanel + 'CurrentStory'];
+    var dateFormatter = d3.time.format('%a, %-e %b %Y');
+    var timeFormatter = d3.time.format('%-I:%M%p');
+    var domain;
+    var name = story.name;
+
+    if (story.source === 'reddit') {
+      domain = story.reddit.domain;
+    }
+    if (story.source === 'hn') {
+      if (story.name.toLowerCase().indexOf('show hn') > -1) {
+        domain = 'Show HN';
+        name = name.replace('Show HN: ', '');
+      } else if (story.name.toLowerCase().indexOf('ask hn') > -1) {
+        domain = 'Ask HN';
+        name = name.replace('Ask HN: ', '');
+      } else {
+        var urlTest = story.url.match(/:\/\/([^\/]*)/);
+        domain = urlTest[1] ? urlTest[1] : 'HN'; 
+//         domain = 'pimp HN';
+      }
+    }
+
+    storyObj
+      .name(story.name.substr(0, 50) + (story.name.length > 50 ? '...' : ''))
+      .url(story.url)
+      .domain(domain)
+      .author(story.author)
+      .commentCount(story.commentCount)
+      .points(story.points)
+      .timeString(timeFormatter(story.postDate))
+      .dateString(dateFormatter(story.postDate));
+  }
+
+
+
+
+
+
+
+
   Data.setData = function(key, value) {
     store[key] = value;
   };
@@ -155,14 +219,27 @@ NB.Data = (function() {
     localStorage.readList = JSON.stringify(readList);
   };
 
-  Data.isRead = function(id) {
-    var objString = id.toString();
+  Data.markAsUnread = function(id) {
+    id = id.toString();
     for (var i = 0; i < readList.length; i++) {
-      if (objString === readList[i]) {
-        return true;
+      if (readList[i] === id) {
+        readList.splice(i,1);
+        localStorage.readList = JSON.stringify(readList);
+        return;
       }
     }
-    return false;
+  };
+
+  Data.isRead = function(id) {
+    var objString = id.toString();
+    var isRead = false;
+    for (var i = 0; i < readList.length; i++) {
+      if (objString === readList[i]) {
+//         console.log(readList[i] + 'is already read');
+        isRead = true;
+      }
+    }
+    return isRead;
   };
 
   Data.getData = function(source, limit) {

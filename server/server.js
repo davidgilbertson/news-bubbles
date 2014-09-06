@@ -20,7 +20,7 @@ exports.start = function(app) {
 
 
   db.on('open', function() {
-    // crawlers.startHNCrawler(io);
+    crawlers.startHNCrawler(io);
     crawlers.startRedditCrawler(io);
     http.listen(port);
 

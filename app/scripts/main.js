@@ -19,9 +19,12 @@ NB.main = (function() {
   //The server will be emitting new/changed stories as they become available.
   NB.Data.getData(NB.source, 200);
 
+  ko.applyBindings(NB.Data.peekCurrentStory, document.getElementById('story-peek'));
+
   if (!('ontouchstart' in window) && !(window.DocumentTouch && document instanceof DocumentTouch)) {
     d3.select('body').classed('no-touch', true);
     NB.hasTouch = false;
   }
+
 
 })();

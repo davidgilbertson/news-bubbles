@@ -74,6 +74,14 @@ NB.Events = (function() {
     NB.Chart.resize();
   };
 
+//   $(document).on('contextmenu click', function(e) {
+//   d3.select(document).on('contextmenu', function(e) {
+//     console.log('Right click');
+//     d3.event.preventDefault();
+//     return false;
+//     console.log(e);
+//   });
+
   return Events;
 
 })();
