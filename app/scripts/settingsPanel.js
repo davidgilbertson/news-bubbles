@@ -19,7 +19,7 @@ NB.SettingsPanel = (function() {
 
   function init() {
     settings = {
-      clickAction: ko.observable('storyPanel'),
+      clickAction: ko.observable('storyTooltip'),
       rightClickAction: ko.observable('toggleRead')
     };
 

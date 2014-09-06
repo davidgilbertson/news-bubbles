@@ -31,6 +31,9 @@
     <!--[if lt IE 10]>
     <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
     <![endif]-->
+
+
+
     <header class="header">
       <h1 class="header-title">NEWS BUBBLES</h1>
       <div class="news-sources">
@@ -41,6 +44,9 @@
         <a id="open-settings-btn">Settings</a>
       </div>
     </header>
+
+
+
     <main id="content-wrapper" class="content-wrapper">
       <div id="chart-wrapper" class="chart-wrapper">
 
@@ -75,18 +81,23 @@
 
       </div>
     </main>
+
+
+
     <div id="tooltip">tooltip</div>
+
+
 
     <div id="story-tooltip" class="maxi-tooltip">
       <div class="left table">
         <div class="row">
-          <div class="left-top btn cell">Dismiss</div>
+          <div id="tooltip-dismiss" class="left-top btn cell">Mark as Read (TODO)</div>
         </div>
         <div class="row">
-          <div class="left-middle btn cell">Open in reading pane</div>
+          <div id="tooltip-open-reading-pane" class="left-middle btn cell">Open in reading pane</div>
         </div>
         <div class="row">
-          <a class="left-bottom btn cell" href="/">Open in new tab</a>
+          <a class="left-bottom btn cell" data-bind="attr: {href: url}" target="_blank">Open in new tab</a>
         </div>
       </div>
       <div class="right">
@@ -108,9 +119,10 @@
             <p>Posted by <span data-bind="text: author">NINE NINE NINE</span></p>
           </div>
         </div>
-
       </div>
     </div>
+
+
 
     <div id="settings-wrapper" class="settings-wrapper">
       <div class="settings-panel">
@@ -130,14 +142,14 @@
             </div>
             <div class="settings-panel-option">
               <label>
-                <input type="radio" name="settings-click-bubble-option" value="storyDetails" data-bind="checked: clickAction">
-                Open the story in a new tab
+                <input type="radio" name="settings-click-bubble-option" value="storyTooltip" data-bind="checked: clickAction">
+                Show the story details as a tooltip
               </label>
             </div>
             <div class="settings-panel-option">
               <label>
                 <input type="radio" name="settings-click-bubble-option" value="openTab" data-bind="checked: clickAction">
-                Show the story details as a tooltip
+                Open the story in a new tab
               </label>
             </div>
           </div>

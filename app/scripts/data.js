@@ -149,7 +149,7 @@ NB.Data = (function() {
 
 
 
-
+  //TODO this really all should be out in a story model module
   Data.tooltipStory = {
     name: ko.observable('some name'),
     url: ko.observable('some url'),

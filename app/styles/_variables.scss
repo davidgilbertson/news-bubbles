@@ -34,10 +34,3 @@ $col-text-light: #ddd;
 $header-height: 40px;
 $break-sm: 400px;
 $break-md: 700px;
-
-
-
-
-@mixin shadow() {
-  box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.5);
-}

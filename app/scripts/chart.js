@@ -52,10 +52,41 @@ NB.Chart = (function() {
       NB.Data.markAsRead(d.id);
     }
     
-    NB.Layout.showStoryPanel();
+
+
+    var setting = NB.SettingsPanel.getSetting('clickAction');
+    if (setting === 'storyPanel') {
+      NB.Layout.showStoryPanel();
+      NB.StoryPanel.render(d);
+    }
+    if (setting === 'storyTooltip') {
+      var thisDims = el.node().getBoundingClientRect();
+      var r = z(d.commentCount);
+      var left = thisDims.left + r; //TODO ensure the tooptip isn't off the page
+      var top = thisDims.top + r; //TODO ensure the tooptip isn't off the page
+
+      NB.Data.setCurrentStory('tooltip', d); //TODO should this make visible?
+      d3.select('#story-tooltip')
+        .style('display', 'block')
+        .transition()
+        .style('left', left + 'px')
+        .style('top', top + 'px');
+
+      d3.event.stopPropagation();
+
+      $(document).on('click.tooltip', function() {
+        console.log('one click');
+        d3.select('#story-tooltip').style('display', 'none');
+        $(document).off('click.tooltip');
+      })
+    }
+    
+
+    
+
+
     tooltip.style('visibility', 'hidden');
 
-    NB.StoryPanel.render(d);
 
   }
   
