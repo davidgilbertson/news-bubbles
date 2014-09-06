@@ -26,8 +26,6 @@
     <meta name="msapplication-TileColor" content="#da532c">
     <meta name="msapplication-TileImage" content="/mstile-144x144.png">
 
-    <!-- <link href='http://fonts.googleapis.com/css?family=Roboto:400,300,300italic,400italic' rel='stylesheet' type='text/css'> -->
-
   </head>
   <body>
     <!--[if lt IE 10]>
@@ -49,34 +47,9 @@
             <clipPath id="plot-area-clip">
               <rect x="100" y="100" width="900" height="900" />
             </clipPath>
-            <!-- <radialGradient id="radial-gradient-sphere-story" gradientTransform="matrix(1, 0.8, -0.8, 1, 0.2, -0.5)">
-              <stop style="stop-color:#64B3F5" offset="0%"/>
-              <stop style="stop-color:#092D7B" offset="100%"/>
-            </radialGradient>
-            <radialGradient id="radial-gradient-sphere-ask" gradientTransform="matrix(1, 0.8, -0.8, 1, 0.2, -0.5)">
-              <stop style="stop-color:#53C853" offset="0"/>
-              <stop style="stop-color:#207C20" offset="1"/>
-            </radialGradient>
-            <radialGradient id="radial-gradient-sphere-show" gradientTransform="matrix(1, 0.8, -0.8, 1, 0.2, -0.5)">
-              <stop style="stop-color:#FFA500" offset="0"/>
-              <stop style="stop-color:#A66C00" offset="1"/>
-            </radialGradient> -->
           </defs>
         </svg>
       </div>
-      <!-- <div id="story-panel" class="story-panel">
-        <div id="story-panel-resizer" class="story-panel-resizer">
-          <div class="story-panel-resizer-dots"></div>
-          <div class="story-panel-resizer-dots"></div>
-          <div id="story-panel-toggle" class="story-panel-toggle">«</div>
-        </div>
-        <div id="story-panel-content" class="story-wrapper">
-          <div id="story-title" class="story-title">News Bubbles</div>
-          <hr>
-          <div id="story-content" class="story-content">Select a bubble on the left to view the story here.</div>
-        </div>
-
-      </div> -->
       <div id="story-panel" class="story-panel">
         <div id="story-panel-resizer" class="story-panel-resizer">
           <div class="story-panel-resizer-dots"></div>
@@ -119,9 +92,6 @@
           <a class="cell" data-bind="href: url" target="_blank">
             <h1 id="maxi-tooltip-title" class="cell" data-bind="text: name">Story 99999</h1>
           </a>
-          <!-- <div class="right-top-cell"> -->
-            <!-- The Title that is postentially quite a lot of text -->
-          <!-- </div> -->
 
         </div>
         <div class="right-bottom">
@@ -146,9 +116,9 @@
         <script src="bower_components/d3/d3.js"></script>
         <script src="bower_components/knockout/dist/knockout.js"></script>
       <!-- endbower -->
-
-      <script src="/socket.io/socket.io.js"></script>
     <!-- endbuild -->
+
+    <script src="/socket.io/socket.io.js"></script>
 
 
     <!-- build:js scripts/main.js -->
