@@ -7,12 +7,12 @@ NB.Data = (function() {
   var store = {}
     // , stories = []
 //     , nextPage = 0
-    , hitsPerPage = 20
-    , pageLimit = 1
+//     , hitsPerPage = 20
+//     , pageLimit = 1
     , readList = []
-    , timer
-    , storyStore
-    , stories = []
+//     , timer
+//     , storyStore
+//     , stories = []
     , socket
   ;
 
@@ -20,11 +20,11 @@ NB.Data = (function() {
     readList = JSON.parse(localStorage.readList);
   }
 
-  function saveData(data) {
-//     console.log('saveData() - count:', data.length);
-    localStorage.stories = JSON.stringify(data);
-    NB.Data.stories = data;
-  }
+//   function saveData(data) {
+// //     console.log('saveData() - count:', data.length);
+//     localStorage.stories = JSON.stringify(data);
+//     NB.Data.stories = data;
+//   }
 
   function sortBy(arr, key) {
     key = key || 'commentCount';
@@ -88,7 +88,7 @@ NB.Data = (function() {
   }
 
   //parse story data
-  function parseStoryData(data, captureOldest) {
+  function parseStoryData(data) {
     data.forEach(function(d) {
 //       var jsDate = new Date(d.postDate);
       d.postDate = new Date(d.postDate);
@@ -182,8 +182,7 @@ NB.Data = (function() {
     var domain, storyUrl;
     var name = story.name;
 
-    if (story.source === 'reddit') {
-      storyUrl = '/TODO!!'
+    if (story.source === 'rd') {
       domain = story.reddit.domain;
     }
     if (story.source === 'hn') {
@@ -219,7 +218,7 @@ NB.Data = (function() {
     if (tooltipOrPanel === 'panel') {
         storyObj.content(story.content);
     }
-  }
+  };
 
 
 
@@ -267,16 +266,16 @@ NB.Data = (function() {
     if (source === 'hn') {
       getHnData(limit);
     }
-  }
+  };
 
-  Data.goBananas = function() {
-    console.log('Get comfortable...');
-    $.get('/api/hn/getall', function(data) {
-      mergeStories(parseStoryData(data));
-      console.log('Got', data.length, 'stories');
-      NB.Chart.drawStories();
-    });
-  }
+//   Data.goBananas = function() {
+//     console.log('Get comfortable...');
+//     $.get('/api/hn/getall', function(data) {
+//       mergeStories(parseStoryData(data));
+//       console.log('Got', data.length, 'stories');
+//       NB.Chart.drawStories();
+//     });
+//   };
 
   init();
   return Data;

@@ -10,7 +10,7 @@ NB.Chart = (function() {
     , chartOverlay
 //     , stripesG
 //     , stripes = []
-    , legend
+//     , legend
 //     , maxCircle = document.body.offsetHeight / 20
     , margins = {top: 70, right: 0, bottom: 30, left: 0} //keep in mind max circle size
     , maxCircle
@@ -29,7 +29,7 @@ NB.Chart = (function() {
     , yAxis
     , xAxisG
     , yAxisG
-    , yAxisTitle
+//     , yAxisTitle
     , tooltip
     , zoom
   ;
@@ -64,7 +64,7 @@ NB.Chart = (function() {
     tooltip.text(d.name + extra);
     var tipWidth = parseInt(tooltip.style('width'));
     var tipHeight = parseInt(tooltip.style('height'));
-    var thisDims = this.getBoundingClientRect();
+    var thisDims = this.getBoundingClientRect(); //TODO replace 'this' with whatever the element is
 
     var left = thisDims.left - ((tipWidth - thisDims.width) / 2);
     left = Math.max(left, margins.left);
@@ -98,7 +98,7 @@ NB.Chart = (function() {
 
 
 
-  function drawStories(animate, isUpdate) {
+  function drawStories(animate) {
 //     console.log('drawStories()');
 
 
@@ -118,7 +118,7 @@ NB.Chart = (function() {
         return z(d.commentCount);
       })
       .attr('cx', function() { return x(maxDate); })
-      .attr('cy', function(d) { return y(0); })
+      .attr('cy', function() { return y(0); })
       .classed('story-circle', true)
       .classed('read', function(d) { return NB.Data.isRead(d.id); })
       .on('click', bubbleClicked)
@@ -153,7 +153,7 @@ NB.Chart = (function() {
 
 
   //Call this when the screen layout/size changes
-  function setDimensions(update) {
+  function setDimensions() {
 //     console.log('setDimensions()');
     h = parseInt(d3.select('#chart-wrapper').style('height'), 10) - 4; //I don't know why
     w = NB.splitPos;

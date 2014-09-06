@@ -33,32 +33,29 @@ NB.StoryPanel = (function() {
   }
 
 
-  function renderReddit(story, storyPanel) {
+  function renderReddit(story) {
     var dom = story.reddit.domain.toLowerCase();
 
-    storyPanel.append('<div class="story-title"><h1><a class="title" href="' + story.url + '" target="_blank">' + story.name + '</a></h1></div>');
-    storyPanel.append('<hr>');
+    function done() {
+      NB.Data.setCurrentStory('panel', story);
+    }
+
 
     if (story.reddit.self) {
       var html = [
-        '<div class="story-content">',
-          story.reddit.selftext + '<br>',
-          '<p>Built-in reddit comments coming soon. For now, head over to ',
-            '<a href="' + story.url + '" target="_blank">reddit to read more</a>.',
-          '</p>',
-        '</div>'
+        '<p>Built-in reddit comments coming soon. For now, head over to ',
+          '<a href="' + story.url + '" target="_blank">reddit to read more</a>.',
+        '</p>'
         ].join('');
+      story.content = html;
+      done();
+      
+    } else if (story.url.match(/\.(gif|png|jpg)\?*.*$/)) { //any old image link, might be imgur
 
-      storyPanel.append(html);
-      return;
-    }
+      story.content = '<img src="' + story.url + '">';
+      done();
 
-    if (story.url.match(/\.(gif|png|jpg)\?*.*$/)) { //any old image link, might be imgur
-      storyPanel.append('<img src="' + story.url + '">');
-      return;
-    }
-
-    if (dom === 'i.imgur.com' || dom === 'imgur.com' || dom === 'm.imgur.com') { //TODO does m. exist, and obviously regex
+    } else if (dom === 'i.imgur.com' || dom === 'imgur.com' || dom === 'm.imgur.com') { //TODO does m. exist, and obviously regex
 
       if (story.url.match(/\imgur\.com\/a\//)) { //it is an imgur album (/a/)
         var albumId =  story.url.replace(/.*?\imgur\.com\/a\//, '');
@@ -73,33 +70,35 @@ NB.StoryPanel = (function() {
 
           html += '</div>';
 
-          storyPanel.append(html);
-          return;
+          story.content = html;
+          done();
         });
       } else {
         var imgUrl = story.url.replace('imgur.com', 'i.imgur.com') + '.jpg';
 
-        var html = [
+        story.content = [
           '<div class="story-content">',
-              '<a href="' + story.url + '" target="_blank"><img src="' + imgUrl + '"></a>',
-              '<br>',
-              '<a href="' + story.url + '" target="_blank">Go to imgur.</a>.',
+            '<a href="' + story.url + '" target="_blank"><img src="' + imgUrl + '"></a>',
+            '<br>',
+            '<a href="' + story.url + '" target="_blank">Go to imgur.</a>.',
           '</div>'
-          ].join('');
-
-        storyPanel.append(html);
-        return;
-
+        ].join('');
+        done();
       }
-    }
 
-    getReadability(story, function(content) {
-      storyPanel.append(content);
-      return;
-    });
+    } else {
+
+      getReadability(story, function(content) {
+        story.content = content;
+        done();
+      });
+
+    }
 
 
   } //END renderReddit
+
+
 
   function renderHackerNews(story) {
 
@@ -129,8 +128,8 @@ NB.StoryPanel = (function() {
   /*  --  PUBLIC  --  */
 
   StoryPanel.render = function(story) {
-    NB.Data.setCurrentStory('tooltip', story);
-    NB.Data.setCurrentStory('panel', story); //TODO, finish
+//     NB.Data.setCurrentStory('tooltip', story); //TODO doesn't belong here
+//     NB.Data.setCurrentStory('panel', story); //TODO, finish
 
 
 
@@ -138,8 +137,8 @@ NB.StoryPanel = (function() {
     //The story panel element is passed into these funciton because if it goes to readability it's an async call
     //and I don't want to mess around with cbs everywhere
     if (story.source === 'rd') {
-      var storyPanel = $('#story-panel-content').empty();
-      renderReddit(story, storyPanel);
+//       var storyPanel = $('#story-panel-content').empty();
+      renderReddit(story);
     }
 
 
