@@ -141,7 +141,7 @@ NB.Chart = (function() {
   
   function bubbleMouseover(d) {
     if (maxiTooltipShowing) { return; }
-    var extra = d.reddit ? ' - ' + d.reddit.domain : ''; //TODO remove the 'extra' bit when color coding is done. Or maybe not.
+    var extra = d.rd ? ' - ' + d.rd.domain : ''; //TODO remove the 'extra' bit when color coding is done. Or maybe not.
     tooltip.text(d.name + extra);
     var tipWidth = parseInt(tooltip.style('width'));
     var tipHeight = parseInt(tooltip.style('height'));

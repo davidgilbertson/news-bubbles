@@ -38,31 +38,14 @@ module.exports = function(app) {
     res.send('OK, did it');
   });
 
-  app.get('/crawlers/forceRdFetch/:limit', function(req, res) {
+  app.get('/crawlers/forceRdFetch/:list/:limit', function(req, res) {
     devLog('Someone forced a reddit fetch with the limit:', req.params.limit);
+
     var crawlers = require(path.join(__dirname, 'crawlers'));
-    crawlers.forceRdFetch(req.params.limit);
+
+    crawlers.forceRdFetch(req.params.limit, req.params.list);
     res.send('OK, did it');
   });
-
-  // app.get('/api/hn/getall', function(req, res) {
-  //   Story.find({source: 'hn'}, function(err, stories) {
-  //     if (err) {
-  //       return res.json(err);
-  //     }
-  //     res.json(stories);
-  //   }).lean(); //lean: http://mongoosejs.com/docs/api.html#query_Query-lean
-  // });
-
-  // app.get('/api/rd/getall', function(req, res) {
-  //   Story.find({source: 'rd'}, function(err, stories) {
-  //     if (err) {
-  //       return res.json(err);
-  //     }
-  //     res.json(stories);
-  //   }).lean();
-
-  // });
 
 
 };

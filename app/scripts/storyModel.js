@@ -46,8 +46,8 @@ NB.StoryModel = (function() {
     var category = story.category || '';
 
     if (story.source === 'rd') {
-      domain = story.reddit.domain;
-      sourceUrl = 'https://www.reddit.com' + story.reddit.permalink;
+      domain = story.rd.domain;
+      sourceUrl = 'https://www.reddit.com' + story.rd.permalink;
       authorUrl = 'http://www.reddit.com/user/' + story.author;
     }
     if (story.source === 'hn') {

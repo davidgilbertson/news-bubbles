@@ -34,14 +34,14 @@ NB.StoryPanel = (function() {
 
 
   function renderReddit(story) {
-    var dom = story.reddit.domain.toLowerCase();
+    var dom = story.rd.domain.toLowerCase();
 
     function done() {
       NB.StoryModel.setCurrentStory('panel', story);
     }
 
 
-    if (story.reddit.self) {
+    if (story.rd.self) {
       var html = [
         '<p>Built-in reddit comments coming soon. For now, head over to ',
           '<a href="' + story.url + '" target="_blank">reddit to read more</a>.',

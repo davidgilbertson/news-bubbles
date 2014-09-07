@@ -1,6 +1,6 @@
 {
   "name": "news-bubbles",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "dependencies": {
     "express": "^4.8.4",
     "mongoose": "^3.8.15",

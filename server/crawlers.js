@@ -124,16 +124,15 @@ exports.startRedditCrawler = function(globalIo) {
   }
 
   go();
-
 };
 
-exports.forceRdFetch = function(limit) {
+exports.forceRdFetch = function(limit, list) {
   var loops = limit / 100
     , count = 0
     , url = '';
 
   function go(after) {
-    url = buildRedditUrl({after: after, list: 'new'});
+    url = buildRedditUrl({after: after, list: list});
     devLog('Getting data with the URL:', url);
 
     goGetReddit(url, function(response) {
@@ -153,7 +152,6 @@ exports.forceRdFetch = function(limit) {
   }
 
   go();
-
 };
 
 
