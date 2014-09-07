@@ -37,7 +37,7 @@ NB.StoryPanel = (function() {
     var dom = story.reddit.domain.toLowerCase();
 
     function done() {
-      NB.Data.setCurrentStory('panel', story);
+      NB.StoryModel.setCurrentStory('panel', story);
     }
 
 
@@ -105,19 +105,19 @@ NB.StoryPanel = (function() {
     if (story.url) {
       if (story.url.match(/pdf\?*.*$/)) {
         story.content = '<a href="' + story.url + '" target="_blank">Download/open this PDF</a>';
-        NB.Data.setCurrentStory('panel', story);
+        NB.StoryModel.setCurrentStory('panel', story);
 
       } else {
         getReadability(story, function(content) {
           story.content = content;
-          NB.Data.setCurrentStory('panel', story);
+          NB.StoryModel.setCurrentStory('panel', story);
 
         });
       }
     } else {
       console.log('This story has no conent:', story);
       story.content = 'Built-in Hacker News comments coming soon.';
-      NB.Data.setCurrentStory('panel', story);
+      NB.StoryModel.setCurrentStory('panel', story);
 
     }
   }
@@ -128,11 +128,6 @@ NB.StoryPanel = (function() {
   /*  --  PUBLIC  --  */
 
   StoryPanel.render = function(story) {
-//     NB.Data.setCurrentStory('tooltip', story); //TODO doesn't belong here
-//     NB.Data.setCurrentStory('panel', story); //TODO, finish
-
-
-
 
     //The story panel element is passed into these funciton because if it goes to readability it's an async call
     //and I don't want to mess around with cbs everywhere

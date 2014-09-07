@@ -19,8 +19,8 @@ NB.main = (function() {
   //The server will be emitting new/changed stories as they become available.
   NB.Data.getData(NB.source, 200);
 
-  ko.applyBindings(NB.Data.tooltipStory, document.getElementById('story-tooltip'));
-  ko.applyBindings(NB.Data.panelStory, document.getElementById('story-panel'));
+  ko.applyBindings(NB.StoryModel.tooltipStory, document.getElementById('story-tooltip'));
+  ko.applyBindings(NB.StoryModel.panelStory, document.getElementById('story-panel'));
 
   if (!('ontouchstart' in window) && !(window.DocumentTouch && document instanceof DocumentTouch)) {
     d3.select('body').classed('no-touch', true);

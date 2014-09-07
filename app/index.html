@@ -71,7 +71,7 @@
             </h1>
             <div class="sub-title">
               <p data-bind="text: domain"></p>
-              <p><span data-bind="text: score">...</span> points | <a data-bind="attr: {href: storyUrl}" target="_blank"><span data-bind="text: commentCount">...</span><span> comments</span></a> | posted by <span data-bind="text: author">...</span></p>
+              <p><span data-bind="text: score">...</span> points | <a data-bind="attr: {href: sourceUrl}" target="_blank"><span data-bind="text: commentCount">...</span><span> comments</span></a> | posted by <span data-bind="text: author">...</span></p>
               <p><span data-bind="text: timeString">...</span> on <span data-bind="text: dateString">...</span></p>
             </div>
           </div>
@@ -91,7 +91,7 @@
     <div id="story-tooltip" class="maxi-tooltip">
       <div class="left table">
         <div class="row">
-          <div id="tooltip-dismiss" class="left-top btn cell">Mark as Read (TODO)</div>
+          <div id="tooltip-mark-as-read" class="left-top btn cell">Mark as Read (TODO)</div>
         </div>
         <div class="row">
           <div id="tooltip-open-reading-pane" class="left-middle btn cell">Open in reading pane</div>
@@ -102,21 +102,18 @@
       </div>
       <div class="right">
         <div class="right-top table">
-          <a class="cell" data-bind="href: url" target="_blank">
-            <h1 id="maxi-tooltip-title" class="cell" data-bind="text: name">Story 99999</h1>
-          </a>
-
+          <h1 id="maxi-tooltip-title" class="cell" data-bind="text: name">...</h1>
         </div>
         <div class="right-bottom">
           <div class="right-bottom-left">
-            <p data-bind="text: domain">99999.com</p>
-            <p data-bind="text: timeString">99:999AM</p>
-            <p data-bind="text: dateString">Friday 99999 Sep, 2014</p>
+            <p data-bind="text: domain">...</p>
+            <p data-bind="text: timeString">...</p>
+            <p data-bind="text: dateString">...</p>
           </div>
           <div class="right-bottom-right">
-            <p><span data-bind="text: score">99999</span> points</p>
-            <p><span data-bind="text: commentCount">99999</span> comments</p>
-            <p>Posted by <span data-bind="text: author">NINE NINE NINE</span></p>
+            <p><span data-bind="text: score">...</span> points</p>
+            <p><a data-bind="attr: {href: sourceUrl}" target="_blank"><span data-bind="text: commentCount">...</span> comments</a></p>
+            <p>Posted by <a data-bind="attr: {href: authorUrl}, text: author" target="_blank">...</a></p>
           </div>
         </div>
       </div>
@@ -146,12 +143,12 @@
                 Show the story details as a tooltip
               </label>
             </div>
-            <div class="settings-panel-option">
+            <!-- <div class="settings-panel-option">
               <label>
                 <input type="radio" name="settings-click-bubble-option" value="openTab" data-bind="checked: clickAction">
                 Open the story in a new tab
               </label>
-            </div>
+            </div> -->
           </div>
           <div class="settings-panel-body-row">
             <h2>WHEN I RIGHT CLICK A BUBBLE</h2>
@@ -193,7 +190,8 @@
       <script src="scripts/chart.js"></script>
       <script src="scripts/events.js"></script>
       <script src="scripts/storyPanel.js"></script>
-      <script src="scripts/settingsPanel.js"></script>
+      <script src="scripts/storyModel.js"></script>
+      <script src="scripts/settings.js"></script>
       <script src="scripts/main.js"></script>
     <!-- endbuild -->
 

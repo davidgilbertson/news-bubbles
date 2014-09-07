@@ -3,18 +3,12 @@ var NB = NB || {};
 
 NB.Chart = (function() {
   var Chart = {}
-//     , stories = []
     , chartWrapper
     , plotArea
     , plotAreaClip
     , chartOverlay
-//     , stripesG
-//     , stripes = []
-//     , legend
-//     , maxCircle = document.body.offsetHeight / 20
     , margins = {top: 70, right: 0, bottom: 30, left: 0} //keep in mind max circle size
     , maxCircle
-//     , margins
     , x
     , y
     , z
@@ -29,11 +23,27 @@ NB.Chart = (function() {
     , yAxis
     , xAxisG
     , yAxisG
-//     , yAxisTitle
     , tooltip
     , zoom
+    , maxiTooltipShowing = false
   ;
 
+  function markAsRead(circle, story) {
+    if (NB.Data.isRead(story.id)) { return; }
+
+    NB.Data.markAsRead(story.id);
+    circle.classed('read', true);
+  }
+
+  function toggleRead(circle, story) {
+    if (circle.classed('read')) {
+      circle.classed('read', false);
+      NB.Data.markAsUnread(story.id);
+    } else {
+      circle.classed('read', true);
+      NB.Data.markAsRead(story.id);
+    }
+  }
 
   //TODO: What a mess
   function bubbleClicked(d) {
@@ -45,40 +55,79 @@ NB.Chart = (function() {
       .classed('selected', false);
 
     //Now select the item just clicked
-    el.classed('selected', true)
-      .classed('read', true);
+    el.classed('selected', true);
 
-    if (!NB.Data.isRead(d.id)) { //save adding an already read story a second time
-      NB.Data.markAsRead(d.id);
-    }
     
 
-
     var setting = NB.SettingsPanel.getSetting('clickAction');
+
     if (setting === 'storyPanel') {
+      markAsRead(el, d);
       NB.Layout.showStoryPanel();
       NB.StoryPanel.render(d);
     }
-    if (setting === 'storyTooltip') {
-      var thisDims = el.node().getBoundingClientRect();
-      var r = z(d.commentCount);
-      var left = thisDims.left + r; //TODO ensure the tooptip isn't off the page
-      var top = thisDims.top + r; //TODO ensure the tooptip isn't off the page
 
-      NB.Data.setCurrentStory('tooltip', d); //TODO should this make visible?
-      d3.select('#story-tooltip')
+    if (setting === 'storyTooltip') { //TODO move this out to maxiTooltip module (pass el and d)
+      var maxiTooltip = d3.select('#story-tooltip');
+      var tooltipWidth = parseInt(maxiTooltip.style('width'));
+      var tooltipHeight = parseInt(maxiTooltip.style('height'));
+
+      var thisDims = el.node().getBoundingClientRect();
+
+      var r = z(d.commentCount);
+      var left = thisDims.left + r - tooltipWidth / 2;
+      var maxLeft = w - tooltipWidth - 20;
+      left = Math.min(left, maxLeft);
+      left = Math.max(left, 0);
+
+      var top = thisDims.top - tooltipHeight;
+      if (top < 50) {
+        top = thisDims.bottom;
+      }
+
+      NB.StoryModel.setCurrentStory('tooltip', d); //TODO should this make visible? E.g. control vis in model?
+
+      var readUnreadLink = d3.select('#tooltip-mark-as-read');
+      if (el.classed('read')) {
+        readUnreadLink.text('Mark as unread');
+      } else {
+        readUnreadLink.text('Mark as read');
+      }
+
+
+      var duration = maxiTooltipShowing ? 200 : 0;
+      maxiTooltip
         .style('display', 'block')
         .transition()
+        .duration(duration)
         .style('left', left + 'px')
         .style('top', top + 'px');
 
-      d3.event.stopPropagation();
+      maxiTooltipShowing = true; //will block little tooltip from showing
 
-      $(document).on('click.tooltip', function() {
-        console.log('one click');
-        d3.select('#story-tooltip').style('display', 'none');
+      d3.event.stopPropagation(); //TODO I do not know the diff between this and immediate
+
+      $(document).on('click.tooltip', function() { //TODO try .one, still not working?
+        maxiTooltip.style('display', 'none');
         $(document).off('click.tooltip');
-      })
+
+        window.setTimeout(function() {
+          maxiTooltipShowing = false; //wait a bit before allowing the little tooltip to show
+        }, 300);
+      });
+      readUnreadLink.on('click', function() { //D3 will remove any existing listener
+        toggleRead(el, d);
+      });
+      d3.select('#tooltip-open-reading-pane').on('click', function() { //D3 will remove any existing listener
+        markAsRead(el, d);
+        NB.Layout.showStoryPanel();
+        NB.StoryPanel.render(d);
+      });
+      
+    }
+
+    if (setting === 'openTab') {
+      //TODO I'm not sure I can do this, maybe the text should be 'open page' or 'navigate to URL'
     }
     
 
@@ -91,6 +140,7 @@ NB.Chart = (function() {
   }
   
   function bubbleMouseover(d) {
+    if (maxiTooltipShowing) { return; }
     var extra = d.reddit ? ' - ' + d.reddit.domain : '';
     tooltip.text(d.name + extra);
     var tipWidth = parseInt(tooltip.style('width'));
@@ -119,14 +169,17 @@ NB.Chart = (function() {
     var setting = NB.SettingsPanel.getSetting('rightClickAction');
     if (setting === 'nothing') { return; }
     d3.event.preventDefault();
+
     var el = d3.select(d3.event.currentTarget);
-    if (el.classed('read')) {
-      el.classed('read', false);
-      NB.Data.markAsUnread(d.id);
-    } else {
-      el.classed('read', true);
-      NB.Data.markAsRead(d.id);
-    }
+
+    toggleRead(el, d);
+//     if (el.classed('read')) {
+//       el.classed('read', false);
+//       NB.Data.markAsUnread(d.id);
+//     } else {
+//       el.classed('read', true);
+//       NB.Data.markAsRead(d.id);
+//     }
   }
 
 

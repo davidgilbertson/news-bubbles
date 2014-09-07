@@ -1,0 +1,130 @@
+#tooltip {
+  @include shadow();
+  visibility: hidden;
+  position: fixed;
+  left: 100px;
+  top: 100px;
+  background: $primary-color;
+  color: white;
+  text-align: center;
+  padding: 10px;
+  max-width: 200px;
+  z-index: 9;
+}
+
+.maxi-tooltip {
+  $width: 540px;
+  $height: 150px;
+  $dark: #2c3e50;
+  $light: #7f8c8d;
+  $radius: 40px;
+
+  display: none;
+  position: fixed;
+  left: 20px;
+  bottom: 20px;
+  width: $width;
+  height: $height;
+  background: black;
+  color: white;
+/*   border-radius: $radius; */
+  @include shadow();
+  z-index: 2;
+
+  a {
+    color: white;
+    text-decoration: none;
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  .table {
+    display: table;
+    .row {
+      display: table-row;
+    }
+    .cell {
+      display: table-cell;
+      vertical-align: middle;
+    }
+  }
+  .left {
+    float: left;
+    width: 33%;
+    height: 100%;
+    background: darken($primary-color, 15%);
+/*     border-radius: $radius 0 0 $radius; */
+    
+    .btn {
+      transition: 300ms;
+      width: 100%;
+      text-align: center;
+      height: $height / 3;
+      cursor: pointer;
+      &:hover { 
+        background: darken($primary-color, 20%);
+        text-decoration: none;
+      }
+      &.left-top {
+  /*       border-radius: $radius 0 0 0; */
+      }
+      &.left-middle {
+        box-sizing: content-box; //border box is ignored in chrome and god knows where else
+        height: $height / 3 - 2;
+        border-top: 1px solid darken($primary-color, 10%);
+        border-bottom: 1px solid darken($primary-color, 10%);
+      }
+      &.left-bottom {
+  /*       border-radius: 0 0 0 $radius; */
+      }
+    }
+  }
+  .right {
+    float: left;
+    width: 67%;
+    height: 100%;
+    background: $primary-color;
+    border-left: 1px solid white;
+/*     border-radius: 0 $radius $radius 0; */
+
+    &-top {
+      height: $height / 2;
+      width: 100%;
+      padding: 0 10px;
+      border-bottom: 1px solid lighten($primary-color, 10%);
+      overflow-y: hidden;
+
+      h1 {
+        color: white;
+        height: 100%;
+        width: 100%;
+        font-size: 25px;
+        font-weight: 300;
+        margin: 0;
+      }
+    }
+    &-bottom {
+      height: $height * 0.5;
+      width: 100%;
+      padding: 12px 10px 0 10px;
+      font-size: 13px;
+      p {
+        margin: 0 7px 0 0;
+        white-space: nowrap;
+        overflow: hidden;
+      }
+      &-left {
+        float: left;
+        width: 62%;
+        height: 100%;
+      }
+      &-right {
+        float: left;
+        width: 38%;
+        height: 100%;
+        text-align: right;
+      }
+    }
+  }
+}

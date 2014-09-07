@@ -2,19 +2,87 @@
 
 var NB = NB || {};
 
-NB.storyModel = (function() {
-  var storyModel = {};
+NB.StoryModel = (function() {
+  var StoryModel = {};
 
-  storyModel.title = 'this is the title';
-  storyModel.autho = 'this is the author';
+  StoryModel.tooltipStory = {
+    name: ko.observable(),
+    url: ko.observable(),
+    sourceUrl: ko.observable(),
+    authorUrl: ko.observable(),
+    domain: ko.observable(),
+    author: ko.observable(),
+    commentCount: ko.observable(),
+    score: ko.observable(),
+    timeString: ko.observable(),
+    dateString: ko.observable()
+  };
 
-  storyModel.setCurrent = function(story) {
-    for (var prop in story) {
-      //TODO isOwnProperty or whatever that's called
-      storyModel[prop] = story[prop];
+  StoryModel.panelStory = {
+    name: ko.observable('News Bubbles'),
+    url: ko.observable(),
+    sourceUrl: ko.observable(),
+    authorUrl: ko.observable(),
+    domain: ko.observable(),
+    author: ko.observable(),
+    commentCount: ko.observable(),
+    score: ko.observable(),
+    timeString: ko.observable(),
+    dateString: ko.observable(),
+    content: ko.observable('Select a bubble on the left do display its content here.')
+  };
+
+  StoryModel.setCurrentStory = function(tooltipOrPanel, story) {
+    var storyObj = StoryModel[tooltipOrPanel + 'Story'];
+    var dateFormatter = d3.time.format('%a, %-e %b %Y');
+    var timeFormatter = d3.time.format('%-I:%M%p');
+    var domain
+      , url = story.url
+      , sourceUrl
+      , authorUrl;
+    var name = story.name;
+
+    if (story.source === 'rd') {
+      domain = story.reddit.domain;
+    }
+    if (story.source === 'hn') {
+      sourceUrl = 'https://news.ycombinator.com/item?id=' + story.sourceId;
+      authorUrl = 'https://news.ycombinator.com/user?id=' + story.author;
+      if (story.name.toLowerCase().indexOf('show hn') > -1) {
+        domain = 'Show HN';
+        name = name.replace('Show HN: ', '');
+      } else if (story.name.toLowerCase().indexOf('ask hn') > -1) {
+        domain = 'Ask HN';
+        url = sourceUrl
+        name = name.replace('Ask HN: ', '');
+      } else {
+        var urlTest = story.url.match(/:\/\/([^\/]*)/);
+        domain = urlTest[1] ? urlTest[1] : 'HN'; 
+//         domain = 'pimp HN';
+      }
+    }
+
+    if (tooltipOrPanel === 'tooltip' && name.length > 50) {
+      name = name.substr(0, 47).trim() + '...';
+    }
+
+    storyObj
+      .name(name)
+      .url(url)
+      .sourceUrl(sourceUrl)
+      .authorUrl(authorUrl)
+      .domain(domain)
+      .author(story.author)
+      .commentCount(story.commentCount)
+      .score(Math.round(story.score))
+      .timeString(timeFormatter(story.postDate))
+      .dateString(dateFormatter(story.postDate));
+
+    if (tooltipOrPanel === 'panel') {
+        storyObj.content(story.content);
     }
   };
 
 
-  return storyModel;
-});
+  return StoryModel;
+})();

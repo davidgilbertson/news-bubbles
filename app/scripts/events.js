@@ -91,12 +91,12 @@ NB.Events = (function() {
   /*  --  Tooltip  --  */
   /*  ---------------  */
 
-  $('#tooltip-dismiss').on('click', function() {
-    console.log('Going to dismiss')
-  });
-  $('#tooltip-open-reading-pane').on('click', function() {
-    console.log('Going to dismiss')
-  });
+//   $('#tooltip-dismiss').on('click', function() {
+//     console.log('Going to dismiss')
+//   });
+//   $('#tooltip-open-reading-pane').on('click', function() {
+//     console.log('Going to dismiss')
+//   });
 
 
 
