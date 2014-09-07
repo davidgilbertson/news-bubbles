@@ -95,26 +95,27 @@ NB.Events = (function() {
   var rdSource = $('#news-source-rd');
   var hnSource = $('#news-source-hn');
 
+//   var src = NB.Settings.getSetting('source') || 'rd'; //this should never be empty, but 'rd' is there for the fun of it.
+//   var minScore = NB.Settings.getSetting(src + 'MinScore');
+
   rdSource.on('click', function() {
     rdSource.addClass('active');
     hnSource.removeClass('active');
-//     if (rdSource.hasClass('active')) {
-      NB.Settings.setSetting('source', 'rd');
-//       NB.Data.stories.length = 0;
-      NB.Chart.reset(); //TODO build reset into getData?
-      NB.Data.getData('rd', 200, 100); //TODO get the settings for limits and min scores
-//     }
+    NB.Settings.setSetting('source', 'rd');
+    NB.Chart.reset(); //TODO build reset into getData?
+    var minScore = NB.Settings.getSetting('rdMinScore');
+
+    NB.Data.getData('rd', NB.HITS_PER_PAGE, minScore); //TODO get the settings for limits and min scores
   });
 
   hnSource.on('click', function() {
     rdSource.removeClass('active');
     hnSource.addClass('active');
-//     if (hnSource.hasClass('active')) {
-      NB.Settings.setSetting('source', 'hn');
-//       NB.Data.stories.length = 0;
-      NB.Chart.reset();
-      NB.Data.getData('hn', 200, 2); //TODO get the settings for limits and min scores
-//     }
+    NB.Settings.setSetting('source', 'hn');
+    NB.Chart.reset();
+    
+    var minScore = NB.Settings.getSetting('hnMinScore');
+    NB.Data.getData('hn', NB.HITS_PER_PAGE, minScore); //TODO get the settings for limits and min scores
   });
 
 
