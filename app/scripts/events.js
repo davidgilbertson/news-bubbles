@@ -76,29 +76,46 @@ NB.Events = (function() {
   /*  ----------------  */
 
   $('#open-settings-btn').on('click', function() {
-    NB.SettingsPanel.openSettings();
+    NB.Settings.openSettings();
   });
   $('#save-settings-btn').on('click', function() {
-    NB.SettingsPanel.saveSettings();
+    NB.Settings.saveSettings();
   });
   $('#cancel-settings-btn').on('click', function() {
-    NB.SettingsPanel.cancelSettings();
+    NB.Settings.cancelSettings();
   });
 
 
 
   /*  ---------------  */
-  /*  --  Tooltip  --  */
+  /*  --  Sources  --  */
   /*  ---------------  */
 
-//   $('#tooltip-dismiss').on('click', function() {
-//     console.log('Going to dismiss')
-//   });
-//   $('#tooltip-open-reading-pane').on('click', function() {
-//     console.log('Going to dismiss')
-//   });
+  //TODO this could probably be one event on .news-sources-source
+  var rdSource = $('#news-source-rd');
+  var hnSource = $('#news-source-hn');
 
+  rdSource.on('click', function() {
+    rdSource.addClass('active');
+    hnSource.removeClass('active');
+//     if (rdSource.hasClass('active')) {
+      NB.Settings.setSetting('source', 'rd');
+//       NB.Data.stories.length = 0;
+      NB.Chart.reset(); //TODO build reset into getData?
+      NB.Data.getData('rd', 200, 100); //TODO get the settings for limits and min scores
+//     }
+  });
 
+  hnSource.on('click', function() {
+    rdSource.removeClass('active');
+    hnSource.addClass('active');
+//     if (hnSource.hasClass('active')) {
+      NB.Settings.setSetting('source', 'hn');
+//       NB.Data.stories.length = 0;
+      NB.Chart.reset();
+      NB.Data.getData('hn', 200, 2); //TODO get the settings for limits and min scores
+//     }
+  });
 
 
 

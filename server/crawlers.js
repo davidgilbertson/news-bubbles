@@ -79,6 +79,7 @@ function goGetReddit(url, cb) {
 }
 
 function buildRedditUrl(props) {
+  props = props || {};
   var url = 'http://www.reddit.com/' + (props.list || 'new') + '.json';
   url += '?limit=' + (props.limit || 100);
   url += props.after ? '&after=' + props.after : '';
@@ -93,20 +94,26 @@ exports.startRedditCrawler = function(globalIo) {
   var count = 0;
   var url = '';
 
-  function go(after) {
+  function go(props) {
     // devLog('Doing go() with the after value:', after, 'and count is currently', count);
-    url = buildRedditUrl({after: after, list: 'hot'});
+    // url = buildRedditUrl({after: props.after, list: props.list});
+    url = buildRedditUrl(props);
     devLog('Getting data with the URL:', url);
 
     goGetReddit(url, function(response) {
       // devLog('Got', response.data.children.length, 'stories');
       saveRedditStories(response.data.children);
+      var firstDate = new Date(response.data.children[0].data.created * 1000);
+      devLog('First date:', firstDate);
 
+      //roughly, 100 stories is 10 minutes. So 48 loops is 480 minutes/8 hours
+      //every 5 seconds means 48 loops takes 4 and a bit minutes
+      //TODO I should also be looping through the 'hot' list.
       count++;
-      if (count < 5) {
+      if (count < 48) {
         setTimeout(function() {
-          go(response.data.after);
-        }, 60000);
+          go({after: response.data.after, list: 'new'});
+        }, 5000);
       } else {
         count = 0;
         go();
@@ -125,18 +132,20 @@ exports.forceRdFetch = function(limit) {
     , url = '';
 
   function go(after) {
-    url = buildRedditUrl({after: after, list: 'hot'});
+    url = buildRedditUrl({after: after, list: 'new'});
     devLog('Getting data with the URL:', url);
 
     goGetReddit(url, function(response) {
       // devLog('Got', response.data.children.length, 'stories');
-      saveRedditStories(response.data.children);
+      if (response.data && response.data.children) {
+        saveRedditStories(response.data.children);
 
-      if (count < loops) {
-        count++;
-        setTimeout(function() {
-          go(response.data.after);
-        }, 2000);
+        if (count < loops) {
+          count++;
+          setTimeout(function() {
+            go(response.data.after);
+          }, 2000);
+        }
       }
 
     });
@@ -204,7 +213,7 @@ exports.forceHnFetch = function() {
   var url = buildHNUrl({minDate: 0, maxDate: now, minPoints: 1});
 
   goGetHn(url, function(data) {
-    devLog('Got stories from last 30 mins. Count is: ' + data.hits.length);
+    devLog('Got HN stories from last 30 mins. Count is: ' + data.hits.length);
     saveHNStories(data.hits);
   });
 };
@@ -221,7 +230,7 @@ exports.startHNCrawler = function(globalIo) {
     var url = buildHNUrl({minDate: now - oneMin * 30, maxDate: now});
 
     goGetHn(url, function(data) {
-      devLog('Got stories from last 30 mins. Count is: ' + data.hits.length);
+      devLog('Got HN stories from last 30 mins. Count is: ' + data.hits.length);
       saveHNStories(data.hits);
     });
   // }, every1Min);
@@ -234,7 +243,7 @@ exports.startHNCrawler = function(globalIo) {
       var url = buildHNUrl({minDate: now - oneHour * 2, maxDate: now - oneMin * 30});
 
       goGetHn(url, function(data) {
-        devLog('Got stories from 30 mins to 2 hours. Count is: ' + data.hits.length);
+        devLog('Got HN stories from 30 mins to 2 hours. Count is: ' + data.hits.length);
         saveHNStories(data.hits);
       });
     }, every5Mins);
@@ -247,7 +256,7 @@ exports.startHNCrawler = function(globalIo) {
       var url = buildHNUrl({minDate: now - oneHour * 6, maxDate: now - oneHour * 2});
 
       goGetHn(url, function(data) {
-        devLog('Got stories from 2 to 6 hours. Count is: ' + data.hits.length);
+        devLog('Got HN stories from 2 to 6 hours. Count is: ' + data.hits.length);
         saveHNStories(data.hits);
       });
     }, every10Mins);
@@ -260,7 +269,7 @@ exports.startHNCrawler = function(globalIo) {
       var url = buildHNUrl({minDate: now - oneHour * 12, maxDate: now - oneHour * 6});
 
       goGetHn(url, function(data) {
-        devLog('Got stories from 6 to 12 hours. Count is: ' + data.hits.length);
+        devLog('Got HN stories from 6 to 12 hours. Count is: ' + data.hits.length);
         saveHNStories(data.hits);
       });
     }, every20Mins);
@@ -274,7 +283,7 @@ exports.startHNCrawler = function(globalIo) {
       var url = buildHNUrl({minDate: now - oneHour * 24, maxDate: now - oneHour * 12});
 
       goGetHn(url, function(data) {
-        devLog('Got stories from 12 to 24 hours. Count is: ' + data.hits.length);
+        devLog('Got HN stories from 12 to 24 hours. Count is: ' + data.hits.length);
         saveHNStories(data.hits);
       });
     }, every30Mins);
@@ -293,7 +302,7 @@ exports.startHNCrawler = function(globalIo) {
       var url = buildHNUrl({minDate: now - oneDay * 30, maxDate: now - oneDay, minPoints: 100});
 
       goGetHn(url, function(data) {
-        devLog('Got stories from 1 to 30 days over 100 points. Count is: ' + data.hits.length);
+        devLog('Got HN stories from 1 to 30 days over 100 points. Count is: ' + data.hits.length);
         saveHNStories(data.hits, true);
       });
     }, every1Day);
@@ -306,7 +315,7 @@ exports.startHNCrawler = function(globalIo) {
       var url = buildHNUrl({minDate: now - oneDay * 90, maxDate: now - oneDay * 30, minPoints: 150});
 
       goGetHn(url, function(data) {
-        devLog('Got stories from 30 to 90 days over 150 points. Count is: ' + data.hits.length);
+        devLog('Got HN stories from 30 to 90 days over 150 points. Count is: ' + data.hits.length);
         saveHNStories(data.hits, true);
       });
     }, every1Day);
@@ -319,7 +328,7 @@ exports.startHNCrawler = function(globalIo) {
       var url = buildHNUrl({minDate: now - oneDay * 200, maxDate: now - oneDay * 90, minPoints: 150});
 
       goGetHn(url, function(data) {
-        devLog('Got stories from 90 to 200 days over 200 points. Count is: ' + data.hits.length);
+        devLog('Got HN stories from 90 to 200 days over 200 points. Count is: ' + data.hits.length);
         saveHNStories(data.hits, true);
       });
     }, every1Day);
@@ -332,7 +341,7 @@ exports.startHNCrawler = function(globalIo) {
       var url = buildHNUrl({minDate: now - oneDay * 365, maxDate: now - oneDay * 200, minPoints: 250});
 
       goGetHn(url, function(data) {
-        devLog('Got stories from 200 to 365 days over 250 points. Count is: ' + data.hits.length);
+        devLog('Got HN stories from 200 to 365 days over 250 points. Count is: ' + data.hits.length);
         saveHNStories(data.hits, true);
       });
     }, every1Day);
@@ -345,7 +354,7 @@ exports.startHNCrawler = function(globalIo) {
       var url = buildHNUrl({minDate: now - oneDay * 600, maxDate: now - oneDay * 365, minPoints: 300});
 
       goGetHn(url, function(data) {
-        devLog('Got stories from 365 to 600 days over 300 points. Count is: ' + data.hits.length);
+        devLog('Got HN stories from 365 to 600 days over 300 points. Count is: ' + data.hits.length);
         saveHNStories(data.hits, true);
       });
     }, every1Day);
@@ -358,7 +367,7 @@ exports.startHNCrawler = function(globalIo) {
       var url = buildHNUrl({minDate: 0, maxDate: now - oneDay * 600, minPoints: 400});
 
       goGetHn(url, function(data) {
-        devLog('Got stories over 600 days old and over 400 points. Count is: ' + data.hits.length);
+        devLog('Got HN stories over 600 days old and over 400 points. Count is: ' + data.hits.length);
         saveHNStories(data.hits, true);
       });
     }, every1Day);

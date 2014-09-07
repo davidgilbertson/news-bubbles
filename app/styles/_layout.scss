@@ -24,17 +24,41 @@
   }
   .news-sources {
     float: right;
-    padding: 8px 17px;
+    height: 100%;
+/*     padding-right: 20px; */
     color: white;
-    a {
-      color: inherit;
-      font-size: 15px;
+    cursor: pointer;
+    &-source {
+      transition: 200ms;
+      @include no-style-button;
+      color: white;
+      font-size: 17px;
+      height: 100%;
+      padding: 0 12px;
+      margin-left: -3px; //narrow the inline-block gap
+      background: $primary-color;
       body.no-touch &:hover {
-        color: #333;
+        background: white;
+        color: $primary-color;
+      }
+      &.active {
+        background: white;
+        color: $primary-color;
       }
     }
   }
-  &-btn {
+  &-icons-wrapper {
+    float: right;
+    width: 80px;
+    height: 40px;
+    padding: 7px;
+    text-align: center;
+    cursor: pointer;
+    path {
+      fill: white;
+    }
+  }
+  &-btn { //TODO what is this?
     float: right;
     font-size: 16px;
     height: 100%;

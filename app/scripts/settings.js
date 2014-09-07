@@ -1,9 +1,9 @@
 'use strict';
 var NB = NB || {};
 
-NB.SettingsPanel = (function() {
+NB.Settings = (function() {
 
-  var SettingsPanel = {}
+  var Settings = {}
     , settings
     , tempSettings
     , settingsEl
@@ -12,15 +12,22 @@ NB.SettingsPanel = (function() {
   function retrieveLocalSettings() {
     if (localStorage.settings) {
       var localSettings = JSON.parse(localStorage.settings);
+
       if (localSettings.clickAction) { settings.clickAction(localSettings.clickAction) };
       if (localSettings.rightClickAction) { settings.rightClickAction(localSettings.rightClickAction) };
+      if (localSettings.source) { settings.source(localSettings.source) };
+      if (localSettings.rdMinScore) { settings.rdMinScore(+localSettings.rdMinScore) };
+      if (localSettings.hnMinScore) { settings.hnMinScore(+localSettings.hnMinScore) };
     }
   }
 
   function init() {
     settings = {
       clickAction: ko.observable('storyTooltip'),
-      rightClickAction: ko.observable('toggleRead')
+      rightClickAction: ko.observable('toggleRead'),
+      source: ko.observable('rd'),
+      rdMinScore: ko.observable(50),
+      hnMinScore: ko.observable(3)
     };
 
     settingsEl = $('#settings-wrapper');
@@ -32,14 +39,17 @@ NB.SettingsPanel = (function() {
   }
 
   function closeSettings() {
-    settingsEl.hide();
+    settingsEl.fadeOut(100);
   }
 
   function saveSettings() {
     //The settings object is bound so nothing needs to be updated there
     var localSettings = {
       clickAction: settings.clickAction(),
-      rightClickAction: settings.rightClickAction()
+      rightClickAction: settings.rightClickAction(),
+      source: settings.source(),
+      rdMinScore: settings.rdMinScore(),
+      hnMinScore: settings.hnMinScore()
     };
 
     localStorage.settings = JSON.stringify(localSettings);
@@ -51,28 +61,32 @@ NB.SettingsPanel = (function() {
   /*  --  Exports  --  */
   /*  ---------------  */ 
 
-  SettingsPanel.openSettings = function() {
-    settingsEl.show();
+  Settings.openSettings = function() {
+    settingsEl.fadeIn(100);
   };
 
-  SettingsPanel.saveSettings = function() {
+  Settings.saveSettings = function() {
     saveSettings();
   };
 
-  SettingsPanel.cancelSettings = function() {
+  Settings.cancelSettings = function() {
     //since the settings object is bound to the radio buttons, it may have changed.
     //so reset it to what's in localStorage
     retrieveLocalSettings();
     closeSettings();
   };
 
-  SettingsPanel.getSetting = function(setting) {
+  Settings.getSetting = function(setting) {
     return settings[setting]();
+  }
+  Settings.setSetting = function(setting, value) {
+    settings[setting](value);
+    saveSettings();
   }
 
 
   init();
-  return SettingsPanel;
+  return Settings;
 
 })();
 

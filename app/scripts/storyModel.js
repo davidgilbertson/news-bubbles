@@ -11,6 +11,7 @@ NB.StoryModel = (function() {
     sourceUrl: ko.observable(),
     authorUrl: ko.observable(),
     domain: ko.observable(),
+    category: ko.observable(),
     author: ko.observable(),
     commentCount: ko.observable(),
     score: ko.observable(),
@@ -24,6 +25,7 @@ NB.StoryModel = (function() {
     sourceUrl: ko.observable(),
     authorUrl: ko.observable(),
     domain: ko.observable(),
+    category: ko.observable(),
     author: ko.observable(),
     commentCount: ko.observable(),
     score: ko.observable(),
@@ -41,6 +43,7 @@ NB.StoryModel = (function() {
       , sourceUrl
       , authorUrl;
     var name = story.name;
+    var category = story.category || '';
 
     if (story.source === 'rd') {
       domain = story.reddit.domain;
@@ -74,12 +77,17 @@ NB.StoryModel = (function() {
       name = name.substr(0, 47).trim() + '...';
     }
 
+//     if (category) {
+//       console.log('I have a category:', category, story);
+//     }
+
     storyObj
       .name(name)
       .url(url)
       .sourceUrl(sourceUrl)
       .authorUrl(authorUrl)
       .domain(domain)
+      .category(category)
       .author(story.author)
       .commentCount(story.commentCount)
       .score(Math.round(story.score))

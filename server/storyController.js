@@ -5,9 +5,10 @@ var path = require('path')
 ;
 
 
-exports.getRecentStoriesByCount = function(source, limit, cb) {
+exports.getRecentStoriesByCount = function(source, limit, minScore, cb) {
+  minScore = minScore || 1;
   Story
-    .find({source: source, score: {$gte: 2}}, {history: false})
+    .find({source: source, score: {$gte: minScore}}, {history: false})
     .sort('-postDate')
     .limit(limit)
     .exec(function(err, docs) {
@@ -83,14 +84,15 @@ exports.upsertRedditStory = function(obj, cb) {
         score: obj.score,
         author: obj.author,
         thumbnail: obj.thumbnail,
-        reddit: {
+        rd: {
           kind: kind,
           domain: obj.domain,
           shortId: obj.id,
           fullId: obj.name,
           permalink: obj.permalink,
           self: obj.is_self,
-          selftext: obj.selftext
+          selftext: obj.selftext,
+          subreddit: obj.subreddit
         }
       });
       story.save();
@@ -148,7 +150,7 @@ exports.upsertHNStory = function(obj, cb) {
         author: obj.author,
         thumbnail: null,
         hn: {
-          tags: obj.tags
+          tags: obj._tags
         }
       });
       story.save();

@@ -14,7 +14,7 @@ NB.Chart = (function() {
     , z
     , w
     , h
-    , minDate = Infinity
+    , minDate = Infinity //TODO set this lot down in init() so they get reset
     , maxDate = 0
     , maxScore = 0
     , minCommentCount = Infinity
@@ -59,7 +59,7 @@ NB.Chart = (function() {
 
     
 
-    var setting = NB.SettingsPanel.getSetting('clickAction');
+    var setting = NB.Settings.getSetting('clickAction');
 
     if (setting === 'storyPanel') {
       markAsRead(el, d);
@@ -166,7 +166,7 @@ NB.Chart = (function() {
   }
 
   function bubbleRightClicked(d) {
-    var setting = NB.SettingsPanel.getSetting('rightClickAction');
+    var setting = NB.Settings.getSetting('rightClickAction');
     if (setting === 'nothing') { return; }
     d3.event.preventDefault();
 
@@ -306,8 +306,11 @@ NB.Chart = (function() {
     minCommentCount = Math.min(minCommentCount, d3.min(NB.Data.stories, function(d) { return d.commentCount; }));
     maxCommentCount = Math.max(maxCommentCount, d3.max(NB.Data.stories, function(d) { return d.commentCount; }));
 
+    var src = NB.Settings.getSetting('source');
+    var minScore = NB.Settings.getSetting(src + 'MinScore');
+
     x.domain([minDate, maxDate]);
-    y.domain([NB.MIN_POINTS, maxScore]);
+    y.domain([minScore, maxScore]);
     z.domain([minCommentCount, maxCommentCount]);
 
     zoom.x(x);
@@ -327,8 +330,16 @@ NB.Chart = (function() {
 
   function init() {
 //     console.log('init()');
+    d3.selectAll('#svg-bubble-chart > *').remove();
     chartWrapper = d3.select('#svg-bubble-chart');
-    tooltip = d3.select('#tooltip');
+    tooltip = d3.select('#tooltip'); //TODO move out of init?
+
+    
+    minDate = Infinity;
+    maxDate = 0;
+    maxScore = 0;
+    minCommentCount = Infinity;
+    maxCommentCount = 0;
 
     x = d3.time.scale();
     y = d3.scale.pow().exponent(0.3);
@@ -345,10 +356,6 @@ NB.Chart = (function() {
       .ticks(15)
       .tickSize(0, 0);
 
-
-//     stripesG = chartWrapper.append('g')
-//       .classed('stripes', true);
-
     var chartAxes = chartWrapper.append('g')
       .classed('chart-axis', true);
 
@@ -358,44 +365,6 @@ NB.Chart = (function() {
     yAxisG = chartAxes.append('g')
       .classed('chart-axis-y', true);
       
-//     yAxisTitle = yAxisG
-//       .append('text')
-//       .style('font-size', '13px')
-//       .text('Points')
-//       .attr('transform', 'translate(0, 53)');
-
-//     legend = chartWrapper.append('g')
-//       .classed('chart-legend', true)
-//       .attr('transform', 'translate(20, 20)');
-
-//     var legendData = [
-//       {name: 'Ask HN', className: 'story-circle story-circle-ask'},
-//       {name: 'Show HN', className: 'story-circle story-circle-show'},
-//       {name: 'Story', className: 'story-circle'}
-//     ];
-//     var legendEntries = legend.selectAll('g')
-//       .data(legendData)
-//       .enter()
-//       .append('g')
-//       .attr('transform', function(d, i) {
-//         return 'translate(' + (i * 100) + ',0)';
-//       })
-//       .attr('class', function(d) {
-//         return d.className;
-//       });
-
-//     legendEntries
-//       .append('circle')
-//       .attr('cx', 0)
-//       .attr('cy', 0)
-//       .attr('r', 7);
-//     legendEntries
-//       .append('text')
-//       .text(function(d) {
-//         return d.name;
-//       })
-//       .attr('dx', 12)
-//       .attr('dy', '0.35em');
 
     initZoom();
 
@@ -418,27 +387,14 @@ NB.Chart = (function() {
 /*  --  Exported Methods  --  */
 
   Chart.drawStories = function() {
-//     console.log('Chart.drawStories() - count:', data.length);
-//     stories = data;
     setScales();
     setDimensions();
     drawStories(true);
   };
 
-  //Updating is delta only, could be new or changed stories.
-//   Chart.updateStories = function() {
-//     stories = data;
-//     setScales();
-//     setDimensions();
-//     drawStories(true); //true = animate
-//   };
-
-//   Chart.addStories = function() {
-//     console.log('Chart.addStories()');
-//     stories = stories.concat(data);
-//     setScales();
-//     drawStories(true);
-//   };
+  Chart.reset = function() {
+    init();
+  };
 
   Chart.resize = function(animate) {
     if (!NB.Data.stories.length) { return; }

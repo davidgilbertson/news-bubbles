@@ -25,8 +25,8 @@ module.exports = function(app) {
     });
   });
 
-  app.get('/api/:source/:limit', function(req, res) {
-    storyController.getRecentStoriesByCount(req.params.source, req.params.limit, function(data) {
+  app.get('/api/:source/:limit/:minScore', function(req, res) {
+    storyController.getRecentStoriesByCount(req.params.source, req.params.limit, req.params.minScore, function(data) {
       res.json(data);
     });
   });
