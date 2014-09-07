@@ -44,10 +44,15 @@ NB.StoryModel = (function() {
 
     if (story.source === 'rd') {
       domain = story.reddit.domain;
+      sourceUrl = 'https://www.reddit.com' + story.reddit.permalink;
+      authorUrl = 'http://www.reddit.com/user/' + story.author;
     }
     if (story.source === 'hn') {
       sourceUrl = 'https://news.ycombinator.com/item?id=' + story.sourceId;
       authorUrl = 'https://news.ycombinator.com/user?id=' + story.author;
+      if (!story.url) {
+        url = sourceUrl;
+      }
       if (story.name.toLowerCase().indexOf('show hn') > -1) {
         domain = 'Show HN';
         name = name.replace('Show HN: ', '');
@@ -57,8 +62,11 @@ NB.StoryModel = (function() {
         name = name.replace('Ask HN: ', '');
       } else {
         var urlTest = story.url.match(/:\/\/([^\/]*)/);
-        domain = urlTest[1] ? urlTest[1] : 'HN'; 
-//         domain = 'pimp HN';
+        if (urlTest) {
+          domain = urlTest[1] ? urlTest[1] : 'HN'; 
+        } else {
+          domain = 'Hacker News';
+        }
       }
     }
 

@@ -71,7 +71,7 @@
             </h1>
             <div class="sub-title">
               <p data-bind="text: domain"></p>
-              <p><span data-bind="text: score">...</span> points | <a data-bind="attr: {href: sourceUrl}" target="_blank"><span data-bind="text: commentCount">...</span><span> comments</span></a> | posted by <span data-bind="text: author">...</span></p>
+              <p><span data-bind="text: score">...</span> points | <a data-bind="attr: {href: sourceUrl}" target="_blank"><span data-bind="text: commentCount">...</span><span> comments</span></a> | posted by <a data-bind="attr: {href: authorUrl}, text: author" target="_blank">...</a></p>
               <p><span data-bind="text: timeString">...</span> on <span data-bind="text: dateString">...</span></p>
             </div>
           </div>

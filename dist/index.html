@@ -6,7 +6,7 @@
     <meta name="description" content="A visual display for hacker news stories.">
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 
-    <link rel="stylesheet" href="styles/main-43c7db4e.css">
+    <link rel="stylesheet" href="styles/main-a1723f33.css">
 
     <link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
     <link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
@@ -29,14 +29,22 @@
     <!--[if lt IE 10]>
     <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
     <![endif]-->
+
+
+
     <header class="header">
       <h1 class="header-title">NEWS BUBBLES</h1>
       <div class="news-sources">
         <a href="?src=rd">Reddit</a>
         /
         <a href="?src=hn">Hacker News</a>
+        /
+        <a id="open-settings-btn">Settings</a>
       </div>
     </header>
+
+
+
     <main id="content-wrapper" class="content-wrapper">
       <div id="chart-wrapper" class="chart-wrapper">
 
@@ -61,7 +69,7 @@
             </h1>
             <div class="sub-title">
               <p data-bind="text: domain"></p>
-              <p><span data-bind="text: score">...</span> points | <a data-bind="attr: {href: storyUrl}" target="_blank"><span data-bind="text: commentCount">...</span><span> comments</span></a> | posted by <span data-bind="text: author">...</span></p>
+              <p><span data-bind="text: score">...</span> points | <a data-bind="attr: {href: sourceUrl}" target="_blank"><span data-bind="text: commentCount">...</span><span> comments</span></a> | posted by <a data-bind="attr: {href: authorUrl}, text: author" target="_blank">...</a></p>
               <p><span data-bind="text: timeString">...</span> on <span data-bind="text: dateString">...</span></p>
             </div>
           </div>
@@ -71,49 +79,103 @@
 
       </div>
     </main>
+
+
+
     <div id="tooltip">tooltip</div>
+
+
 
     <div id="story-tooltip" class="maxi-tooltip">
       <div class="left table">
         <div class="row">
-          <div class="left-top btn cell">Dismiss</div>
+          <div id="tooltip-mark-as-read" class="left-top btn cell">Mark as Read (TODO)</div>
         </div>
         <div class="row">
-          <div class="left-middle btn cell">Open in reading pane</div>
+          <div id="tooltip-open-reading-pane" class="left-middle btn cell">Open in reading pane</div>
         </div>
         <div class="row">
-          <a class="left-bottom btn cell" href="/">Open in new tab</a>
+          <a class="left-bottom btn cell" data-bind="attr: {href: url}" target="_blank">Open in new tab</a>
         </div>
       </div>
       <div class="right">
         <div class="right-top table">
-          <a class="cell" data-bind="href: url" target="_blank">
-            <h1 id="maxi-tooltip-title" class="cell" data-bind="text: name">Story 99999</h1>
-          </a>
-
+          <h1 id="maxi-tooltip-title" class="cell" data-bind="text: name">...</h1>
         </div>
         <div class="right-bottom">
           <div class="right-bottom-left">
-            <p data-bind="text: domain">99999.com</p>
-            <p data-bind="text: timeString">99:999AM</p>
-            <p data-bind="text: dateString">Friday 99999 Sep, 2014</p>
+            <p data-bind="text: domain">...</p>
+            <p data-bind="text: timeString">...</p>
+            <p data-bind="text: dateString">...</p>
           </div>
           <div class="right-bottom-right">
-            <p><span data-bind="text: score">99999</span> points</p>
-            <p><span data-bind="text: commentCount">99999</span> comments</p>
-            <p>Posted by <span data-bind="text: author">NINE NINE NINE</span></p>
+            <p><span data-bind="text: score">...</span> points</p>
+            <p><a data-bind="attr: {href: sourceUrl}" target="_blank"><span data-bind="text: commentCount">...</span> comments</a></p>
+            <p>Posted by <a data-bind="attr: {href: authorUrl}, text: author" target="_blank">...</a></p>
           </div>
         </div>
-
       </div>
     </div>
+
+
+
+    <div id="settings-wrapper" class="settings-wrapper">
+      <div class="settings-panel">
+        <div class="close-x settings-panel-close-x" id="cancel-settings-btn">×</div>
+        <div class="settings-panel-header">
+          <h1>SETTINGS</h1>
+          <hr>
+        </div>
+        <div class="settings-panel-body">
+          <div class="settings-panel-body-row">
+            <h2>WHEN I CLICK A BUBBLE</h2>
+            <div class="settings-panel-option">
+              <label>
+                <input type="radio" name="settings-click-bubble-option" value="storyPanel" data-bind="checked: clickAction">
+                Open the story panel
+              </label>
+            </div>
+            <div class="settings-panel-option">
+              <label>
+                <input type="radio" name="settings-click-bubble-option" value="storyTooltip" data-bind="checked: clickAction">
+                Show the story details as a tooltip
+              </label>
+            </div>
+            <!-- <div class="settings-panel-option">
+              <label>
+                <input type="radio" name="settings-click-bubble-option" value="openTab" data-bind="checked: clickAction">
+                Open the story in a new tab
+              </label>
+            </div> -->
+          </div>
+          <div class="settings-panel-body-row">
+            <h2>WHEN I RIGHT CLICK A BUBBLE</h2>
+            <div class="settings-panel-option">
+              <label>
+                <input type="radio" name="settings-right-click-bubble-option" value="toggleRead" data-bind="checked: rightClickAction">
+                Mark the story as read/unread
+              </label>
+            </div>
+            <div class="settings-panel-option">
+              <label>
+                <input type="radio" name="settings-right-click-bubble-option" value="nothing" data-bind="checked: rightClickAction">
+                Do nothing
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="settings-save-btn"  id="save-settings-btn">SAVE & CLOSE</div>
+      </div>
+    </div>
+
+
 
     <script src="scripts/vendor-57d374f9.js"></script>
 
     <script src="/socket.io/socket.io.js"></script>
 
 
-    <script src="scripts/main-dfe469f7.js"></script>
+    <script src="scripts/main-83828fe1.js"></script>
 
   </body>
 </html>

@@ -115,7 +115,7 @@ NB.StoryPanel = (function() {
         });
       }
     } else {
-      console.log('This story has no conent:', story);
+//       console.log('This story has no conent:', story);
       story.content = 'Built-in Hacker News comments coming soon.';
       NB.StoryModel.setCurrentStory('panel', story);
 
@@ -132,17 +132,14 @@ NB.StoryPanel = (function() {
     //The story panel element is passed into these funciton because if it goes to readability it's an async call
     //and I don't want to mess around with cbs everywhere
     if (story.source === 'rd') {
-//       var storyPanel = $('#story-panel-content').empty();
       renderReddit(story);
     }
-
 
     if (story.source === 'hn') {
       renderHackerNews(story);
     }
 
   }
-
 
 
   return StoryPanel;
