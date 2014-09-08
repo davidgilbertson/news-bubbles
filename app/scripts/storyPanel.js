@@ -20,7 +20,7 @@ NB.StoryPanel = (function() {
       if (data.error) {
         var msg = [
           '<h2>Whoa!</h2>',
-          '<p>This site is far too good for this little panel. Better go see the whole thing ',
+          '<p>This is far too good for this little panel. Better go see the whole thing ',
             '<a href="' + story.url + '" target="_blank">here</a>.',
           '</p>'
           ].join('');
@@ -59,6 +59,8 @@ NB.StoryPanel = (function() {
 
       if (story.url.match(/\imgur\.com\/a\//)) { //it is an imgur album (/a/)
         var albumId =  story.url.replace(/.*?\imgur\.com\/a\//, '');
+        albumId = albumId.replace(/#.*/, ''); //remove trailing hash
+        albumId = albumId.replace(/\?.*/, ''); //remove trailing query string
         var url = 'https://api.imgur.com/3/album/' + albumId + '/images';
         var html = '';
         $.get(url, function(response) {

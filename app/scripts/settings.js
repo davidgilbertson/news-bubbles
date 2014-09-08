@@ -26,7 +26,7 @@ NB.Settings = (function() {
       clickAction: ko.observable('storyTooltip'),
       rightClickAction: ko.observable('toggleRead'),
       source: ko.observable('rd'),
-      rdMinScore: ko.observable(50),
+      rdMinScore: ko.observable(100),
       hnMinScore: ko.observable(3),
       hnCategoryColors: ko.observableArray([
 //         {category: 'Hacker News story', color: '#2980b9'},

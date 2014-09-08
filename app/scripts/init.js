@@ -8,7 +8,7 @@ NB.RESIZER_WIDTH = 24;
 NB.splitPos = 0;
 
 NB.MIN_POINTS = 1;
-NB.HITS_PER_PAGE = 100;
+NB.HITS_PER_PAGE = 200;
 NB.hasTouch = true;
 NB.oldestStory = Infinity;
 

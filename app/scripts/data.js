@@ -63,7 +63,7 @@ NB.Data = (function() {
   }
 
   function parseInitialData(data, captureOldest, cb) {
-    console.log('parseInitialData()');
+//     console.log('parseInitialData()');
     data.forEach(function(s) {
       s.postDate = new Date(s.postDate);
       if (captureOldest) {
@@ -89,7 +89,7 @@ NB.Data = (function() {
   function getRedditData(limit, minScore) {
     $.get('/api/rd/' + limit + '/' + minScore, function(data) {
       parseInitialData(data, true, function(data) {
-        console.log('parseInitialData complete');
+//         console.log('parseInitialData complete');
         Data.stories = data;
         NB.Chart.drawStories();
       });
@@ -148,7 +148,7 @@ NB.Data = (function() {
   };
 
   Data.getData = function(source, limit, minScore) {
-    console.log('Data.getData:', source, limit, minScore);
+//     console.log('Data.getData:', source, limit, minScore);
     limit = limit || NB.HITS_PER_PAGE;
     if (source === 'rd') {
       getRedditData(limit, minScore);

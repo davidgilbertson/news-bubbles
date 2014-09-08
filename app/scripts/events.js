@@ -12,7 +12,7 @@ NB.Events = (function() {
 
   function resizerMousedown(e) {
     if (d3.event.target.id === 'story-panel-toggle') { return false; }
-    console.log('#story-panel-resizer clicked:', e);
+//     console.log('#story-panel-resizer clicked:', e);
 //     console.log('resizerMousedown()');
     chartWrapper = d3.select('#chart-wrapper').style('transition', '0ms');
     storyPanel = d3.select('#story-panel').style('transition', '0ms');

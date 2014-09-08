@@ -404,7 +404,7 @@ NB.Chart = (function() {
 /*  --  Exported Methods  --  */
 
   Chart.drawStories = function() {
-    console.log('Chart.darwStories()', NB.Data.stories);
+//     console.log('Chart.darwStories()', NB.Data.stories);
     setScales();
     setDimensions();
     drawStories(true);
