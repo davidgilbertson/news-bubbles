@@ -8,3 +8,8 @@
   margin: 0;
   background: white;
 }
+@mixin no-style-ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}

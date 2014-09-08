@@ -141,7 +141,8 @@ NB.Chart = (function() {
   
   function bubbleMouseover(d) {
     if (maxiTooltipShowing) { return; }
-    var extra = d.rd ? ' - ' + d.rd.domain : ''; //TODO remove the 'extra' bit when color coding is done. Or maybe not.
+//     var extra = d.rd ? ' - ' + d.rd.domain : ''; //TODO remove the 'extra' bit when color coding is done. Or maybe not.
+    var extra = ' --' + d.category;
     tooltip.text(d.name + extra);
     var tipWidth = parseInt(tooltip.style('width'));
     var tipHeight = parseInt(tooltip.style('height'));
@@ -195,7 +196,7 @@ NB.Chart = (function() {
       });
 
     points
-      .classed('updating', true);
+      .classed('updating', true); //TODO not doing this any more
 
     points
       .enter()
@@ -205,6 +206,22 @@ NB.Chart = (function() {
       })
       .attr('cx', function() { return x(maxDate); })
       .attr('cy', function() { return y(0); })
+      .attr('fill', function(d) {
+//         var color = NB.categoryColors[d.category];
+//         if (color) {
+//           return color;
+//         }
+//         return NB[d.source + 'CategoryColors'][d.category] || NB[d.source + 'CategoryColors']['default'];
+        return NB.Settings.getColor(d.source, d.category);
+      })
+      .attr('stroke', function(d) {
+//         var color = NB.categoryColors[d.category];
+//         if (color) {
+//           return color;
+//         }
+//         return NB[d.source + 'CategoryColors'][d.category] || NB[d.source + 'CategoryColors']['default'];
+        return NB.Settings.getColor(d.source, d.category);
+      })
       .classed('story-circle', true)
       .classed('read', function(d) { return NB.Data.isRead(d.id); })
       .on('click', bubbleClicked)
@@ -387,6 +404,7 @@ NB.Chart = (function() {
 /*  --  Exported Methods  --  */
 
   Chart.drawStories = function() {
+    console.log('Chart.darwStories()', NB.Data.stories);
     setScales();
     setDimensions();
     drawStories(true);

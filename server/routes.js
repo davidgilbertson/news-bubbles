@@ -39,7 +39,7 @@ module.exports = function(app) {
   });
 
   app.get('/crawlers/forceRdFetch/:list/:limit', function(req, res) {
-    devLog('Someone forced a reddit fetch with the limit:', req.params.limit);
+    devLog('Someone forced a reddit fetch for the', req.params.list, 'list with the limit:', req.params.limit);
 
     var crawlers = require(path.join(__dirname, 'crawlers'));
 

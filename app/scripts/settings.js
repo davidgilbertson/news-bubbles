@@ -27,7 +27,21 @@ NB.Settings = (function() {
       rightClickAction: ko.observable('toggleRead'),
       source: ko.observable('rd'),
       rdMinScore: ko.observable(50),
-      hnMinScore: ko.observable(3)
+      hnMinScore: ko.observable(3),
+      hnCategoryColors: ko.observableArray([
+//         {category: 'Hacker News story', color: '#2980b9'},
+        {category: 'Ask HN', color: '#e74c3c'},
+        {category: 'Show HN', color: '#16a085'},
+        {category: 'Everything else', color: '#2980b9'}
+      ]),
+      rdCategoryColors: ko.observableArray([
+        {category: 'AskReddit', color: '#2980b9'},
+        {category: 'funny', color: '#2ecc71'},
+        {category: 'pics', color: '#f39c12'},
+        {category: 'aww', color: '#8e44ad'},
+        {category: 'videos', color: '#e74c3c'},
+        {category: 'Everything else', color: '#7f8c8d'}
+      ])
     };
 
     settingsEl = $('#settings-wrapper');
@@ -82,6 +96,19 @@ NB.Settings = (function() {
   Settings.setSetting = function(setting, value) {
     settings[setting](value);
     saveSettings();
+  }
+  Settings.getColor = function(source, category) {
+    var arr = settings[source + 'CategoryColors']();
+    var defaultColor;
+    for (var i = 0; i < arr.length; i++) {
+      if (arr[i].category === category) {
+        return arr[i].color;
+      }
+      if (arr[i].category === 'Everything else') {
+        defaultColor = arr[i].color;
+      }
+    }
+    return defaultColor;
   }
 
 

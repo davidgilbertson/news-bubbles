@@ -180,6 +180,28 @@
               </label>
             </div>
           </div>
+          <div class="settings-panel-body-row">
+            <h2>HACKER NEWS COLORS</h2>
+            <div class="settings-panel-option">
+              <ul class="settings-panel-option-color-list" data-bind="foreach: hnCategoryColors">
+                <li>
+                  <span class="settings-panel-option-color-list-dot" data-bind="style: {background: color}"></span>
+                  <span class="settings-panel-option-color-list-text" data-bind="text: category"></span>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="settings-panel-body-row">
+            <h2>REDDIT COLORS</h2>
+            <div class="settings-panel-option">
+              <ul class="settings-panel-option-color-list" data-bind="foreach: rdCategoryColors">
+                <li>
+                  <span class="settings-panel-option-color-list-dot" data-bind="style: {background: color}"></span>
+                  <span class="settings-panel-option-color-list-text" data-bind="text: category"></span>
+                </li>
+              </ul>
+            </div>
+          </div>
         </div>
         <div class="settings-save-btn"  id="save-settings-btn">SAVE & CLOSE</div>
       </div>
