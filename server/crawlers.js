@@ -103,42 +103,40 @@ exports.startRedditCrawler = function(globalIo) {
     goGetReddit(url, function(response) {
       // devLog('Got', response.data.children.length, 'stories');
 
-      if (!response || count >= 24) {
 
-        setTimeout(function() {
-          count = 0;
-          go();
-        }, 1000); //chill for a bit
 
-      } else {
 
-        saveRedditStories(response.data.children);
-        var firstDate = new Date(response.data.children[0].data.created * 1000);
-        devLog('First date:', firstDate);
-        //roughly, 100 stories is 10 minutes. So 48 loops is 480 minutes/8 hours. 24 loops is 240 minutes/4 hours
-        //every 5 seconds means 48 loops takes 4 minutes
-        //every 30 seconds means 24 loops takes 12 minutes
-        //TODO I should also be looping through the 'hot' list.
-        count++;
-        setTimeout(function() {
-          go({after: response.data.after, list: 'new'});
-        }, 30000);
 
-      }
 
-      //roughly, 100 stories is 10 minutes. So 48 loops is 480 minutes/8 hours. 24 loops is 240 minutes/4 hours
-      //every 5 seconds means 48 loops takes 4 minutes
-      //every 30 seconds means 24 loops takes 12 minutes
-      //TODO I should also be looping through the 'hot' list.
-      // count++;
-      // if (count < 24) {
-        // setTimeout(function() {
-          // go({after: response.data.after, list: 'new'});
-        // }, 30000);
+      // if (!response || count >= 24) {
+
+      //   setTimeout(function() {
+      //     count = 0;
+      //     go();
+      //   }, 1000); //chill for a bit
+
       // } else {
-      //   count = 0;
-      //   go();
+
+      //   saveRedditStories(response.data.children);
+      //   var firstDate = new Date(response.data.children[0].data.created * 1000);
+      //   devLog('First date:', firstDate);
+      //   //roughly, 100 stories is 10 minutes. So 48 loops is 480 minutes/8 hours. 24 loops is 240 minutes/4 hours
+      //   //every 5 seconds means 48 loops takes 4 minutes
+      //   //every 30 seconds means 24 loops takes 12 minutes
+      //   //TODO I should also be looping through the 'hot' list.
+      //   count++;
+      //   setTimeout(function() {
+      //     go({after: response.data.after, list: 'new'});
+      //   }, 30000);
+
       // }
+
+
+
+
+
+
+
 
     });
   }
