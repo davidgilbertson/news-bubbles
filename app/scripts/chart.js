@@ -186,7 +186,7 @@ NB.Chart = (function() {
 
 
   function drawStories(animate) {
-    console.log('drawStories()');
+//     console.log('drawStories()');
 
 
     //NB data may be only a few new or changed stories
@@ -257,7 +257,7 @@ NB.Chart = (function() {
 
   //Call this when the screen layout/size changes
   function setDimensions() {
-    console.log('setDimensions()');
+//     console.log('setDimensions()');
     
     h = parseInt(d3.select('#chart-wrapper').style('height'), 10) - 4; //I don't know why
     w = NB.splitPos;
@@ -316,7 +316,7 @@ NB.Chart = (function() {
 
   //Call this when data changes
   function setScales() {
-    console.log('setScales()');
+//     console.log('setScales()');
     minDate = Math.min(minDate, d3.min(NB.Data.stories, function(d) { return d.postDate; }));
     maxDate = Math.max(maxDate, d3.max(NB.Data.stories, function(d) { return d.postDate; }));
     maxScore = Math.max(maxScore, d3.max(NB.Data.stories, function(d) { return d.score; }));
@@ -405,7 +405,7 @@ NB.Chart = (function() {
 /*  --  Exported Methods  --  */
 
   Chart.drawStories = function() {
-    console.log('Chart.darwStories()');
+//     console.log('Chart.darwStories()');
     //TODO, must these be synchronous?
     setScales();
 

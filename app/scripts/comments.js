@@ -21,16 +21,14 @@ NB.Comments = (function() {
       var $children = $('<ul class="comment-list level-' + level + '">');
 
       arr.forEach(function(commentObj) {
-//         var level = i + 1;
         var $child = $('<li class="comment-list-item">');
         if (commentObj.kind === 'more') {
-          //TODO, yeah, really couldn't be bothered loading more comments inline. Maybe this just links out to the page
-//           $child.append('<p class="comment-list-item-more"><a href="/" target="_blank">more...</a></p>');
+          //TODO, maybe really handle 'more'
         } else {
           author = commentObj.data.author;
           timeAgo = moment(commentObj.data.created_utc * 1000).fromNow();
           score = commentObj.data.score + ' points';
-          
+
           var bodyHtml = $('<textarea>').html(commentObj.data.body_html).text();
           var $commentBody = $('<div class="comment-list-item-text body"></div>');
           $commentBody.append(bodyHtml);
@@ -49,12 +47,16 @@ NB.Comments = (function() {
       return $children;
     }
 
-    var startTime = new Date().getTime();
-
+    var story = commentTree[0].data.children[0].data;
+    var selfText = $('<textarea>').html(story.selftext_html).text();
+    if (selfText) {
+      $result.append(selfText);
+      $result.append('<h3>Comments</h3>');
+      $result.append('<hr>');
+    } else {
+      $result.append('<p class="comment-list-title">To contibute your own wisdom to the conversation, head on over to <a href="' + story.url + '" target="_blank">reddit</a>.</p><hr>');
+    }
     $result.append(getChildren(commentTree[1].data.children));
-
-    var endTime = new Date().getTime(); //TODO this is taking around 100ms. Try vanilla
-//     console.log('processed in', (endTime - startTime), 'milliseconds');
 
     cb($result);
   }
@@ -67,7 +69,14 @@ NB.Comments = (function() {
     var url = 'http://www.reddit.com/comments/' + storyId + '.json';
 
     $.get(url, function(data) {
+
+      var startTime = new Date().getTime();
+
       parseRdComments(data, cb);
+
+      var endTime = new Date().getTime(); //TODO this is taking around 100ms. Try vanilla
+      //console.log('processed in', (endTime - startTime), 'milliseconds');
+
     });
 
   };
