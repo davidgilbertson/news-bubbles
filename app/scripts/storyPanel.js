@@ -33,6 +33,11 @@ NB.StoryPanel = (function() {
   }
 
 
+  function renderRdComments(story) {
+
+  }
+
+
   function renderReddit(story) {
     var dom = story.rd.domain.toLowerCase();
 
@@ -42,13 +47,21 @@ NB.StoryPanel = (function() {
 
 
     if (story.rd.self) {
-      var html = [
-        '<p>Built-in reddit comments coming soon. For now, head over to ',
-          '<a href="' + story.url + '" target="_blank">reddit to read more</a>.',
-        '</p>'
-        ].join('');
-      story.content = html;
-      done();
+//       var html = [
+//         '<p>Built-in reddit comments coming soon. For now, head over to ',
+//           '<a href="' + story.url + '" target="_blank">reddit to read more</a>.',
+//         '</p>'
+//         ].join('');
+//       story.content = html;
+//       done();
+
+      NB.Comments.getForRdStory(story.rd.shortId, function(commentTree) {
+        console.log('Got comment tree:', commentTree);
+        story.content = '<p class="comment-list-title">To contibute your own wisdom to the conversation, head on over to ';
+        story.content += '<a href="' + story.url + '" target="_blank">reddit</a>.</p><hr>';
+        story.content += commentTree.html();
+        done();
+      });
       
     } else if (story.url.match(/\.(gif|png|jpg)\?*.*$/)) { //any old image link, might be imgur
 
@@ -99,6 +112,7 @@ NB.StoryPanel = (function() {
 
 
   } //END renderReddit
+
 
 
 

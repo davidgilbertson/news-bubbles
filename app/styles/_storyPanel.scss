@@ -11,7 +11,6 @@
     background-color: white;
     z-index: 1;
 
-    
     p {
       line-height: 1.5;
       margin-bottom: 30px;
@@ -56,6 +55,38 @@
       color: $primary-color;
       cursor: pointer;
       background-color: white;
+    }
+
+    .comment-list {
+      list-style-type: none;
+      margin: 0;
+      padding: 0 0 0 10px;
+      &-title {
+        font-style: italic;
+        margin: 15px 0;
+      }
+      &.level-1 {
+        padding: 0;
+      }
+      &-item {
+        border-left: 1px dotted #ccc;
+        padding-left: 5px;
+        margin-top: 25px;
+
+        &-text {
+          margin: 0;
+          padding: 0;
+          &.meta {
+            padding: 3px 0 0 10px; 
+/*             font-weight: 400; */
+            font-size: 13px;
+            color: #999;
+          }
+          &.body p {
+            margin: 0;
+          }
+        }
+      }
     }
   }
   &-control-bar {

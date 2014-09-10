@@ -88,88 +88,141 @@ function buildRedditUrl(props) {
 }
 
 
+// exports.startRedditCrawler = function(globalIo) {
+//   io = globalIo;
+//   devLog('Starting reddit crawler');
+//   var count = 0;
+//   var limit = 24;
+//   var interval = 30000;
+//   var url = '';
+
+//   function startOver() {
+//     devLog('Start Over');
+//     count = 0;
+//     go();
+
+//   }
+
+//   function go(props) {
+//     props = props || {};
+//     devLog('go() count:', count, 'after:', props.after);
+//     // devLog('Doing go() with the after value:', after, 'and count is currently', count);
+//     // url = buildRedditUrl({after: props.after, list: props.list});
+//     url = buildRedditUrl(props);
+//     // devLog('Getting data with the URL:', url);
+
+//     goGetReddit(url, function(response) {
+
+//       try {
+//         // devLog(count, '. Got', response.data.children.length, 'stories - ', props.after);
+
+//         if (count >= limit) { startOver(); }
+
+//         saveRedditStories(response.data.children);
+
+//         //roughly, 100 stories is 10 minutes. So 48 loops is 480 minutes/8 hours. 24 loops is 240 minutes/4 hours
+//         //every 5 seconds means 48 loops takes 4 minutes
+//         //every 30 seconds means 24 loops takes 12 minutes
+//         //TODO I should also be looping through the 'hot' list.
+//         count++;
+//         setTimeout(function() {
+//           go({after: response.data.after, list: 'new'});
+//         }, interval);
+
+//       } catch (err) {
+
+//         console.log('Error in processing reddit data:', err.message);
+//         setTimeout(function() {
+//           startOver();
+//         }, interval); //time out, like, literally.
+//       }
+
+//     });
+//   }
+
+//   startOver();
+// };
+
+
 exports.startRedditCrawler = function(globalIo) {
   io = globalIo;
-  devLog('Starting reddit crawler');
+  // devLog('Starting reddit crawler');
   var count = 0;
-  var url = '';
-
-  function go(props) {
-    // devLog('Doing go() with the after value:', after, 'and count is currently', count);
-    // url = buildRedditUrl({after: props.after, list: props.list});
-    url = buildRedditUrl(props);
-    devLog('Getting data with the URL:', url);
-
-    goGetReddit(url, function(response) {
-      // devLog('Got', response.data.children.length, 'stories');
+  var limit = 24;
+  var interval = 30000;
+  var url = ''
+    , lastKnownAfter;
 
 
-
-
-
-
-      if (!response || count >= 24) {
-
-        setTimeout(function() {
-          count = 0;
-          go();
-        }, 10000); //chill for a bit
-
-      } else {
-
-        saveRedditStories(response.data.children);
-        var firstDate = new Date(response.data.children[0].data.created * 1000);
-        devLog('First date:', firstDate);
-        //roughly, 100 stories is 10 minutes. So 48 loops is 480 minutes/8 hours. 24 loops is 240 minutes/4 hours
-        //every 5 seconds means 48 loops takes 4 minutes
-        //every 30 seconds means 24 loops takes 12 minutes
-        //TODO I should also be looping through the 'hot' list.
-        count++;
-        setTimeout(function() {
-          go({after: response.data.after, list: 'new'});
-        }, 30000);
-
-      }
-
-
-
-
-
-
-
-
-    });
-  }
-
-  go();
-};
-
-exports.forceRdFetch = function(limit, list) {
-  var loops = limit / 100
-    , count = 0
-    , url = '';
-
-  function go(after) {
-    url = buildRedditUrl({after: after, list: list});
-    devLog('Getting data with the URL:', url);
+  function go() {
+    url = buildRedditUrl({after: lastKnownAfter, list: 'new'});
+    devLog(count, '- Getting data with the URL:', url);
 
     goGetReddit(url, function(response) {
       // devLog('Got', response.data.children.length, 'stories');
       if (response.data && response.data.children) {
+        //TODO try/catch
         saveRedditStories(response.data.children);
+        lastKnownAfter = response.data.after;
 
-        if (count < loops) {
-          count++;
-          setTimeout(function() {
-            go(response.data.after);
-          }, 2000);
-        }
       }
 
     });
   }
 
-  go();
+
+  setInterval(function() {
+    // devLog('Count is', count, 'after is', lastKnownAfter);
+
+    if (count > limit) {
+      count = 0;
+      lastKnownAfter = undefined;
+    } else {
+      count++;
+    }
+
+    go();
+
+  }, interval);
+
+};
+
+
+exports.forceRdFetch = function(limit, list) {
+  console.log('')
+  var loops = limit / 100
+    , count = 0
+    , lastKnownAfter
+    , url = '';
+
+  function go() {
+    url = buildRedditUrl({after: lastKnownAfter, list: list});
+    // devLog('Getting data with the URL:', url);
+
+    console.log('tick', count);
+    goGetReddit(url, function(response) {
+      if (response.data && response.data.children) {
+        saveRedditStories(response.data.children);
+        lastKnownAfter = response.data.after;
+      }
+
+    });
+  }
+
+
+  var interval = setInterval(function() {
+
+    if (count >= loops) {
+      console.log('done');
+      clearInterval(interval);
+
+    } else {
+      count++;
+      go();
+    }
+
+  }, 2000);
+
 };
 
 
