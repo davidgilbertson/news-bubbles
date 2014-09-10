@@ -150,7 +150,8 @@ exports.upsertHNStory = function(obj, cb) {
         author: obj.author,
         thumbnail: null,
         hn: {
-          tags: obj._tags
+          tags: obj._tags,
+          storyText: obj.story_text
         }
       });
       story.save();

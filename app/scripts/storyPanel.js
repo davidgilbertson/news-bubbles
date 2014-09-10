@@ -121,9 +121,11 @@ NB.StoryPanel = (function() {
         });
       }
     } else {
-//       console.log('This story has no conent:', story);
-      story.content = 'Built-in Hacker News comments coming soon.';
-      NB.StoryModel.setCurrentStory('panel', story);
+//       console.log(story);
+      NB.Comments.getForHnStory(story, function(commentTree) {
+        story.content = commentTree;
+        NB.StoryModel.setCurrentStory('panel', story);
+      });
 
     }
   }

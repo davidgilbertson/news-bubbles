@@ -62,6 +62,40 @@ NB.Comments = (function() {
   }
 
 
+  function parseHnComments(story, comments, cb) {
+    var $result = $('<ul class="comment-list level-1"></ul>');
+    var sourceUrl = 'https://news.ycombinator.com/item?id=' + story.sourceId
+
+
+    if (story.hn.storyText) {
+      $result.append(story.hn.storyText);
+      $result.append('<h3>Comments</h3>');
+      $result.append('<hr>');
+    }
+    var html = [
+      '<p class="comment-list-title">Head on over to ',
+        '<a href="' + sourceUrl + '" target="_blank">Hacker News</a> to add yours.',
+      '</p><hr>'
+    ].join('');
+    $result.append(html);
+
+    comments.hits.forEach(function(comment) {
+      var $child = $('<li class="comment-list-item">');
+      var author = comment.author;
+      var timeAgo = moment(comment.created_at_i * 1000).fromNow();
+      var points = comment.points + ' points';
+
+      $child.append('<div class="comment-list-item-text body">' + comment.comment_text + '</div>');
+      $child.append('<p class="comment-list-item-text meta"> ' + author + ' | ' + timeAgo + ' | ' + points + '</p>');
+
+      $result.append($child);
+    });
+
+    html = $result[0].outerHTML;
+    cb(html);
+  }
+
+
 
   /*  --  PUBLIC  --  */
 
@@ -76,6 +110,18 @@ NB.Comments = (function() {
 
       var endTime = new Date().getTime(); //TODO this is taking around 100ms. Try vanilla
       //console.log('processed in', (endTime - startTime), 'milliseconds');
+
+    });
+
+  };
+
+  Comments.getForHnStory = function(story, cb) {
+    var storyId = story.sourceId;
+    var storyUrl = story.url;
+    var url = 'https://hn.algolia.com/api/v1/search?tags=comment,story_' + storyId;
+
+    $.get(url, function(comments) {
+      parseHnComments(story, comments, cb);
 
     });
 

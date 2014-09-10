@@ -88,62 +88,6 @@ function buildRedditUrl(props) {
 }
 
 
-// exports.startRedditCrawler = function(globalIo) {
-//   io = globalIo;
-//   devLog('Starting reddit crawler');
-//   var count = 0;
-//   var limit = 24;
-//   var interval = 30000;
-//   var url = '';
-
-//   function startOver() {
-//     devLog('Start Over');
-//     count = 0;
-//     go();
-
-//   }
-
-//   function go(props) {
-//     props = props || {};
-//     devLog('go() count:', count, 'after:', props.after);
-//     // devLog('Doing go() with the after value:', after, 'and count is currently', count);
-//     // url = buildRedditUrl({after: props.after, list: props.list});
-//     url = buildRedditUrl(props);
-//     // devLog('Getting data with the URL:', url);
-
-//     goGetReddit(url, function(response) {
-
-//       try {
-//         // devLog(count, '. Got', response.data.children.length, 'stories - ', props.after);
-
-//         if (count >= limit) { startOver(); }
-
-//         saveRedditStories(response.data.children);
-
-//         //roughly, 100 stories is 10 minutes. So 48 loops is 480 minutes/8 hours. 24 loops is 240 minutes/4 hours
-//         //every 5 seconds means 48 loops takes 4 minutes
-//         //every 30 seconds means 24 loops takes 12 minutes
-//         //TODO I should also be looping through the 'hot' list.
-//         count++;
-//         setTimeout(function() {
-//           go({after: response.data.after, list: 'new'});
-//         }, interval);
-
-//       } catch (err) {
-
-//         console.log('Error in processing reddit data:', err.message);
-//         setTimeout(function() {
-//           startOver();
-//         }, interval); //time out, like, literally.
-//       }
-
-//     });
-//   }
-
-//   startOver();
-// };
-
-
 exports.startRedditCrawler = function(globalIo) {
   io = globalIo;
   // devLog('Starting reddit crawler');
