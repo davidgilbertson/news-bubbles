@@ -9,6 +9,7 @@ mongoose.connect(conn);
 var db = mongoose.connection;
 
 exports.start = function(app) {
+  console.log('Server Starting');
 
   //Create a socket.io instance and send it to crawlers
   //The crawlers will io.emit() the data when they fetch something new
@@ -20,6 +21,7 @@ exports.start = function(app) {
 
 
   db.on('open', function() {
+    console.log('Database connection opened.');
     crawlers.startHNCrawler(io);
     crawlers.startRedditCrawler(io);
     http.listen(port);
@@ -27,7 +29,7 @@ exports.start = function(app) {
   });
 
   db.on('error', function(err) {
-    console.log(err);
+    console.log('Database connection error:', err);
   });
 
 
