@@ -47,6 +47,16 @@ NB.Chart = (function() {
 
   //TODO: What a mess
   function bubbleClicked(d) {
+
+    //move to back
+    var domEl = d3.event.currentTarget;
+    if (domEl.previousSibling) {
+      var parent = domEl.parentNode;
+      var firstChild = parent.firstChild;
+      parent.insertBefore(domEl, firstChild);
+    }
+
+    //get the D3 flvoured dom el
     var el = d3.select(d3.event.currentTarget);
     //TODO if clicked story is already showing, return. (lastID === d.id)
 
