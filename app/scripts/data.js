@@ -75,9 +75,11 @@ NB.Data = (function() {
   }
 
 
-  //TODO no reason getHN and get RD should be different functions
+  //TODO no reason getHN and getRD should be different functions
+  //TODO should I let the server just io emit the data?
   function getHnData(limit, minScore) {
     $.get('/api/hn/' + limit + '/' + minScore, function(data) {
+      if (NB.Settings.getSetting('source') !== 'hn') { return; } //this could occur if the page is changed before the data comes back
       parseInitialData(data, true, function(data) {
         Data.stories = data;
         NB.Chart.drawStories();
@@ -86,8 +88,9 @@ NB.Data = (function() {
   }
 
 
-  function getRedditData(limit, minScore) {
+  function getRdData(limit, minScore) {
     $.get('/api/rd/' + limit + '/' + minScore, function(data) {
+      if (NB.Settings.getSetting('source') !== 'rd') { return; } //this could occur if the page is changed before the data comes back
       parseInitialData(data, true, function(data) {
 //         console.log('parseInitialData complete');
         Data.stories = data;
@@ -151,7 +154,7 @@ NB.Data = (function() {
 //     console.log('Data.getData:', source, limit, minScore);
     limit = limit || NB.HITS_PER_PAGE;
     if (source === 'rd') {
-      getRedditData(limit, minScore);
+      getRdData(limit, minScore);
     }
     if (source === 'hn') {
       getHnData(limit, minScore);

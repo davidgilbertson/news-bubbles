@@ -52,7 +52,7 @@ NB.Chart = (function() {
     var domEl = d3.event.currentTarget;
     if (domEl.previousSibling) {
       var parent = domEl.parentNode;
-      var firstChild = parent.firstChild;
+      var firstChild = parent.firstChild.nextSibling; //the first element is the overlay rectangle, the rest are circles.
       parent.insertBefore(domEl, firstChild);
     }
 
@@ -104,7 +104,7 @@ NB.Chart = (function() {
         readUnreadLink.text('Mark as read');
       }
 
-
+    
       var duration = maxiTooltipShowing ? 200 : 0;
       maxiTooltip
         .style('display', 'block')
@@ -184,13 +184,6 @@ NB.Chart = (function() {
     var el = d3.select(d3.event.currentTarget);
 
     toggleRead(el, d);
-//     if (el.classed('read')) {
-//       el.classed('read', false);
-//       NB.Data.markAsUnread(d.id);
-//     } else {
-//       el.classed('read', true);
-//       NB.Data.markAsRead(d.id);
-//     }
   }
 
 
@@ -212,24 +205,21 @@ NB.Chart = (function() {
       .enter()
       .append('circle')
       .attr('r', function(d) {
+        var r = z(d.commentCount);
+        if (!r) { //my NaN problem
+          console.log('Something wrong with this:', d);
+          console.log('z(10) is', z(10));
+          debugger;
+        }
+
         return z(d.commentCount);
       })
       .attr('cx', function() { return x(maxDate); })
       .attr('cy', function() { return y(0); })
       .attr('fill', function(d) {
-//         var color = NB.categoryColors[d.category];
-//         if (color) {
-//           return color;
-//         }
-//         return NB[d.source + 'CategoryColors'][d.category] || NB[d.source + 'CategoryColors']['default'];
         return NB.Settings.getColor(d.source, d.category);
       })
       .attr('stroke', function(d) {
-//         var color = NB.categoryColors[d.category];
-//         if (color) {
-//           return color;
-//         }
-//         return NB[d.source + 'CategoryColors'][d.category] || NB[d.source + 'CategoryColors']['default'];
         return NB.Settings.getColor(d.source, d.category);
       })
       .classed('story-circle', true)
@@ -340,6 +330,7 @@ NB.Chart = (function() {
     x.domain([minDate, maxDate]);
     y.domain([minScore, maxScore]);
     z.domain([minCommentCount, maxCommentCount]);
+    console.log('minCommentCount:', minCommentCount, 'maxCommentCount:', maxCommentCount);
 
     zoom.x(x);
   }
