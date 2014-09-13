@@ -5,7 +5,7 @@ NB.Chart = (function() {
   var Chart = {}
     , chartWrapper
     , plotArea
-    , plotAreaClip
+//     , plotAreaClip
     , chartOverlay
     , margins = {top: 70, right: 0, bottom: 30, left: 0} //keep in mind max circle size
     , maxCircle
@@ -152,7 +152,7 @@ NB.Chart = (function() {
   function bubbleMouseover(d) {
     if (maxiTooltipShowing) { return; }
 //     var extra = d.rd ? ' - ' + d.rd.domain : ''; //TODO remove the 'extra' bit when color coding is done. Or maybe not.
-    var extra = ' --' + d.category;
+    var extra = ' - ' + d.category;
     tooltip.text(d.name + extra);
     var tipWidth = parseInt(tooltip.style('width'));
     var tipHeight = parseInt(tooltip.style('height'));
@@ -205,13 +205,6 @@ NB.Chart = (function() {
       .enter()
       .append('circle')
       .attr('r', function(d) {
-        var r = z(d.commentCount);
-        if (!r) { //my NaN problem
-          console.log('Something wrong with this:', d);
-          console.log('z(10) is', z(10));
-          debugger;
-        }
-
         return z(d.commentCount);
       })
       .attr('cx', function() { return x(maxDate); })
@@ -282,11 +275,11 @@ NB.Chart = (function() {
       .attr('height', h - margins.top - margins.bottom);
 
     //Note that the clip path goes all the way to the top and right of the screen
-    plotAreaClip
-      .attr('x', margins.left)
-      .attr('y', 0)
-      .attr('width', w - margins.left)
-      .attr('height', h - margins.bottom);
+//     plotAreaClip
+//       .attr('x', margins.left)
+//       .attr('y', 0)
+//       .attr('width', w - margins.left)
+//       .attr('height', h - margins.bottom);
 
     x.range([40, w - 20]);
     y.range([h - margins.bottom - 7, margins.top]);
@@ -317,6 +310,8 @@ NB.Chart = (function() {
   //Call this when data changes
   function setScales() {
 //     console.log('setScales()');
+    var oldMaxDate = maxDate;
+    var oldMinDate = minDate;
     minDate = Math.min(minDate, d3.min(NB.Data.stories, function(d) { return d.postDate; }));
     maxDate = Math.max(maxDate, d3.max(NB.Data.stories, function(d) { return d.postDate; }));
     maxScore = Math.max(maxScore, d3.max(NB.Data.stories, function(d) { return d.score; }));
@@ -324,15 +319,28 @@ NB.Chart = (function() {
     minCommentCount = Math.min(minCommentCount, d3.min(NB.Data.stories, function(d) { return d.commentCount; }));
     maxCommentCount = Math.max(maxCommentCount, d3.max(NB.Data.stories, function(d) { return d.commentCount; }));
 
+    if (isNaN(minCommentCount) || isNaN(maxCommentCount)) {
+      
+      if (NB.IS_LOCALHOST) {
+        debugger;
+      } else {
+        console.log('Something went wrong with this data:', NB.Data.stories);
+      }
+    }
+
     var src = NB.Settings.getSetting('source');
     var minScore = NB.Settings.getSetting(src + 'MinScore');
 
-    x.domain([minDate, maxDate]);
     y.domain([minScore, maxScore]);
     z.domain([minCommentCount, maxCommentCount]);
-    console.log('minCommentCount:', minCommentCount, 'maxCommentCount:', maxCommentCount);
-
-    zoom.x(x);
+//     console.log('minCommentCount:', minCommentCount, 'maxCommentCount:', maxCommentCount);
+    
+    if (oldMinDate !== minDate || oldMaxDate !== maxDate) { //the x scale has changed
+//       console.log('zoom has changed on the x, updating zoomer');
+      x.domain([minDate, maxDate]);
+      zoom.x(x);
+    }
+    
   }
 
   function zoomChart() {
@@ -343,7 +351,7 @@ NB.Chart = (function() {
   function initZoom() {
     zoom = d3.behavior.zoom()
       .x(x)
-      .scaleExtent([1, Infinity])
+//       .scaleExtent([1, Infinity])
       .on('zoom', zoomChart);
   }
 
@@ -398,7 +406,6 @@ NB.Chart = (function() {
       .attr('class', 'overlay');
       
     chartOverlay.on('touchstart.zoom', null); //Do not get this, but otherwise a single tap starts a zoom
-    plotAreaClip = d3.select('#plot-area-clip rect'); //TODO maybe not needed now I go to the edges of the screen anyway.
 
   }
 

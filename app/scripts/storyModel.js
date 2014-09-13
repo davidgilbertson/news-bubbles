@@ -12,6 +12,7 @@ NB.StoryModel = (function() {
     authorUrl: ko.observable(),
     domain: ko.observable(),
     category: ko.observable(),
+    color: ko.observable(),
     author: ko.observable(),
     commentCount: ko.observable(),
     score: ko.observable(),
@@ -26,6 +27,7 @@ NB.StoryModel = (function() {
     authorUrl: ko.observable(),
     domain: ko.observable(),
     category: ko.observable(),
+    color: ko.observable(),
     author: ko.observable(),
     commentCount: ko.observable(),
     score: ko.observable(),
@@ -45,6 +47,8 @@ NB.StoryModel = (function() {
     var name = story.name;
     var category = story.category || '';
 
+    var color = NB.Settings.getColor(story.source, category);
+
     if (story.source === 'rd') {
       domain = story.rd.domain;
       sourceUrl = 'https://www.reddit.com' + story.rd.permalink;
@@ -61,7 +65,7 @@ NB.StoryModel = (function() {
         name = name.replace('Show HN: ', '');
       } else if (story.name.toLowerCase().indexOf('ask hn') > -1) {
         domain = 'Ask HN';
-        url = sourceUrl
+        url = sourceUrl;
         name = name.replace('Ask HN: ', '');
       } else {
         var urlTest = story.url.match(/:\/\/([^\/]*)/);
@@ -88,6 +92,7 @@ NB.StoryModel = (function() {
       .authorUrl(authorUrl)
       .domain(domain)
       .category(category)
+      .color(color)
       .author(story.author)
       .commentCount(story.commentCount)
       .score(Math.round(story.score))

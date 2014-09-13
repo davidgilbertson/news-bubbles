@@ -2,17 +2,13 @@
 var NB = NB || {};
 
 NB.StoryPanel = (function() {
-  var StoryPanel = {}
-    , dateFormatter = d3.time.format('%-I:%M%p on %A, %-e %B %Y');
+  var StoryPanel = {};
 
 
   function getReadability(story, cb) {
-    var panel = $('<div class="story-content"></div>');
-
-    var urlBase = '/readability/';
-    var pageUrl = story.url;
-
-    var fullUrl = urlBase + encodeURIComponent(pageUrl);
+    var urlBase = '/readability/'
+      , pageUrl = story.url
+      , fullUrl = urlBase + encodeURIComponent(pageUrl);
 
     //TODO remove jQuery
     $.get(fullUrl, function(data) {
@@ -28,13 +24,8 @@ NB.StoryPanel = (function() {
       } else {
         cb(data.content);
       }
-      
+
     });
-  }
-
-
-  function renderRdComments(story) {
-
   }
 
 
@@ -52,7 +43,7 @@ NB.StoryPanel = (function() {
         story.content = commentTree.html();
         done();
       });
-      
+
     } else if (story.url.match(/\.(gif|png|jpg)\?*.*$/)) { //any old image link, might be imgur
 
       story.content = '<img src="' + story.url + '">';
@@ -147,7 +138,7 @@ NB.StoryPanel = (function() {
       renderHackerNews(story);
     }
 
-  }
+  };
 
 
   return StoryPanel;

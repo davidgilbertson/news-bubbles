@@ -10,10 +10,8 @@ NB.Events = (function() {
     , body
   ;
 
-  function resizerMousedown(e) {
+  function resizerMousedown() {
     if (d3.event.target.id === 'story-panel-toggle') { return false; }
-//     console.log('#story-panel-resizer clicked:', e);
-//     console.log('resizerMousedown()');
     chartWrapper = d3.select('#chart-wrapper').style('transition', '0ms');
     storyPanel = d3.select('#story-panel').style('transition', '0ms');
 
@@ -105,7 +103,7 @@ NB.Events = (function() {
     NB.Chart.reset(); //TODO build reset into getData?
     var minScore = NB.Settings.getSetting('rdMinScore');
 
-    NB.Data.getData('rd', NB.HITS_PER_PAGE, minScore); //TODO get the settings for limits and min scores
+    NB.Data.getData('rd', minScore); //TODO get the settings for limits and min scores
   });
 
   hnSource.on('click', function() {
@@ -115,7 +113,7 @@ NB.Events = (function() {
     NB.Chart.reset();
     
     var minScore = NB.Settings.getSetting('hnMinScore');
-    NB.Data.getData('hn', NB.HITS_PER_PAGE, minScore); //TODO get the settings for limits and min scores
+    NB.Data.getData('hn', minScore); //TODO get the settings for limits and min scores
   });
 
 

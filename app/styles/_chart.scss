@@ -1,9 +1,9 @@
 .chart {
   &-wrapper {
-    transition: width $move-dur; //turned off while dragging
+    transition: width $move-dur * 4; //turned off while dragging
     position: absolute;
     left: 0px;
-    width: 100%; //reset on load
+    width: 100%; //gets reset on load
     height: 100%;
     .overlay {
       pointer-events: all;
@@ -42,9 +42,9 @@
       fill: $col-text-light;
     }
   }
-  &-plot-area {
-    clip-path: url(/#plot-area-clip);
-  }
+/*   &-plot-area { */
+/*     clip-path: url(/#plot-area-clip); */
+/*   } */
 }
 
 .story-circle {

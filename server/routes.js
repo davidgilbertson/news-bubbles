@@ -1,13 +1,10 @@
 'use strict';
 var path = require('path')
   , readabilityApi = require(path.join(__dirname, 'readability'))
-  // , mongoose = require('mongoose')
-  , models = require(path.join(__dirname, 'models'))
-  , Story = models.Story //TODO remove since I have controllers?
-  , storyController = require(path.join(__dirname, 'storyController'));
+  , storyController = require(path.join(__dirname, 'storyController'))
 ;
 
-function devLog(msg) {
+function devLog() {
   if (process.env.DEV) {
     var result = '';
     for (var i = 0; i < arguments.length; i++) {

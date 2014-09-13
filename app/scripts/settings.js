@@ -5,7 +5,6 @@ NB.Settings = (function() {
 
   var Settings = {}
     , settings
-    , tempSettings
     , settingsEl
   ;
 
@@ -13,23 +12,25 @@ NB.Settings = (function() {
     if (localStorage.settings) {
       var localSettings = JSON.parse(localStorage.settings);
 
-      if (localSettings.clickAction) { settings.clickAction(localSettings.clickAction) };
-      if (localSettings.rightClickAction) { settings.rightClickAction(localSettings.rightClickAction) };
-      if (localSettings.source) { settings.source(localSettings.source) };
-      if (localSettings.rdMinScore) { settings.rdMinScore(+localSettings.rdMinScore) };
-      if (localSettings.hnMinScore) { settings.hnMinScore(+localSettings.hnMinScore) };
+      if (localSettings.clickAction) { settings.clickAction(localSettings.clickAction); }
+      if (localSettings.rightClickAction) { settings.rightClickAction(localSettings.rightClickAction); }
+      if (localSettings.source) { settings.source(localSettings.source); }
+      if (localSettings.hitLimit) { settings.hitLimit(+localSettings.hitLimit); }
+      if (localSettings.rdMinScore) { settings.rdMinScore(+localSettings.rdMinScore); }
+      if (localSettings.hnMinScore) { settings.hnMinScore(+localSettings.hnMinScore); }
     }
   }
 
   function init() {
+    //Init a settings objects with some defaults.
     settings = {
-      clickAction: ko.observable('storyTooltip'),
-      rightClickAction: ko.observable('toggleRead'),
-      source: ko.observable('rd'),
-      rdMinScore: ko.observable(100),
-      hnMinScore: ko.observable(3),
+      clickAction: ko.observable('storyPanel'), //storyPanel | storyTooltip
+      rightClickAction: ko.observable('toggleRead'), // toggleRead | nothing
+      source: ko.observable('rd'), // rd | hn
+      hitLimit: ko.observable(200),
+      rdMinScore: ko.observable(500),
+      hnMinScore: ko.observable(5),
       hnCategoryColors: ko.observableArray([
-//         {category: 'Hacker News story', color: '#2980b9'},
         {category: 'Ask HN', color: '#e74c3c'},
         {category: 'Show HN', color: '#16a085'},
         {category: 'Everything else', color: '#2980b9'}
@@ -48,7 +49,7 @@ NB.Settings = (function() {
 
     ko.applyBindings(settings, settingsEl[0]);
 
-    retrieveLocalSettings();
+    retrieveLocalSettings(); //Override the defaults if they were in local storage.
 
   }
 
@@ -58,13 +59,35 @@ NB.Settings = (function() {
 
   function saveSettings() {
     //The settings object is bound so nothing needs to be updated there
+    var maxHitLimit = Math.min(500, settings.hitLimit());
+    settings.hitLimit(maxHitLimit);
+
     var localSettings = {
       clickAction: settings.clickAction(),
       rightClickAction: settings.rightClickAction(),
       source: settings.source(),
+      hitLimit: settings.hitLimit(),
       rdMinScore: settings.rdMinScore(),
       hnMinScore: settings.hnMinScore()
     };
+
+    var previousSettings = {};
+
+    if (localStorage.settings) {
+      previousSettings = JSON.parse(localStorage.settings);
+    }
+
+    if (settings.hitLimit() !== previousSettings.hitLimit) {
+      NB.Chart.reset();
+      NB.Data.getData();
+    }
+
+    var src = settings.source();
+    if (settings[src + 'MinScore']() !== previousSettings[src + 'MinScore']) {
+      NB.Chart.reset();
+      NB.Data.getData();
+    }
+    //TODO if hn or rd limits changed...
 
     localStorage.settings = JSON.stringify(localSettings);
     closeSettings();
@@ -92,11 +115,11 @@ NB.Settings = (function() {
 
   Settings.getSetting = function(setting) {
     return settings[setting]();
-  }
+  };
   Settings.setSetting = function(setting, value) {
     settings[setting](value);
     saveSettings();
-  }
+  };
   Settings.getColor = function(source, category) {
     var arr = settings[source + 'CategoryColors']();
     var defaultColor;
@@ -109,7 +132,7 @@ NB.Settings = (function() {
       }
     }
     return defaultColor;
-  }
+  };
 
 
   init();

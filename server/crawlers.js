@@ -6,22 +6,22 @@
 var path = require('path')
   , request = require('request')
   , io
-  , models = require(path.join(__dirname, 'models'))
+  // , models = require(path.join(__dirname, 'models'))
   , storyController = require(path.join(__dirname, 'storyController'))
-  , Story = models.Story
+  // , Story = models.Story
   , HITS_PER_PAGE_LIMIT = 1000
   , MIN_POINTS = 0
 
   //times (seconds)
-  , now = new Date().getTime() / 1000
+  // , now = new Date().getTime() / 1000
   , oneMin = 60
   , oneHour = 60 * 60
   , oneDay = 24 * 60 * 60
-  , oneMonth = 24 * 60 * 60 * 30
-  , oneDayAgo = now - oneDay
-  , oneWeekAgo = now - oneDay * 7
-  , oneMonthAgo = now - oneDay * 31
-  , sixMonthsAgo = now - oneDay * 180
+  // , oneMonth = 24 * 60 * 60 * 30
+  // , oneDayAgo = now - oneDay
+  // , oneWeekAgo = now - oneDay * 7
+  // , oneMonthAgo = now - oneDay * 31
+  // , sixMonthsAgo = now - oneDay * 180
 
   //Intervals (milliseconds)
   , every10Secs = 1000 * 10
@@ -33,7 +33,7 @@ var path = require('path')
   , every1Day = 1000 * 60 * 60 * 24
 ;
 
-function devLog(msg) {
+function devLog() {
   if (process.env.DEV) {
     var result = '';
     for (var i = 0; i < arguments.length; i++) {
@@ -90,34 +90,30 @@ function buildRedditUrl(props) {
 
 exports.startRedditCrawler = function(globalIo) {
   io = globalIo;
-  // devLog('Starting reddit crawler');
-  var count = 0;
-  var limit = 24;
-  var interval = 30000;
-  var url = ''
-    , lastKnownAfter;
-
+  var count = 0
+    , limit = 24
+    , interval = 30000
+    , url = ''
+    , lastKnownAfter
+  ;
 
   function go() {
     url = buildRedditUrl({after: lastKnownAfter, list: 'new'});
     devLog(count, '- Getting data with the URL:', url);
 
     goGetReddit(url, function(response) {
-      // devLog('Got', response.data.children.length, 'stories');
-      if (response.data && response.data.children) {
-        //TODO try/catch
+      try {
         saveRedditStories(response.data.children);
         lastKnownAfter = response.data.after;
-
+      } catch (err) {
+        console.log('Error in reddit crawler:', err);
+        count = 0;
+        lastKnownAfter = undefined;
       }
-
     });
   }
 
-
   setInterval(function() {
-    // devLog('Count is', count, 'after is', lastKnownAfter);
-
     if (count > limit) {
       count = 0;
       lastKnownAfter = undefined;
@@ -133,7 +129,6 @@ exports.startRedditCrawler = function(globalIo) {
 
 
 exports.forceRdFetch = function(limit, list) {
-  console.log('')
   var loops = limit / 100
     , count = 0
     , lastKnownAfter
@@ -153,20 +148,16 @@ exports.forceRdFetch = function(limit, list) {
     });
   }
 
-
   var interval = setInterval(function() {
-
     if (count >= loops) {
       console.log('done');
       clearInterval(interval);
-
     } else {
       count++;
       go();
     }
 
   }, 2000);
-
 };
 
 

@@ -26,7 +26,7 @@ NB.main = (function() {
 
   //On page load, use the APIs directly from the client to get a fresh batch of results
   //The server will be emitting new/changed stories as they become available.
-  NB.Data.getData(src, NB.HITS_PER_PAGE, minScore);
+  NB.Data.getData(src, minScore);
 
   ko.applyBindings(NB.StoryModel.tooltipStory, document.getElementById('story-tooltip'));
   ko.applyBindings(NB.StoryModel.panelStory, document.getElementById('story-panel'));

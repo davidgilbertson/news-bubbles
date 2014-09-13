@@ -43,7 +43,7 @@ NB.Layout = (function() {
     
     NB.splitPos = document.body.offsetWidth - NB.RESIZER_WIDTH;
     setChartAndStoryPanelSize();
-    NB.Chart.resize();
+    NB.Chart.resize(true);
   }
 
   Layout.render = function() {
@@ -82,14 +82,6 @@ NB.Layout = (function() {
     }
 
   };
-
-
-
-
-
-
-
-
 
 
 

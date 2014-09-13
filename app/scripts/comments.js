@@ -8,12 +8,12 @@ NB.Comments = (function() {
 
   function parseRdComments(commentTree, cb) {
     var $result = $('<div>')
-      , result
+//       , result
       , level = 0
       , author
       , timeAgo
       , score
-      , commentBody
+//       , commentBody
     ;
 
     function getChildren(arr) {
@@ -64,7 +64,7 @@ NB.Comments = (function() {
 
   function parseHnComments(story, comments, cb) {
     var $result = $('<ul class="comment-list level-1"></ul>');
-    var sourceUrl = 'https://news.ycombinator.com/item?id=' + story.sourceId
+    var sourceUrl = 'https://news.ycombinator.com/item?id=' + story.sourceId;
 
 
     if (story.hn.storyText) {
@@ -103,30 +103,20 @@ NB.Comments = (function() {
     var url = 'http://www.reddit.com/comments/' + storyId + '.json';
 
     $.get(url, function(data) {
-
-      var startTime = new Date().getTime();
-
       parseRdComments(data, cb);
-
-      var endTime = new Date().getTime(); //TODO this is taking around 100ms. Try vanilla
-      //console.log('processed in', (endTime - startTime), 'milliseconds');
-
     });
 
   };
 
   Comments.getForHnStory = function(story, cb) {
-    var storyId = story.sourceId;
-    var storyUrl = story.url;
-    var url = 'https://hn.algolia.com/api/v1/search?tags=comment,story_' + storyId;
+    var url = 'https://hn.algolia.com/api/v1/search?tags=comment,story_' + story.sourceId;
 
     $.get(url, function(comments) {
       parseHnComments(story, comments, cb);
-
     });
 
   };
 
-
   return Comments;
+  
 })();

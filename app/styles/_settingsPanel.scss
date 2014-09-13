@@ -13,12 +13,22 @@
     position: relative;
     width: 500px;
     max-width: 100%;
-    height: 800px;
+    height: 1050px;
     max-height: 90%;
     margin: 0 auto;
-    top: $header-height * 2;
+    top: 5%;
     background: white;
     padding: 20px;
+
+    &-body {
+      position: absolute;
+      top: 106px;
+      bottom: 80px;
+      left: 0;
+      right: 0;
+      padding: 20px;
+      overflow-y: auto;
+    }
     overflow-y: auto;
     
     &-body-row {
@@ -29,11 +39,28 @@
         margin: 15px 0 7px 0;
       }
     }
+    p {
+      margin: 0;
+      padding-bottom: 5px;
+    }
     &-option {
       margin-bottom: 10px;
 
       label, input {
         cursor: pointer;
+      }
+      .inline-input {
+        transition: 100ms;
+        border: none;
+        padding-left: 15px;
+        border-bottom: 1px solid #ddd;
+        text-align: center;
+/*         background: #eee; */
+        width: 60px;
+        &:focus {
+          width: 80px;
+          outline: none;
+        }
       }
       &-color-list {
         @include no-style-ul;

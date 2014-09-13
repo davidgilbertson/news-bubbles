@@ -2,17 +2,9 @@
 var NB = NB || {};
 
 NB.Data = (function() {
-  var Data = {};
-
-  var store = {}
-    // , stories = []
-//     , nextPage = 0
-//     , hitsPerPage = 20
-//     , pageLimit = 1
+  var Data = {}
+    , store = {}
     , readList = []
-//     , timer
-//     , storyStore
-//     , stories = []
     , socket
   ;
 
@@ -38,16 +30,10 @@ NB.Data = (function() {
       if (existing) {
         existing.commentCount = d.commentCount;
         existing.score = d.score;
-//         console.log('Updaing the story score and comment count');
       } else {
-
         if (d.postDate > NB.oldestStory && d.score > minScore) { //I don't want to add stories that are older than what's on the chart
           Data.stories.push(d);
-//           console.log('This new story score of ' + d.score + ' is high enough.');
-        } else {
-//           console.log('This new story score of ' + d.score + ' is too low.');
         }
-        
       }
     });
   }
@@ -77,7 +63,8 @@ NB.Data = (function() {
 
   //TODO no reason getHN and getRD should be different functions
   //TODO should I let the server just io emit the data?
-  function getHnData(limit, minScore) {
+  function getHnData(minScore) {
+    var limit = NB.Settings.getSetting('hitLimit');
     $.get('/api/hn/' + limit + '/' + minScore, function(data) {
       if (NB.Settings.getSetting('source') !== 'hn') { return; } //this could occur if the page is changed before the data comes back
       parseInitialData(data, true, function(data) {
@@ -88,7 +75,8 @@ NB.Data = (function() {
   }
 
 
-  function getRdData(limit, minScore) {
+  function getRdData(minScore) {
+    var limit = NB.Settings.getSetting('hitLimit');
     $.get('/api/rd/' + limit + '/' + minScore, function(data) {
       if (NB.Settings.getSetting('source') !== 'rd') { return; } //this could occur if the page is changed before the data comes back
       parseInitialData(data, true, function(data) {
@@ -150,14 +138,17 @@ NB.Data = (function() {
     return isRead;
   };
 
-  Data.getData = function(source, limit, minScore) {
+  Data.getData = function() {
+    var source = NB.Settings.getSetting('source') || 'rd'; //this should never be empty, but 'rd' is there for the fun of it.
+    var minScore = NB.Settings.getSetting(source + 'MinScore');
+
 //     console.log('Data.getData:', source, limit, minScore);
-    limit = limit || NB.HITS_PER_PAGE;
+//     limit = limit || NB.HITS_PER_PAGE;
     if (source === 'rd') {
-      getRdData(limit, minScore);
+      getRdData(minScore);
     }
     if (source === 'hn') {
-      getHnData(limit, minScore);
+      getHnData(minScore);
     }
   };
 

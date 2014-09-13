@@ -6,9 +6,14 @@ var NB = NB || {};
 NB.DUR = 200; //should match _variables.scss duration variable
 NB.RESIZER_WIDTH = 24;
 NB.splitPos = 0;
+if (!!document.location.host.match(/localhost/)) {
+  NB.IS_LOCALHOST = true;
+} else {
+  NB.IS_LOCALHOST = false;
+}
 
-NB.MIN_POINTS = 1;
-NB.HITS_PER_PAGE = 200;
+// NB.MIN_POINTS = 1;
+// NB.HITS_PER_PAGE = 200;
 NB.hasTouch = true;
 NB.oldestStory = Infinity;
 
