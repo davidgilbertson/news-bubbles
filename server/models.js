@@ -2,18 +2,18 @@
 var mongoose = require('mongoose');
 
 var storySchema = mongoose.Schema({
-  id:               {type: String, index: true}, //source + id (e.g. 'hn-123456')
-  source:           {type: String, index: true}, //e.g. hn
-  sourceId:         {type: String, index: true}, //e.g. 123456
+  id:               String, //source + id (e.g. 'hn-123456')
+  source:           String, //e.g. hn
+  sourceId:         String, //e.g. 123456
   modifiedDate:     Date,
   name:             String,
   desc:             String,
-  postDate:         {type: Date, index: true},
+  postDate:         Date,
   postDateSeconds:  Number,
   url:              String,
   category:         String, //e.g. askHN, imgur, askReddit, nytimes.com
   commentCount:     Number,
-  score:            {type: Number, index: true},
+  score:            Number,
   author:           String,
   thumbnail:        String,
   rd:               {}, //reddit specific stuff
@@ -27,6 +27,8 @@ var storySchema = mongoose.Schema({
                       }
                     ]
 });
+
+storySchema.set('autoIndex', false); //redundant since I've removed indexes, but there as a net
 
 storySchema.pre('save', function(next) {
   //TODO, if the category already exists I can skip this. Save it updaing on updates, no?

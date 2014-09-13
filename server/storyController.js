@@ -6,37 +6,39 @@ var path = require('path')
 
 
 exports.getRecentStoriesByCount = function(source, limit, minScore, cb) {
-  console.log('getRecentStoriesByCount() sending query to database with limit', limit);
+  // console.log(new Date(), 'getRecentStoriesByCount() sending query to database with limit', limit);
+  var startTime = new Date().getTime();
   minScore = minScore || 1;
   Story
     .find({source: source, score: {$gte: minScore}}, {history: false})
     .sort('-postDate')
     .limit(limit)
+    .hint({source: 1, postDate: 1, score: 1}) //use this index
     .exec(function(err, docs) {
-      console.log('Database returned.');
+      console.log('Query returned in ' + (new Date().getTime() - startTime) + 'ms');
       cb(docs);
     });
 };
 
-function parseRedditData(data) {
-  data.forEach(function(d) {
-    var jsDate = new Date(obj.created);
-    d.postDate = jsDate;
-    var commentCount = obj.num_comments; //TODO one row?
-    d.commentCount = commentCount;
-    d.score = obj.score;
-    d.id = 'rd-' + obj.name;
-    d.sourceId = obj.name;
-    d.source = 'rd';
-    d.name = obj.title;
-    d.url = obj.url;
-    d.author = obj.author;
-    d.thumb = obj.thumbnail;
-  });
-  sortBy(data, 'commentCount');
-  console.log('parsed reddit data:', data);
-  return data;
-}
+// function parseRedditData(data) {
+//   data.forEach(function(d) {
+//     var jsDate = new Date(obj.created);
+//     d.postDate = jsDate;
+//     var commentCount = obj.num_comments; //TODO one row?
+//     d.commentCount = commentCount;
+//     d.score = obj.score;
+//     d.id = 'rd-' + obj.name;
+//     d.sourceId = obj.name;
+//     d.source = 'rd';
+//     d.name = obj.title;
+//     d.url = obj.url;
+//     d.author = obj.author;
+//     d.thumb = obj.thumbnail;
+//   });
+//   sortBy(data, 'commentCount');
+//   console.log('parsed reddit data:', data);
+//   return data;
+// }
 
 exports.upsertRedditStory = function(obj, cb) {
   var newOrChangedStory = false;
