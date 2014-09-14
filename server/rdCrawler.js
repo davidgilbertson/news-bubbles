@@ -144,15 +144,18 @@ function startCrawler() {
 
   function fetch(looper) {
     var url = buildRedditUrl({after: looper.lastKnownAfter, list: looper.list});
-    devLog(looper.name, 'doing fetch', looper.count, 'of', looper.loops);
+    // devLog(looper.name, 'doing fetch', looper.count, 'of', looper.loops);
     // devLog(looper.count, '- Getting data with the URL:', url);
 
     goGetReddit(url, function(response) {
       try {
-        saveRedditStories(response.data.children);
-        looper.lastKnownAfter = response.data.after;
+        if (response.data) { //this should save the try, but who knows.
+          saveRedditStories(response.data.children);
+          looper.lastKnownAfter = response.data.after;
+        }
       } catch (err) {
         console.log('Error in reddit crawler:', err);
+        console.log('response was', response);
         looper.count = 0;
         looper.lastKnownAfter = undefined;
       }
@@ -175,30 +178,12 @@ function startCrawler() {
   for (var i = 0; i < loopers.length; i++) {
     startLooper(loopers[i]);
   }
-  // startLooper(looper1);
-  // startLooper(looper2);
-  // startLooper(looper3);
-  // startLooper(looper4);
-  // startLooper(looper5);
-
-  //TODO: ultimately, it would be looper 1 that kicks off looper two when it gets to the end of its loops.
-  //looper one would only kick off looper two if it was idle.
-  //and so on. At the moment they all start from 'zero' so there is some overlap, but not much.
-
-
 }
-
-// function startHotCrawler() {
-//   devLog('starting the \'hot\' reddit crawler');
-
-// }
 
 
 exports.startRedditCrawler = function(globalIo) {
   io = globalIo;
   startCrawler();
-  // startNewCrawler();
-  // startHotCrawler();
 };
 
 
