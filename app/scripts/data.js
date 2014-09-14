@@ -67,6 +67,7 @@ NB.Data = (function() {
     var limit = NB.Settings.getSetting('hitLimit');
     $.get('/api/hn/' + limit + '/' + minScore, function(data) {
       if (NB.Settings.getSetting('source') !== 'hn') { return; } //this could occur if the page is changed before the data comes back
+      if (!data.length) { return; } //TODO show user a message for no data to return
       parseInitialData(data, true, function(data) {
         Data.stories = data;
         NB.Chart.drawStories();
@@ -79,6 +80,8 @@ NB.Data = (function() {
     var limit = NB.Settings.getSetting('hitLimit');
     $.get('/api/rd/' + limit + '/' + minScore, function(data) {
       if (NB.Settings.getSetting('source') !== 'rd') { return; } //this could occur if the page is changed before the data comes back
+      if (!data.length) { return; } //TODO show user a message for no data to return
+
       parseInitialData(data, true, function(data) {
 //         console.log('parseInitialData complete');
         Data.stories = data;
@@ -93,6 +96,11 @@ NB.Data = (function() {
 
     socket.on('data', function(msg) {
 //       console.log(msg.data);
+
+      //funny. If socket HAPPENS to fire while the first GET is in progress,
+      //it fails becuase Data.stories is empty, so merge does nothing
+      //So just ignore this event if Data.stories is not yet populated
+      if (!Data.stories.length) { return; }
       var src = NB.Settings.getSetting('source') || 'rd';
       if (msg.data.length && msg.source === src) { //e.g. if it's the reddit view and the data is reddit data
         mergeStories(parseSocketIoData(msg.data));
