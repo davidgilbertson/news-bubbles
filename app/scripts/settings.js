@@ -59,8 +59,16 @@ NB.Settings = (function() {
 
   function saveSettings() {
     //The settings object is bound so nothing needs to be updated there
-    var maxHitLimit = Math.min(500, settings.hitLimit());
-    settings.hitLimit(maxHitLimit);
+//     var maxHitLimit = Math.min(500, settings.hitLimit());
+    var tmp = NB.Utils.constrain(1, settings.hitLimit(), 500);
+    settings.hitLimit(tmp);
+    
+    var tmp = Math.max(0, settings.rdMinScore());
+    settings.rdMinScore(tmp);
+
+    var tmp = Math.max(0, settings.hnMinScore());
+    settings.hnMinScore(tmp);
+
 
     var localSettings = {
       clickAction: settings.clickAction(),
