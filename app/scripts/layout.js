@@ -33,7 +33,7 @@ NB.Layout = (function() {
 
     NB.splitPos = document.body.offsetWidth * 0.618;
     setChartAndStoryPanelSize();
-    NB.Chart.resize(true);
+    NB.Chart.resize('fast');
   }
   function hideStoryPanel(force) {
     if (!force && !storyPanelVisible) { return; }
@@ -43,8 +43,11 @@ NB.Layout = (function() {
     
     NB.splitPos = document.body.offsetWidth - NB.RESIZER_WIDTH;
     setChartAndStoryPanelSize();
-    NB.Chart.resize(true);
+    NB.Chart.resize('fast');
   }
+
+
+  /*  --  EXPORTS  --  */
 
   Layout.render = function() {
     setChartAndStoryPanelSize();

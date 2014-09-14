@@ -188,7 +188,7 @@ NB.Chart = (function() {
 
 
 
-  function drawStories(animate) {
+  function drawStories(animationSpeed) {
 //     console.log('drawStories()');
 
 
@@ -224,13 +224,22 @@ NB.Chart = (function() {
 
 
     var duration = 0;
-    if (animate) {
-      duration = NB.DUR;
+    var delay = 0;
+    if (animationSpeed === 'slow') {
+      duration = NB.DUR_SLOW;
+      delay = 10;
+    }
+    if (animationSpeed === 'fast') {
+      duration = NB.DUR_FAST;
+      delay = 0;
     }
 
     //Update
     points
       .transition()
+      .delay(function(d, i) {
+        return i * delay;
+      })
       .duration(duration)
       .attr('r', function(d) {
         return z(d.commentCount); //z may change because maxCircle changes on resize
@@ -306,7 +315,6 @@ NB.Chart = (function() {
 
 
 
-
   //Call this when data changes
   function setScales() {
 //     console.log('setScales()');
@@ -333,10 +341,8 @@ NB.Chart = (function() {
 
     y.domain([minScore, maxScore]);
     z.domain([minCommentCount, maxCommentCount]);
-//     console.log('minCommentCount:', minCommentCount, 'maxCommentCount:', maxCommentCount);
     
     if (oldMinDate !== minDate || oldMaxDate !== maxDate) { //the x scale has changed
-//       console.log('zoom has changed on the x, updating zoomer');
       x.domain([minDate, maxDate]);
       zoom.x(x);
     }
@@ -418,18 +424,18 @@ NB.Chart = (function() {
     setScales();
 
     setDimensions();
-    drawStories(true);
+    drawStories('slow');
   };
 
   Chart.reset = function() {
     init();
   };
 
-  Chart.resize = function(animate) {
+  Chart.resize = function(animateDuration) { //animateDuration = slow | fast
     if (!NB.Data.stories.length) { return; }
     setDimensions();
     setScales();
-    drawStories(animate);
+    drawStories(animateDuration);
   };
 
 
