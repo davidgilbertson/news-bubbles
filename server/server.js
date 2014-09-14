@@ -3,7 +3,9 @@ var path = require('path')
   , port = process.env.PORT || 9000
   , conn = process.env.MONGOHQ_URL || 'mongodb://localhost/news_bubbles'
   , mongoose = require('mongoose')
-  , crawlers = require(path.join(__dirname, 'crawlers'))
+  // , crawlers = require(path.join(__dirname, 'crawlers'))
+  , rdCrawler = require(path.join(__dirname, 'rdCrawler'))
+  , hnCrawler = require(path.join(__dirname, 'hnCrawler'))
 ;
 mongoose.connect(conn);
 var db = mongoose.connection;
@@ -22,8 +24,8 @@ exports.start = function(app) {
 
   db.on('open', function() {
     console.log('Database connection opened.');
-    crawlers.startHNCrawler(io);
-    crawlers.startRedditCrawler(io);
+    hnCrawler.startHNCrawler(io);
+    rdCrawler.startRedditCrawler(io);
     http.listen(port);
 
   });
