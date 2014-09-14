@@ -6,7 +6,7 @@
     <meta name="description" content="A visual display for hacker news stories.">
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 
-    <link rel="stylesheet" href="styles/main-7c5cd23d.css">
+    <link rel="stylesheet" href="styles/main-5fc8eaca.css">
 
     <link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
     <link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
@@ -66,7 +66,11 @@
             </h1>
             <div class="sub-title">
               <p><span class="category-dot" data-bind="style: {backgroundColor: color}"></span><span data-bind="text: category"></span></p>
-              <p><span data-bind="text: score">...</span> points | <a data-bind="attr: {href: sourceUrl}" target="_blank"><span data-bind="text: commentCount">...</span><span> comments</span></a> | posted by <a data-bind="attr: {href: authorUrl}, text: author" target="_blank">...</a></p>
+              <p><span data-bind="text: score">...</span>
+              point<span data-bind="visible: score() != 1">s</span>
+               | <a data-bind="attr: {href: sourceUrl}" target="_blank"><span data-bind="text: commentCount">...</span>
+               <span> comment<span data-bind="visible: commentCount() != 1">s</span></span>
+               </a> | posted by <a data-bind="attr: {href: authorUrl}, text: author" target="_blank">...</a></p>
               <p><span data-bind="text: timeString">...</span> on <span data-bind="text: dateString">...</span></p>
             </div>
           </div>
@@ -160,17 +164,20 @@
             <div class="settings-panel-option">
               <p>
                 <label>
-                  Show <input class="inline-input" type="number" min="0" max="500" data-bind="value: hitLimit"> bubbles on the page.
+                  Show <input class="inline-input" type="number" min="0" max="500" data-bind="value: hitLimit">
+                  bubble<span data-bind="visible: hitLimit() != 1">s</span> on the page.
                 </label>
               </p>
               <p>
                 <label>
-                  Show Hacker News stories over <input class="inline-input" type="number" min="0" data-bind="value: hnMinScore"> points.
+                  Show Hacker News stories over <input class="inline-input" type="number" min="0" data-bind="value: hnMinScore">
+                  point<span data-bind="visible: hnMinScore() != 1">s</span>.
                 </label>
               </p>
               <p>
                 <label>
-                  Show Reddit stories over <input class="inline-input" type="number" min="0" data-bind="value: rdMinScore"> points.
+                  Show Reddit stories over <input class="inline-input" type="number" min="0" data-bind="value: rdMinScore">
+                  point<span data-bind="visible: rdMinScore() != 1">s</span>.
                 </label>
               </p>
             </div>
@@ -210,7 +217,7 @@
     <script src="/socket.io/socket.io.js"></script>
 
 
-    <script src="scripts/main-e814291a.js"></script>
+    <script src="scripts/main-5657da14.js"></script>
 
   </body>
 </html>

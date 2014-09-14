@@ -322,7 +322,7 @@ NB.Chart = (function() {
     if (isNaN(minCommentCount) || isNaN(maxCommentCount)) {
       
       if (NB.IS_LOCALHOST) {
-        debugger;
+//         debugger;
       } else {
         console.log('Something went wrong with this data:', NB.Data.stories);
       }
