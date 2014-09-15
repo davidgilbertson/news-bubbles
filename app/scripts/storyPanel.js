@@ -69,8 +69,11 @@ NB.StoryPanel = (function() {
           story.content = html;
           done();
         });
+//       } else if (story.url.match(/\imgur\.com\/gallery\//)) {
+//         var id = story.url.match(/imgur\.com\/gallery\/([^?]*)/)[1];
+//         var imgUrl = 'http'
       } else {
-        var imgUrl = story.url.replace('imgur.com', 'i.imgur.com') + '.jpg';
+        var imgUrl = story.url.replace('/gallery', '').replace('imgur.com', 'i.imgur.com') + '.jpg';
 
         story.content = [
           '<div class="story-content">',
