@@ -107,10 +107,17 @@ exports.startHNCrawler = function(globalIo) {
     setInterval(function() {
       var now = new Date().getTime() / 1000;
       var url = buildHNUrl({minDate: now - oneHour * 2, maxDate: now - oneMin * 30});
-
-      goGetHn(url, function(data) {
-        devLog('Got HN stories from 30 mins to 2 hours. Count is: ' + data.hits.length);
-        saveHNStories(data.hits);
+      goGetHn(url, function(response) {
+        //TODO: i need this try/catch to be centralised...
+        try {
+          if (response) {
+            devLog('Got HN stories from 30 mins to 2 hours. Count is: ' + response.hits.length);
+            saveHNStories(response.hits);
+          }
+        } catch (err) {
+          console.log('Hacker news fetch error:', err);
+          console.log('response was', response);
+        }
       });
     }, every5Mins);
   }, 10000); //stagger
