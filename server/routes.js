@@ -2,21 +2,13 @@
 var path = require('path')
   , readabilityApi = require(path.join(__dirname, 'readability'))
   , storyController = require(path.join(__dirname, 'storyController'))
+  , rdCrawler = require(path.join(__dirname, 'rdCrawler'))
+  , hnCrawler = require(path.join(__dirname, 'hnCrawler'))
 ;
 
-function devLog() {
-  if (process.env.DEV) {
-    var result = '';
-    for (var i = 0; i < arguments.length; i++) {
-      result += ' ' +  arguments[i];
-    }
-    console.log(result);
-  }
-}
 module.exports = function(app) {
 
   app.get('/readability/:url', function(req, res) {
-    // console.log('Got request, passing on to readability');
     readabilityApi(req.params.url, function(data) {
       res.json(data);
     });
@@ -29,19 +21,13 @@ module.exports = function(app) {
   });
 
   app.get('/crawlers/forceHnFetch', function(req, res) {
-    devLog('Someone forced a hacker news fetch');
-    var crawlers = require(path.join(__dirname, 'crawlers'));
-    crawlers.forceHnFetch();
-    res.send('OK, did it');
+    hnCrawler.forceHnFetch();
+    res.send('Forced hacker news crawl');
   });
 
   app.get('/crawlers/forceRdFetch/:list/:limit', function(req, res) {
-    devLog('Someone forced a reddit fetch for the', req.params.list, 'list with the limit:', req.params.limit);
-
-    var crawlers = require(path.join(__dirname, 'crawlers'));
-
-    crawlers.forceRdFetch(req.params.limit, req.params.list);
-    res.send('OK, did it');
+    rdCrawler.forceRdFetch(req.params.limit, req.params.list);
+    res.send('Forced reddit crawl');
   });
 
 

@@ -8,12 +8,11 @@ var path = require('path')
 exports.getRecentStoriesByCount = function(source, limit, minScore, cb) {
   // console.log(new Date(), 'getRecentStoriesByCount() sending query to database with limit', limit);
   var startTime = new Date().getTime();
-  // console.log('Sending query to compose...');
   console.log('Query:');
-  console.log('Story.find({source: "' + source + '", score: {$gte: ' + minScore + '}}, {history: false})');
-  console.log('.sort(\'-postDate\')');
-  console.log('.limit(' + limit + ')');
-  console.log('.hint({source: 1, postDate: 1, score: 1})');
+  console.log(' >> Story.find({source: "' + source + '", score: {$gte: ' + minScore + '}}, {history: false})');
+  console.log(' >> .sort(\'-postDate\')');
+  console.log(' >> .limit(' + limit + ')');
+  console.log(' >> .hint({source: 1, postDate: 1, score: 1})');
 
   minScore = minScore || 1;
   Story
@@ -26,26 +25,6 @@ exports.getRecentStoriesByCount = function(source, limit, minScore, cb) {
       cb(docs);
     });
 };
-
-// function parseRedditData(data) {
-//   data.forEach(function(d) {
-//     var jsDate = new Date(obj.created);
-//     d.postDate = jsDate;
-//     var commentCount = obj.num_comments; //TODO one row?
-//     d.commentCount = commentCount;
-//     d.score = obj.score;
-//     d.id = 'rd-' + obj.name;
-//     d.sourceId = obj.name;
-//     d.source = 'rd';
-//     d.name = obj.title;
-//     d.url = obj.url;
-//     d.author = obj.author;
-//     d.thumb = obj.thumbnail;
-//   });
-//   sortBy(data, 'commentCount');
-//   console.log('parsed reddit data:', data);
-//   return data;
-// }
 
 exports.upsertRedditStory = function(obj, cb) {
   var newOrChangedStory = false;
@@ -72,14 +51,10 @@ exports.upsertRedditStory = function(obj, cb) {
       doc.history = historyArray;
       doc.save();
       if (newOrChangedStory) {
-        // console.log('Updated story:', doc.id, ',', doc.name);
         cb(doc);
       } else {
-        // console.log('Existing story, no change', doc.id, ',', doc.name);
         cb(null);
       }
-
-      // console.log('Updated the existing story:', doc.name);
 
     } else {
       var story = new Story({
