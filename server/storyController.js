@@ -8,6 +8,13 @@ var path = require('path')
 exports.getRecentStoriesByCount = function(source, limit, minScore, cb) {
   // console.log(new Date(), 'getRecentStoriesByCount() sending query to database with limit', limit);
   var startTime = new Date().getTime();
+  // console.log('Sending query to compose...');
+  console.log('Query:');
+  console.log('Story.find({source: "' + source + '", score: {$gte: ' + minScore + '}}, {history: false})');
+  console.log('.sort(\'-postDate\')');
+  console.log('.limit(' + limit + ')');
+  console.log('.hint({source: 1, postDate: 1, score: 1})');
+
   minScore = minScore || 1;
   Story
     .find({source: source, score: {$gte: minScore}}, {history: false})

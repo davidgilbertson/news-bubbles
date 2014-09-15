@@ -54,25 +54,25 @@ gulp.task('html', ['styles', 'scripts'], function () {
     .pipe($.size());
 });
 
-gulp.task('images', function () {
-  return gulp.src('app/images/**/*')
-    .pipe($.cache($.imagemin({
-      optimizationLevel: 3,
-      progressive: true,
-      interlaced: true
-    })))
-    .pipe(gulp.dest('dist/images'))
-    .pipe($.size());
-});
+// gulp.task('images', function () {
+//   return gulp.src('app/images/**/*')
+//     .pipe($.cache($.imagemin({
+//       optimizationLevel: 3,
+//       progressive: true,
+//       interlaced: true
+//     })))
+//     .pipe(gulp.dest('dist/images'))
+//     .pipe($.size());
+// });
 
-gulp.task('fonts', function () {
-  var mainBowerFiles = require('main-bower-files');
-  return gulp.src(mainBowerFiles())
-    .pipe($.filter('**/*.{eot,svg,ttf,woff}'))
-    .pipe($.flatten())
-    .pipe(gulp.dest('dist/fonts'))
-    .pipe($.size());
-});
+// gulp.task('fonts', function () {
+//   var mainBowerFiles = require('main-bower-files');
+//   return gulp.src(mainBowerFiles())
+//     .pipe($.filter('**/*.{eot,svg,ttf,woff}'))
+//     .pipe($.flatten())
+//     .pipe(gulp.dest('dist/fonts'))
+//     .pipe($.size());
+// });
 
 
 gulp.task('extras', function () {
@@ -82,7 +82,8 @@ gulp.task('extras', function () {
 
 
 gulp.task('clean', function () {
-  return gulp.src(['.tmp', 'dist'], { read: false }).pipe($.clean());
+  return gulp.src(['.tmp', 'dist'], { read: false })
+    .pipe($.clean());
 });
 
 
@@ -146,7 +147,8 @@ gulp.task('watch', ['express'], function () {
   gulp.watch('bower.json', ['wiredep']);
 });
 
-gulp.task('build', ['html', 'images', 'fonts', 'extras']);
+gulp.task('build', ['html', 'extras']);
+// gulp.task('build', ['html', 'images', 'fonts', 'extras']);
 
 gulp.task('default', ['clean'], function () {
   gulp.start('build');

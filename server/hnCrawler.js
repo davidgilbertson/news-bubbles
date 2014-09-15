@@ -87,7 +87,7 @@ exports.forceHnFetch = function() {
 
 exports.startHNCrawler = function(globalIo) {
   io = globalIo;
-  console.log('Starting Hacker News crawler');
+  // console.log('Starting Hacker News crawler');
   // io.emit('data update', {data: 'yes, there will totally be data here'});
 
   //Get stories from last 30 mins
