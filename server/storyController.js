@@ -35,20 +35,22 @@ exports.upsertRedditStory = function(obj, cb) {
 
   Story.findOne({id: id}, function(err, doc) {
     if (doc) {
-      var historyArray = doc.history || [];
-      var historyItem = {
-        dateTime: new Date(),
-        commentCount: doc.commentCount,
-        score: doc.score
-      };
-      historyArray.push(historyItem);
+      // var historyArray = doc.history || [];
+      // var historyItem = {
+      //   dateTime: new Date(),
+      //   commentCount: doc.commentCount,
+      //   score: doc.score
+      // };
+
+      //TODO, turning off history for now (15 sep 2014) cos it's murdering my free disk space
+      // historyArray.push(historyItem);
 
       if (doc.commentCount !== obj.num_comments || doc.score !== obj.score) {
         newOrChangedStory = true;
       }
       doc.commentCount = obj.num_comments;
       doc.score = obj.score;
-      doc.history = historyArray;
+      // doc.history = historyArray;
       doc.save();
       if (newOrChangedStory) {
         cb(doc);
