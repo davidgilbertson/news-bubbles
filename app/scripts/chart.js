@@ -327,19 +327,25 @@ NB.Chart = (function() {
     minCommentCount = Math.min(minCommentCount, d3.min(NB.Data.stories, function(d) { return d.commentCount; }));
     maxCommentCount = Math.max(maxCommentCount, d3.max(NB.Data.stories, function(d) { return d.commentCount; }));
 
-    if (isNaN(minCommentCount) || isNaN(maxCommentCount)) {
+//     if (isNaN(minCommentCount) || isNaN(maxCommentCount)) {
       
-      if (NB.IS_LOCALHOST) {
-//         debugger;
-      } else {
-        console.log('Something went wrong with this data:', NB.Data.stories);
-      }
-    }
+//       if (NB.IS_LOCALHOST) {
+// //         debugger;
+//       } else {
+//         console.log('Something went wrong with this data:', NB.Data.stories);
+//       }
+//     }
 
     var src = NB.Settings.getSetting('source');
     var minScore = NB.Settings.getSetting(src + 'MinScore');
+    var medianScore = d3.median(NB.Data.stories, function(d) { return d.score; });
 
-    y.domain([minScore, maxScore]);
+    //calculate the exponent based on the position of the median in the set
+    var exp = ((medianScore - minScore) / (maxScore - minScore)) * 2;
+    exp = NB.Utils.constrain(0.0001, exp, 1);
+
+    y.domain([minScore, maxScore])
+      .exponent(exp);
     z.domain([minCommentCount, maxCommentCount]);
     
     if (oldMinDate !== minDate || oldMaxDate !== maxDate) { //the x scale has changed
@@ -375,7 +381,7 @@ NB.Chart = (function() {
     maxCommentCount = 0;
 
     x = d3.time.scale();
-    y = d3.scale.pow().exponent(0.3);
+    y = d3.scale.pow().exponent(0.2);
     z = d3.scale.pow().exponent(0.5);
 
     xAxis = d3.svg.axis()
