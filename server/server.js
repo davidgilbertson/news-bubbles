@@ -1,9 +1,9 @@
 'use strict';
 var path = require('path')
   , port = process.env.PORT || 9000
-  , conn = process.env.MONGOHQ_URL || 'mongodb://localhost/news_bubbles'
+  // , conn = process.env.MONGOHQ_URL || 'mongodb://localhost/news_bubbles'
+  , conn = process.env.MONGOLAB_URL || 'mongodb://localhost/news_bubbles'
   , mongoose = require('mongoose')
-  // , crawlers = require(path.join(__dirname, 'crawlers'))
   , rdCrawler = require(path.join(__dirname, 'rdCrawler'))
   , hnCrawler = require(path.join(__dirname, 'hnCrawler'))
 ;
@@ -16,7 +16,7 @@ exports.start = function(app) {
   //Create a socket.io instance and send it to crawlers
   //The crawlers will io.emit() the data when they fetch something new
   var http = require('http').Server(app);
-  var io = require('socket.io')(http);
+  var io = require('socket.io')(http); //TODO put io in global?
 
   require(path.join(__dirname, 'routes.js'))(app);
 
