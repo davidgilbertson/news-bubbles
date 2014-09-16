@@ -31,15 +31,28 @@ NB.StoryPanel = (function() {
 
   function renderReddit(story) {
     var dom = story.rd.domain.toLowerCase();
+    story.content = '';
+    NB.StoryModel.setCurrentStory('panel', story); //to get a quick change in the panel.
 
-    function done() {
+    function done(thenAppendComments) {
       NB.StoryModel.setCurrentStory('panel', story);
+      if (thenAppendComments) {
+        appendComments();
+      }
+    }
+
+    //get comments and append. NB done() is not needed.
+    function appendComments() {
+      NB.Comments.getForRdStory(story.rd.shortId, function(commentTree) {
+        story.content += '<h3 class="comment-separator">Comments</h3>';
+        story.content += commentTree.html();
+        NB.StoryModel.setCurrentStory('panel', story);
+      });
     }
 
 
     if (story.rd.self) {
       NB.Comments.getForRdStory(story.rd.shortId, function(commentTree) {
-//         console.log('Got comment tree:', commentTree);
         story.content = commentTree.html();
         done();
       });
@@ -47,7 +60,7 @@ NB.StoryPanel = (function() {
     } else if (story.url.match(/\.(gif|png|jpg)\?*.*$/)) { //any old image link, might be imgur
 
       story.content = '<img src="' + story.url + '">';
-      done();
+      done(true);
 
     } else if (dom === 'i.imgur.com' || dom === 'imgur.com' || dom === 'm.imgur.com') { //TODO does m. exist, and obviously regex
 
@@ -67,29 +80,33 @@ NB.StoryPanel = (function() {
           html += '</div>';
 
           story.content = html;
-          done();
+          done(true);
+
         });
-//       } else if (story.url.match(/\imgur\.com\/gallery\//)) {
-//         var id = story.url.match(/imgur\.com\/gallery\/([^?]*)/)[1];
-//         var imgUrl = 'http'
+      } else if (story.url.match(/\imgur\.com\/gallery\//)) {
+        var id = story.url.match(/imgur\.com\/gallery\/([^?]*)/)[1];
+
+        NB.Data.getImgurGalleryAsHtml(id, function(html) {
+          story.content = '<div class="story-content">' + html + '</div>';
+          done(true);
+        });
+
       } else {
-        var imgUrl = story.url.replace('/gallery', '').replace('imgur.com', 'i.imgur.com') + '.jpg';
+        var imgUrl = story.url.replace('imgur.com', 'i.imgur.com') + '.jpg';
 
         story.content = [
           '<div class="story-content">',
             '<a href="' + story.url + '" target="_blank"><img src="' + imgUrl + '"></a>',
-            '<br>',
-            '<a href="' + story.url + '" target="_blank">Go to imgur.</a>.',
           '</div>'
         ].join('');
-        done();
+        done(true);
       }
 
     } else {
 
       getReadability(story, function(content) {
         story.content = content;
-        done();
+        done(true);
       });
 
     }

@@ -160,6 +160,45 @@ NB.Data = (function() {
     }
   };
 
+  Data.getImgurGalleryAsHtml = function(id, cb) {
+    var i
+      , img
+      , html = ''
+      , url = 'https://api.imgur.com/3/gallery/' + id
+    ;
+
+    function process(data) {
+      if (!data.is_album) {
+
+        html += '<figure>';
+        html += '<img src="' + data.link + '">';
+        html += '<figcaption>' + data.description + '</figcaption>';
+        html += '</figure>';
+
+      } else {
+
+        if (!data.images) { return; }
+
+        for (i = 0; i < data.images.length; i++) {
+          img = data.images[i]
+
+          html += '<figure>';
+          html += '<img src="' + img.link + '">';
+          html += '<figcaption>' + img.title + '</figcaption>';
+          html += '</figure>';
+          html += img.description ? '<p>' + img.description + '</p>' : '';
+        }
+      }
+
+      cb(html);
+    }
+
+    $.get(url, function(response) {
+      process(response.data);
+    });
+
+  }
+
 
   init();
   return Data;

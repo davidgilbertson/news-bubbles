@@ -19,6 +19,10 @@
       max-width: 100%;
       height: auto;
     }
+    figcaption {
+      margin-bottom: 20px;
+      font-style: italic;
+    }
     &-resizer {
       position: absolute;
       left: 0;
@@ -55,6 +59,12 @@
       color: $primary-color;
       cursor: pointer;
       background-color: white;
+    }
+    .comment-separator {
+      border-bottom: 1px solid $primary-color;
+      margin-top: 40px;
+      padding: 9px 0;
+      text-align: center;
     }
 
     .comment-list {
@@ -106,7 +116,7 @@
   &-wrapper {
     height: 100%;
     min-width: 200px;
-    overflow-y: auto;
+    overflow-y: scroll;
     padding: 10px 20px 50px 10px;
     background-color: white;
     z-index: 0;
