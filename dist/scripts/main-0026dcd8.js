@@ -29,7 +29,11 @@ NB.Settings = (function() {
 
       if (localSettings.clickAction) { settings.clickAction(localSettings.clickAction); }
       if (localSettings.rightClickAction) { settings.rightClickAction(localSettings.rightClickAction); }
-      if (localSettings.source) { settings.source(localSettings.source); }
+      if (localSettings.source) {
+        if (localSettings.source === 'rd') { localSettings.source = 'rdt'; }
+        if (localSettings.source === 'hn') { localSettings.source = 'hxn'; }
+        settings.source(localSettings.source);
+      }
       if (localSettings.hitLimit) { settings.hitLimit(+localSettings.hitLimit); }
       if (localSettings.rdtMinScore) { settings.rdtMinScore(+localSettings.rdtMinScore); }
       if (localSettings.hxnMinScore) { settings.hxnMinScore(+localSettings.hxnMinScore); }
