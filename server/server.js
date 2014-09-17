@@ -24,8 +24,8 @@ exports.start = function(app) {
 
   db.on('open', function() {
     console.log('Database connection opened.');
-    // hxnCrawler.startCrawler(io);
-    // rdtCrawler.startCrawler(io);
+    hxnCrawler.startCrawler(io);
+    rdtCrawler.startCrawler(io);
     http.listen(port);
 
   });
