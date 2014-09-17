@@ -1,5 +1,6 @@
 'use strict';
 
+//devLog will print to console in DEV only.
 exports.devLog = function() {
 
   if (process.env.DEV) {

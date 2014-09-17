@@ -32,7 +32,7 @@ NB.Events = (function() {
     NB.Layout.moveSplitPos();
     NB.Chart.resize();
   }
-  
+
   function resizerMouseup() {
     chartWrapper.style('transition', null);
     storyPanel.style('transition', null);
@@ -90,30 +90,27 @@ NB.Events = (function() {
   /*  ---------------  */
 
   //TODO this could probably be one event on .news-sources-source
-  var rdSource = $('#news-source-rd');
-  var hnSource = $('#news-source-hn');
+  var rdtSource = $('#news-source-rdt');
+  var hxnSource = $('#news-source-hxn');
 
-//   var src = NB.Settings.getSetting('source') || 'rd'; //this should never be empty, but 'rd' is there for the fun of it.
-//   var minScore = NB.Settings.getSetting(src + 'MinScore');
-
-  rdSource.on('click', function() {
-    rdSource.addClass('active');
-    hnSource.removeClass('active');
-    NB.Settings.setSetting('source', 'rd');
+  rdtSource.on('click', function() {
+    rdtSource.addClass('active');
+    hxnSource.removeClass('active');
+    NB.Settings.setSetting('source', 'rdt');
     NB.Chart.reset(); //TODO build reset into getData?
-    var minScore = NB.Settings.getSetting('rdMinScore');
+    var minScore = NB.Settings.getSetting('rdtMinScore');
 
-    NB.Data.getData('rd', minScore); //TODO get the settings for limits and min scores
+    NB.Data.getData('rtd', minScore); //TODO get the settings for limits and min scores
   });
 
-  hnSource.on('click', function() {
-    rdSource.removeClass('active');
-    hnSource.addClass('active');
-    NB.Settings.setSetting('source', 'hn');
+  hxnSource.on('click', function() {
+    rdtSource.removeClass('active');
+    hxnSource.addClass('active');
+    NB.Settings.setSetting('source', 'hxn');
     NB.Chart.reset();
-    
-    var minScore = NB.Settings.getSetting('hnMinScore');
-    NB.Data.getData('hn', minScore); //TODO get the settings for limits and min scores
+
+    var minScore = NB.Settings.getSetting('hxnMinScore');
+    NB.Data.getData('hxn', minScore); //TODO get the settings for limits and min scores
   });
 
 

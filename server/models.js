@@ -16,9 +16,10 @@ var storySchema = mongoose.Schema({
   score:            Number,
   author:           String,
   thumbnail:        String,
-  rd:               {}, //reddit specific stuff
-  hn:               {}, //hacker news specific stuff
-  // tags:             [],
+  rdt:               {}, //reddit specific stuff
+  hxn:               {}, //hacker news specific stuff
+  twt:               {}, //twitter specific stuff
+  tbl:               {}, //tumblr specific stuff
   history:          [
                       {
                         dateTime: Date,
@@ -31,13 +32,13 @@ var storySchema = mongoose.Schema({
 storySchema.set('autoIndex', false); //redundant since I've removed indexes, but there as a net
 
 storySchema.pre('save', function(next) {
-  //TODO, if the category already exists I can skip this. Save it updaing on updates, no?
+  //TODO, if the category already exists I can skip this. Save it updating on updates, no?
   var tags, category;
 
-  if (this.source === 'hn') {
+  if (this.source === 'hxn') {
     category = 'Hacker News story';
-    if (this.hn && this.hn.tags && this.hn.tags.length) {
-      tags = this.hn.tags;
+    if (this.hxn && this.hxn.tags && this.hxn.tags.length) {
+      tags = this.hxn.tags;
       if (tags.indexOf('ask_hn') > -1) {
         category = 'Ask HN';
       } else if (tags.indexOf('show_hn') > -1) {
@@ -46,13 +47,13 @@ storySchema.pre('save', function(next) {
     }
   }
 
-  if (this.source === 'rd') {
+  if (this.source === 'rdt') {
     category = '';
-    if (!this.rd) { return; }
-    if (this.rd.subreddit) {
-      category = this.rd.subreddit;
+    if (!this.rdt) { return; }
+    if (this.rdt.subreddit) {
+      category = this.rdt.subreddit;
     } else {
-      category = this.rd.domain;
+      category = this.rdt.domain;
     }
   }
 

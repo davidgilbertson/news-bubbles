@@ -16,8 +16,8 @@ NB.Settings = (function() {
       if (localSettings.rightClickAction) { settings.rightClickAction(localSettings.rightClickAction); }
       if (localSettings.source) { settings.source(localSettings.source); }
       if (localSettings.hitLimit) { settings.hitLimit(+localSettings.hitLimit); }
-      if (localSettings.rdMinScore) { settings.rdMinScore(+localSettings.rdMinScore); }
-      if (localSettings.hnMinScore) { settings.hnMinScore(+localSettings.hnMinScore); }
+      if (localSettings.rdtMinScore) { settings.rdtMinScore(+localSettings.rdtMinScore); }
+      if (localSettings.hxnMinScore) { settings.hxnMinScore(+localSettings.hxnMinScore); }
     }
   }
 
@@ -26,16 +26,16 @@ NB.Settings = (function() {
     settings = {
       clickAction: ko.observable('storyPanel'), //storyPanel | storyTooltip
       rightClickAction: ko.observable('toggleRead'), // toggleRead | nothing
-      source: ko.observable('rd'), // rd | hn
+      source: ko.observable('rdt'), // rdt | hxn
       hitLimit: ko.observable(200),
-      rdMinScore: ko.observable(500),
-      hnMinScore: ko.observable(5),
-      hnCategoryColors: ko.observableArray([
+      rdtMinScore: ko.observable(500),
+      hxnMinScore: ko.observable(5),
+      hxnCategoryColors: ko.observableArray([
         {category: 'Ask HN', color: '#e74c3c'},
         {category: 'Show HN', color: '#16a085'},
         {category: 'Everything else', color: '#2980b9'}
       ]),
-      rdCategoryColors: ko.observableArray([
+      rdtCategoryColors: ko.observableArray([
         {category: 'AskReddit', color: '#2980b9'},
         {category: 'funny', color: '#2ecc71'},
         {category: 'pics', color: '#f39c12'},
@@ -62,12 +62,12 @@ NB.Settings = (function() {
 //     var maxHitLimit = Math.min(500, settings.hitLimit());
     var tmp = NB.Utils.constrain(1, settings.hitLimit(), 500);
     settings.hitLimit(tmp);
-    
-    var tmp = Math.max(0, settings.rdMinScore());
-    settings.rdMinScore(tmp);
 
-    var tmp = Math.max(0, settings.hnMinScore());
-    settings.hnMinScore(tmp);
+    var tmp = Math.max(0, settings.rdtMinScore());
+    settings.rdtMinScore(tmp);
+
+    var tmp = Math.max(0, settings.hxnMinScore());
+    settings.hxnMinScore(tmp);
 
 
     var localSettings = {
@@ -75,8 +75,8 @@ NB.Settings = (function() {
       rightClickAction: settings.rightClickAction(),
       source: settings.source(),
       hitLimit: settings.hitLimit(),
-      rdMinScore: settings.rdMinScore(),
-      hnMinScore: settings.hnMinScore()
+      rdtMinScore: settings.rdtMinScore(),
+      hxnMinScore: settings.hxnMinScore()
     };
 
     var previousSettings = {};
@@ -95,7 +95,7 @@ NB.Settings = (function() {
       NB.Chart.reset();
       NB.Data.getData();
     }
-    //TODO if hn or rd limits changed...
+    //TODO if hxn or rdt limits changed...
 
     localStorage.settings = JSON.stringify(localSettings);
     closeSettings();
@@ -104,7 +104,7 @@ NB.Settings = (function() {
 
   /*  ---------------  */
   /*  --  Exports  --  */
-  /*  ---------------  */ 
+  /*  ---------------  */
 
   Settings.openSettings = function() {
     settingsEl.fadeIn(100);

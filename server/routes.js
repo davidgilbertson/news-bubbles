@@ -2,8 +2,8 @@
 var path = require('path')
   , readabilityApi = require(path.join(__dirname, 'readability'))
   , storyController = require(path.join(__dirname, 'storyController'))
-  , rdCrawler = require(path.join(__dirname, 'rdCrawler'))
-  , hnCrawler = require(path.join(__dirname, 'hnCrawler'))
+  , hxnCrawler = require(path.join(__dirname, 'hxnCrawler'))
+  , rdtCrawler = require(path.join(__dirname, 'rdtCrawler'))
 ;
 
 module.exports = function(app) {
@@ -20,14 +20,20 @@ module.exports = function(app) {
     });
   });
 
-  app.get('/crawlers/forceHnFetch', function(req, res) {
-    hnCrawler.forceHnFetch();
+  app.get('/crawlers/forceHxnFetch', function(req, res) {
+    hxnCrawler.forceFetch();
     res.send('Forced hacker news crawl');
   });
 
-  app.get('/crawlers/forceRdFetch/:list/:limit', function(req, res) {
-    rdCrawler.forceRdFetch(req.params.limit, req.params.list);
+  app.get('/crawlers/forceRdtFetch/:list/:limit', function(req, res) {
+    rdtCrawler.forceFetch(req.params.limit, req.params.list);
     res.send('Forced reddit crawl');
+  });
+
+  app.get('/dbOps/massRename', function(req, res) {
+    storyController.renameAllIds(function(response) {
+      res.json(response);
+    });
   });
 
 

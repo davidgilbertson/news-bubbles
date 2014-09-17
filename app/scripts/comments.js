@@ -6,7 +6,7 @@ NB.Comments = (function() {
   var Comments = {};
 
 
-  function parseRdComments(commentTree, cb) {
+  function parseRdtComments(commentTree, cb) {
     var $result = $('<div>')
 //       , result
       , level = 0
@@ -42,7 +42,7 @@ NB.Comments = (function() {
 
         $children.append($child);
       });
-      
+
       level--;
       return $children;
     }
@@ -62,15 +62,15 @@ NB.Comments = (function() {
   }
 
 
-  function parseHnComments(story, comments, cb) {
+  function parseHxnComments(story, comments, cb) {
     var $result = $('<ul class="comment-list level-1"></ul>');
     var sourceUrl = 'https://news.ycombinator.com/item?id=' + story.sourceId;
 
 
-    if (story.hn.storyText) {
-      $result.append(story.hn.storyText);
-      $result.append('<h3>Comments</h3>');
-      $result.append('<hr>');
+    if (story.hxn.storyText) {
+      $result.append(story.hxn.storyText);
+      $result.append('<h3 class="comment-separator">Comments</h3>');
+      // $result.append('<hr>');
     }
     var html = [
       '<p class="comment-list-title">Head on over to ',
@@ -99,24 +99,24 @@ NB.Comments = (function() {
 
   /*  --  PUBLIC  --  */
 
-  Comments.getForRdStory = function(storyId, cb) {
+  Comments.getForRdtStory = function(storyId, cb) {
     var url = 'http://www.reddit.com/comments/' + storyId + '.json';
 
     $.get(url, function(data) {
-      parseRdComments(data, cb);
+      parseRdtComments(data, cb);
     });
 
   };
 
-  Comments.getForHnStory = function(story, cb) {
+  Comments.getForHxnStory = function(story, cb) {
     var url = 'https://hn.algolia.com/api/v1/search?tags=comment,story_' + story.sourceId;
 
     $.get(url, function(comments) {
-      parseHnComments(story, comments, cb);
+      parseHxnComments(story, comments, cb);
     });
 
   };
 
   return Comments;
-  
+
 })();

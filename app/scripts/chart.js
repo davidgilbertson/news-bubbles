@@ -67,7 +67,7 @@ NB.Chart = (function() {
     //Now select the item just clicked
     el.classed('selected', true);
 
-    
+
 
     var setting = NB.Settings.getSetting('clickAction');
 
@@ -104,7 +104,7 @@ NB.Chart = (function() {
         readUnreadLink.text('Mark as read');
       }
 
-    
+
       var duration = maxiTooltipShowing ? 200 : 0;
       maxiTooltip
         .style('display', 'block')
@@ -133,25 +133,24 @@ NB.Chart = (function() {
         NB.Layout.showStoryPanel();
         NB.StoryPanel.render(d);
       });
-      
+
     }
 
     if (setting === 'openTab') {
       //TODO I'm not sure I can do this, maybe the text should be 'open page' or 'navigate to URL'
     }
-    
 
-    
+
+
 
 
     tooltip.style('visibility', 'hidden');
 
 
   }
-  
+
   function bubbleMouseover(d) {
     if (maxiTooltipShowing) { return; }
-//     var extra = d.rd ? ' - ' + d.rd.domain : ''; //TODO remove the 'extra' bit when color coding is done. Or maybe not.
     var extra = ' - ' + d.category;
     tooltip.text(d.name + extra);
     var tipWidth = parseInt(tooltip.style('width'));
@@ -166,7 +165,7 @@ NB.Chart = (function() {
     if (top < 100) {
       top = thisDims.top + thisDims.height;
     }
-    
+
     tooltip
       .style('left', left + 'px')
       .style('top', top + 'px')
@@ -260,16 +259,16 @@ NB.Chart = (function() {
   //Call this when the screen layout/size changes
   function setDimensions() {
 //     console.log('setDimensions()');
-    
+
     h = parseInt(d3.select('#chart-wrapper').style('height'), 10) - 4; //I don't know why
     w = NB.splitPos;
-    
+
     if (w - margins.left - margins.right < 600) {
       xAxis.ticks(5);
     } else {
       xAxis.ticks(10);
     }
-    
+
     maxCircle = document.body.offsetHeight / 20;
     margins.top = 40 + maxCircle / 2;
 //     margins.left = maxCircle / 2;
@@ -300,10 +299,10 @@ NB.Chart = (function() {
       .attr('transform', 'translate(0,' + (h - margins.bottom) + ')');
 
     yAxis.innerTickSize((w - margins.left - margins.right) * -1);
-    
+
     yAxisG
       .attr('transform', 'translate(' + margins.left + ', 0)');
-    
+
     xAxisG.call(xAxis);
     yAxisG.call(yAxis);
 
@@ -328,7 +327,7 @@ NB.Chart = (function() {
     maxCommentCount = Math.max(maxCommentCount, d3.max(NB.Data.stories, function(d) { return d.commentCount; }));
 
 //     if (isNaN(minCommentCount) || isNaN(maxCommentCount)) {
-      
+
 //       if (NB.IS_LOCALHOST) {
 // //         debugger;
 //       } else {
@@ -347,12 +346,12 @@ NB.Chart = (function() {
     y.domain([minScore, maxScore])
       .exponent(exp);
     z.domain([minCommentCount, maxCommentCount]);
-    
+
     if (oldMinDate !== minDate || oldMaxDate !== maxDate) { //the x scale has changed
       x.domain([minDate, maxDate]);
       zoom.x(x);
     }
-    
+
   }
 
   function zoomChart() {
@@ -373,7 +372,7 @@ NB.Chart = (function() {
     chartWrapper = d3.select('#svg-bubble-chart');
     tooltip = d3.select('#tooltip'); //TODO move out of init?
 
-    
+
     minDate = Infinity;
     maxDate = 0;
     maxScore = 0;
@@ -403,11 +402,11 @@ NB.Chart = (function() {
 
     yAxisG = chartAxes.append('g')
       .classed('chart-axis-y', true);
-      
+
 
     initZoom();
 
-    
+
     plotArea = chartWrapper
       .append('g')
       .classed('chart-plot-area', true)
@@ -416,7 +415,7 @@ NB.Chart = (function() {
 
     chartOverlay = plotArea.append('rect')
       .attr('class', 'overlay');
-      
+
     chartOverlay.on('touchstart.zoom', null); //Do not get this, but otherwise a single tap starts a zoom
 
   }

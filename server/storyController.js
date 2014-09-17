@@ -4,6 +4,30 @@ var path = require('path')
   , Story = models.Story
 ;
 
+exports.renameAllIds = function(cb) {
+  console.log('renameAllIds() ...');
+  var startTime = new Date().getTime();
+
+  Story
+    .find({}, {history: false})
+    .exec(function(err, docs) {
+      var story, oldId, newId, count = 0;
+      for (var i = 0; i < docs.length; i++) {
+        story = docs[i];
+        oldId = story.id;
+        newId = oldId.replace('hn-', 'hxn-').replace('rd-', 'rdt-');
+        if (oldId !== newId) {
+          count++;
+          story.id = newId;
+          story.save();
+        }
+      }
+      console.log('Query finished in ' + (new Date().getTime() - startTime) + 'ms');
+      cb({success: 'cahnged ' + count});
+    });
+
+
+};
 
 exports.getRecentStoriesByCount = function(source, limit, minScore, cb) {
   // console.log(new Date(), 'getRecentStoriesByCount() sending query to database with limit', limit);
@@ -26,9 +50,9 @@ exports.getRecentStoriesByCount = function(source, limit, minScore, cb) {
     });
 };
 
-exports.upsertRedditStory = function(obj, cb) {
+exports.upsertRdtStory = function(obj, cb) {
   var newOrChangedStory = false;
-  var id = 'rd-' + obj.data.name;
+  var id = 'rdt-' + obj.data.name;
   var kind = obj.kind;
 
   obj = obj.data;
@@ -61,7 +85,7 @@ exports.upsertRedditStory = function(obj, cb) {
     } else {
       var story = new Story({
         id: id,
-        source: 'rd',
+        source: 'rdt',
         sourceId: obj.name,
         name: obj.title,
         desc: null,
@@ -72,7 +96,7 @@ exports.upsertRedditStory = function(obj, cb) {
         score: obj.score,
         author: obj.author,
         thumbnail: obj.thumbnail,
-        rd: {
+        rdt: {
           kind: kind,
           domain: obj.domain,
           shortId: obj.id,
@@ -90,8 +114,8 @@ exports.upsertRedditStory = function(obj, cb) {
   });
 };
 
-exports.upsertHNStory = function(obj, cb) {
-  var id = 'hn-' + obj.objectID;
+exports.upsertHxnStory = function(obj, cb) {
+  var id = 'hxn-' + obj.objectID;
   var newOrChangedStory = false;
 
   //TODO add a new method of Story called 'upsertAndMerge'
@@ -126,7 +150,7 @@ exports.upsertHNStory = function(obj, cb) {
     } else {
       var story = new Story({
         id: id,
-        source: 'hn',
+        source: 'hxn',
         sourceId: obj.objectID,
         name: obj.title,
         desc: null,
@@ -137,7 +161,7 @@ exports.upsertHNStory = function(obj, cb) {
         score: obj.points,
         author: obj.author,
         thumbnail: null,
-        hn: {
+        hxn: {
           tags: obj._tags,
           storyText: obj.story_text
         }

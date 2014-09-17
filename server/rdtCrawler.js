@@ -10,12 +10,12 @@ var path = require('path')
 
 
 //TODO this probably belongs in controllers, but don't want callback soup or passing io around everywhere right now
-function saveRedditStories(data, suppressResults) {
+function saveStories(data, suppressResults) {
   // console.log('  --  Saving', data.length, 'stories  --');
   var newOrUpdatedStories = [];
   var savedStories = 0;
   data.forEach(function(d) {
-    storyController.upsertRedditStory(d, function(newOrUpdatedStory) {
+    storyController.upsertRdtStory(d, function(newOrUpdatedStory) {
       if (newOrUpdatedStory) {
         newOrUpdatedStories.push(newOrUpdatedStory);
       }
@@ -23,7 +23,7 @@ function saveRedditStories(data, suppressResults) {
       if (savedStories === data.length) {
         savedStories = 0;
         if (newOrUpdatedStories.length && !suppressResults) {
-          io.emit('data', {source: 'rd', data: newOrUpdatedStories});
+          io.emit('data', {source: 'rdt', data: newOrUpdatedStories});
         }
       }
     });
@@ -31,11 +31,11 @@ function saveRedditStories(data, suppressResults) {
 }
 
 
-function goGetReddit(url, cb) {
+function goGet(url, cb) {
   var options = {
     url: url,
     json: true,
-    'User-Agent': 'news-bubbles.herokuapp.com/0.2.3 by davidgilbertson'
+    'User-Agent': 'news-bubbles.herokuapp.com/0.3.3 by davidgilbertson'
   };
 
   request.get(options, function(err, req, data) {
@@ -43,7 +43,7 @@ function goGetReddit(url, cb) {
   });
 }
 
-function buildRedditUrl(props) {
+function buildUrl(props) {
   props = props || {};
   var url = 'http://www.reddit.com/' + (props.list || 'new') + '.json';
   url += '?limit=' + (props.limit || 100);
@@ -143,14 +143,14 @@ function startCrawler() {
   ];
 
   function fetch(looper) {
-    var url = buildRedditUrl({after: looper.lastKnownAfter, list: looper.list});
+    var url = buildUrl({after: looper.lastKnownAfter, list: looper.list});
     // devLog(looper.name, 'doing fetch', looper.count, 'of', looper.loops);
     // devLog(looper.count, '- Getting data with the URL:', url);
 
-    goGetReddit(url, function(response) {
+    goGet(url, function(response) {
       try {
         if (response.data) { //this should save the try, but who knows.
-          saveRedditStories(response.data.children);
+          saveStories(response.data.children);
           looper.lastKnownAfter = response.data.after;
         }
       } catch (err) {
@@ -181,26 +181,26 @@ function startCrawler() {
 }
 
 
-exports.startRedditCrawler = function(globalIo) {
+exports.startCrawler = function(globalIo) {
   io = globalIo;
   startCrawler();
 };
 
 
-exports.forceRdFetch = function(limit, list) {
+exports.forceFetch = function(limit, list) {
   var loops = limit / 100
     , count = 0
     , lastKnownAfter
     , url = '';
 
   function go() {
-    url = buildRedditUrl({after: lastKnownAfter, list: list});
+    url = buildUrl({after: lastKnownAfter, list: list});
     // devLog('Getting data with the URL:', url);
 
     console.log('tick', count);
-    goGetReddit(url, function(response) {
+    goGet(url, function(response) {
       if (response.data && response.data.children) {
-        saveRedditStories(response.data.children);
+        saveStories(response.data.children);
         lastKnownAfter = response.data.after;
       }
 

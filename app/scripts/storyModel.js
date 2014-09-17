@@ -49,12 +49,12 @@ NB.StoryModel = (function() {
 
     var color = NB.Settings.getColor(story.source, category);
 
-    if (story.source === 'rd') {
-      domain = story.rd.domain;
-      sourceUrl = 'https://www.reddit.com' + story.rd.permalink;
+    if (story.source === 'rdt') {
+      domain = story.rdt.domain;
+      sourceUrl = 'https://www.reddit.com' + story.rdt.permalink;
       authorUrl = 'http://www.reddit.com/user/' + story.author;
     }
-    if (story.source === 'hn') {
+    if (story.source === 'hxn') {
       sourceUrl = 'https://news.ycombinator.com/item?id=' + story.sourceId;
       authorUrl = 'https://news.ycombinator.com/user?id=' + story.author;
       if (!story.url) {
@@ -70,7 +70,7 @@ NB.StoryModel = (function() {
       } else {
         var urlTest = story.url.match(/:\/\/([^\/]*)/);
         if (urlTest) {
-          domain = urlTest[1] ? urlTest[1] : 'HN'; 
+          domain = urlTest[1] ? urlTest[1] : 'HN'; //TODO: what?
         } else {
           domain = 'Hacker News';
         }

@@ -44,8 +44,8 @@
         </svg>
       </div>
       <div class="news-sources">
-        <button id="news-source-rd" class="news-sources-source">REDDIT</button>
-        <button id="news-source-hn" class="news-sources-source">HACKER NEWS</button>
+        <button id="news-source-rdt" class="news-sources-source">REDDIT</button>
+        <button id="news-source-hxn" class="news-sources-source">HACKER NEWS</button>
       </div>
     </header>
 
@@ -172,14 +172,14 @@
               </p>
               <p>
                 <label>
-                  Show Hacker News stories over <input class="inline-input" type="number" min="0" data-bind="value: hnMinScore">
-                  point<span data-bind="visible: hnMinScore() != 1">s</span>.
+                  Show Hacker News stories over <input class="inline-input" type="number" min="0" data-bind="value: hxnMinScore">
+                  point<span data-bind="visible: hxnMinScore() != 1">s</span>.
                 </label>
               </p>
               <p>
                 <label>
-                  Show Reddit stories over <input class="inline-input" type="number" min="0" data-bind="value: rdMinScore">
-                  point<span data-bind="visible: rdMinScore() != 1">s</span>.
+                  Show Reddit stories over <input class="inline-input" type="number" min="0" data-bind="value: rdtMinScore">
+                  point<span data-bind="visible: rdtMinScore() != 1">s</span>.
                 </label>
               </p>
             </div>
@@ -188,7 +188,7 @@
           <div class="settings-panel-body-row">
             <h2>HACKER NEWS COLORS</h2>
             <div class="settings-panel-option">
-              <ul class="settings-panel-option-color-list" data-bind="foreach: hnCategoryColors">
+              <ul class="settings-panel-option-color-list" data-bind="foreach: hxnCategoryColors">
                 <li>
                   <span class="settings-panel-option-color-list-dot" data-bind="style: {background: color}"></span>
                   <span class="settings-panel-option-color-list-text" data-bind="text: category"></span>
@@ -199,7 +199,7 @@
           <div class="settings-panel-body-row">
             <h2>REDDIT COLORS</h2>
             <div class="settings-panel-option">
-              <ul class="settings-panel-option-color-list" data-bind="foreach: rdCategoryColors">
+              <ul class="settings-panel-option-color-list" data-bind="foreach: rdtCategoryColors">
                 <li>
                   <span class="settings-panel-option-color-list-dot" data-bind="style: {background: color}"></span>
                   <span class="settings-panel-option-color-list-text" data-bind="text: category"></span>

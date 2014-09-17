@@ -61,12 +61,11 @@ NB.Data = (function() {
   }
 
 
-  //TODO no reason getHN and getRD should be different functions
   //TODO should I let the server just io emit the data?
-  function getHnData(minScore) {
+  function getHxnData(minScore) {
     var limit = NB.Settings.getSetting('hitLimit');
-    $.get('/api/hn/' + limit + '/' + minScore, function(data) {
-      if (NB.Settings.getSetting('source') !== 'hn') { return; } //this could occur if the page is changed before the data comes back
+    $.get('/api/hxn/' + limit + '/' + minScore, function(data) {
+      if (NB.Settings.getSetting('source') !== 'hxn') { return; } //this could occur if the page is changed before the data comes back
       if (!data.length) { return; } //TODO show user a message for no data to return
       parseInitialData(data, true, function(data) {
         Data.stories = data;
@@ -76,10 +75,10 @@ NB.Data = (function() {
   }
 
 
-  function getRdData(minScore) {
+  function getRdtData(minScore) {
     var limit = NB.Settings.getSetting('hitLimit');
-    $.get('/api/rd/' + limit + '/' + minScore, function(data) {
-      if (NB.Settings.getSetting('source') !== 'rd') { return; } //this could occur if the page is changed before the data comes back
+    $.get('/api/rdt/' + limit + '/' + minScore, function(data) {
+      if (NB.Settings.getSetting('source') !== 'rdt') { return; } //this could occur if the page is changed before the data comes back
       if (!data.length) { return; } //TODO show user a message for no data to return
 
       parseInitialData(data, true, function(data) {
@@ -92,7 +91,7 @@ NB.Data = (function() {
 
 
   function init() {
-    socket = io(); //TODO only get the server to send data for reddit or hn?
+    socket = io(); //TODO only get the server to send data for reddit or hxn?
 
     socket.on('data', function(msg) {
 //       console.log(msg.data);
@@ -101,7 +100,7 @@ NB.Data = (function() {
       //it fails becuase Data.stories is empty, so merge does nothing
       //So just ignore this event if Data.stories is not yet populated
       if (!Data.stories.length) { return; }
-      var src = NB.Settings.getSetting('source') || 'rd';
+      var src = NB.Settings.getSetting('source') || 'rdt';
       if (msg.data.length && msg.source === src) { //e.g. if it's the reddit view and the data is reddit data
         mergeStories(parseSocketIoData(msg.data));
         NB.Chart.drawStories();
@@ -147,16 +146,16 @@ NB.Data = (function() {
   };
 
   Data.getData = function() {
-    var source = NB.Settings.getSetting('source') || 'rd'; //this should never be empty, but 'rd' is there for the fun of it.
+    var source = NB.Settings.getSetting('source') || 'rdt'; //this should never be empty, but 'rdt' is there for the fun of it.
     var minScore = NB.Settings.getSetting(source + 'MinScore');
 
 //     console.log('Data.getData:', source, limit, minScore);
 //     limit = limit || NB.HITS_PER_PAGE;
-    if (source === 'rd') {
-      getRdData(minScore);
+    if (source === 'rdt') {
+      getRdtData(minScore);
     }
-    if (source === 'hn') {
-      getHnData(minScore);
+    if (source === 'hxn') {
+      getHxnData(minScore);
     }
   };
 

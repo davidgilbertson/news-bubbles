@@ -31,7 +31,7 @@ var path = require('path')
 /*  --  HACKER NEWS CRAWLER  --  */
 /*  ---------------------------  */
 
-function goGetHn(url, cb) {
+function goGet(url, cb) {
   request.get({url: url, json: true}, function(err, req, data) {
     cb(data);
   });
@@ -40,12 +40,12 @@ function goGetHn(url, cb) {
 
 
 //TODO this probably belongs in controllers, but don't want callback soup or passing io around everywhere right now
-function saveHNStories(data, suppressResults) {
+function saveStories(data, suppressResults) {
   // console.log('  --  Saving', data.length, 'stories  --');
   var newOrUpdatedStories = [];
   var savedStories = 0;
   data.forEach(function(d) {
-    storyController.upsertHNStory(d, function(newOrUpdatedStory) {
+    storyController.upsertHxnStory(d, function(newOrUpdatedStory) {
       if (newOrUpdatedStory) {
         newOrUpdatedStories.push(newOrUpdatedStory);
       }
@@ -53,14 +53,14 @@ function saveHNStories(data, suppressResults) {
       if (savedStories === data.length) {
         savedStories = 0;
         if (newOrUpdatedStories.length && !suppressResults) {
-          io.emit('data', {source: 'hn', data: newOrUpdatedStories});
+          io.emit('data', {source: 'hxn', data: newOrUpdatedStories});
         }
       }
     });
   });
 }
 
-function buildHNUrl(props) {
+function buildUrl(props) {
   var url = 'https://hn.algolia.com/api/v1/';
   url += 'search_by_date?';
   url += 'tags=(story,show_hn,ask_hn)';
@@ -74,18 +74,18 @@ function buildHNUrl(props) {
 
 
 //Force get the last 1000 stories over 1 point. Handy if the server goes down or something.
-exports.forceHnFetch = function() {
+exports.forceFetch = function() {
   var now = new Date().getTime() / 1000;
-  var url = buildHNUrl({minDate: 0, maxDate: now, minPoints: 1});
+  var url = buildUrl({minDate: 0, maxDate: now, minPoints: 1});
 
-  goGetHn(url, function(data) {
+  goGet(url, function(data) {
     devLog('Got HN stories from last 30 mins. Count is: ' + data.hits.length);
-    saveHNStories(data.hits);
+    saveStories(data.hits);
   });
 };
 
 
-exports.startHNCrawler = function(globalIo) {
+exports.startCrawler = function(globalIo) {
   io = globalIo;
   // console.log('Starting Hacker News crawler');
   // io.emit('data update', {data: 'yes, there will totally be data here'});
@@ -93,11 +93,11 @@ exports.startHNCrawler = function(globalIo) {
   //Get stories from last 30 mins
   setInterval(function() {
     var now = new Date().getTime() / 1000;
-    var url = buildHNUrl({minDate: now - oneMin * 30, maxDate: now});
+    var url = buildUrl({minDate: now - oneMin * 30, maxDate: now});
 
-    goGetHn(url, function(data) {
+    goGet(url, function(data) {
       devLog('Got HN stories from last 30 mins. Count is: ' + data.hits.length);
-      saveHNStories(data.hits);
+      saveStories(data.hits);
     });
   // }, every1Min);
   }, every1Min);
@@ -106,13 +106,13 @@ exports.startHNCrawler = function(globalIo) {
   setTimeout(function() {
     setInterval(function() {
       var now = new Date().getTime() / 1000;
-      var url = buildHNUrl({minDate: now - oneHour * 2, maxDate: now - oneMin * 30});
-      goGetHn(url, function(response) {
+      var url = buildUrl({minDate: now - oneHour * 2, maxDate: now - oneMin * 30});
+      goGet(url, function(response) {
         //TODO: i need this try/catch to be centralised...
         try {
           if (response) {
             devLog('Got HN stories from 30 mins to 2 hours. Count is: ' + response.hits.length);
-            saveHNStories(response.hits);
+            saveStories(response.hits);
           }
         } catch (err) {
           console.log('Hacker news fetch error:', err);
@@ -126,11 +126,11 @@ exports.startHNCrawler = function(globalIo) {
   setTimeout(function() {
     setInterval(function() {
       var now = new Date().getTime() / 1000;
-      var url = buildHNUrl({minDate: now - oneHour * 6, maxDate: now - oneHour * 2});
+      var url = buildUrl({minDate: now - oneHour * 6, maxDate: now - oneHour * 2});
 
-      goGetHn(url, function(data) {
+      goGet(url, function(data) {
         devLog('Got HN stories from 2 to 6 hours. Count is: ' + data.hits.length);
-        saveHNStories(data.hits);
+        saveStories(data.hits);
       });
     }, every10Mins);
   }, 20000); //stagger
@@ -139,11 +139,11 @@ exports.startHNCrawler = function(globalIo) {
   setTimeout(function() {
     setInterval(function() {
       var now = new Date().getTime() / 1000;
-      var url = buildHNUrl({minDate: now - oneHour * 12, maxDate: now - oneHour * 6});
+      var url = buildUrl({minDate: now - oneHour * 12, maxDate: now - oneHour * 6});
 
-      goGetHn(url, function(data) {
+      goGet(url, function(data) {
         devLog('Got HN stories from 6 to 12 hours. Count is: ' + data.hits.length);
-        saveHNStories(data.hits);
+        saveStories(data.hits);
       });
     }, every20Mins);
   }, 30000); //stagger
@@ -153,11 +153,11 @@ exports.startHNCrawler = function(globalIo) {
   setTimeout(function() {
     setInterval(function() {
       var now = new Date().getTime() / 1000;
-      var url = buildHNUrl({minDate: now - oneHour * 24, maxDate: now - oneHour * 12});
+      var url = buildUrl({minDate: now - oneHour * 24, maxDate: now - oneHour * 12});
 
-      goGetHn(url, function(data) {
+      goGet(url, function(data) {
         devLog('Got HN stories from 12 to 24 hours. Count is: ' + data.hits.length);
-        saveHNStories(data.hits);
+        saveStories(data.hits);
       });
     }, every30Mins);
   }, 40000); //stagger
@@ -172,11 +172,11 @@ exports.startHNCrawler = function(globalIo) {
   setTimeout(function() {
     setInterval(function() {
       var now = new Date().getTime() / 1000;
-      var url = buildHNUrl({minDate: now - oneDay * 30, maxDate: now - oneDay, minPoints: 100});
+      var url = buildUrl({minDate: now - oneDay * 30, maxDate: now - oneDay, minPoints: 100});
 
-      goGetHn(url, function(data) {
+      goGet(url, function(data) {
         devLog('Got HN stories from 1 to 30 days over 100 points. Count is: ' + data.hits.length);
-        saveHNStories(data.hits, true);
+        saveStories(data.hits, true);
       });
     }, every1Day);
   }, 50000); //stagger
@@ -185,11 +185,11 @@ exports.startHNCrawler = function(globalIo) {
   setTimeout(function() {
     setInterval(function() {
       var now = new Date().getTime() / 1000;
-      var url = buildHNUrl({minDate: now - oneDay * 90, maxDate: now - oneDay * 30, minPoints: 150});
+      var url = buildUrl({minDate: now - oneDay * 90, maxDate: now - oneDay * 30, minPoints: 150});
 
-      goGetHn(url, function(data) {
+      goGet(url, function(data) {
         devLog('Got HN stories from 30 to 90 days over 150 points. Count is: ' + data.hits.length);
-        saveHNStories(data.hits, true);
+        saveStories(data.hits, true);
       });
     }, every1Day);
   }, 50000); //stagger
@@ -198,11 +198,11 @@ exports.startHNCrawler = function(globalIo) {
   setTimeout(function() {
     setInterval(function() {
       var now = new Date().getTime() / 1000;
-      var url = buildHNUrl({minDate: now - oneDay * 200, maxDate: now - oneDay * 90, minPoints: 150});
+      var url = buildUrl({minDate: now - oneDay * 200, maxDate: now - oneDay * 90, minPoints: 150});
 
-      goGetHn(url, function(data) {
+      goGet(url, function(data) {
         devLog('Got HN stories from 90 to 200 days over 200 points. Count is: ' + data.hits.length);
-        saveHNStories(data.hits, true);
+        saveStories(data.hits, true);
       });
     }, every1Day);
   }, 50000); //stagger
@@ -211,11 +211,11 @@ exports.startHNCrawler = function(globalIo) {
   setTimeout(function() {
     setInterval(function() {
       var now = new Date().getTime() / 1000;
-      var url = buildHNUrl({minDate: now - oneDay * 365, maxDate: now - oneDay * 200, minPoints: 250});
+      var url = buildUrl({minDate: now - oneDay * 365, maxDate: now - oneDay * 200, minPoints: 250});
 
-      goGetHn(url, function(data) {
+      goGet(url, function(data) {
         devLog('Got HN stories from 200 to 365 days over 250 points. Count is: ' + data.hits.length);
-        saveHNStories(data.hits, true);
+        saveStories(data.hits, true);
       });
     }, every1Day);
   }, 50000); //stagger
@@ -224,11 +224,11 @@ exports.startHNCrawler = function(globalIo) {
   setTimeout(function() {
     setInterval(function() {
       var now = new Date().getTime() / 1000;
-      var url = buildHNUrl({minDate: now - oneDay * 600, maxDate: now - oneDay * 365, minPoints: 300});
+      var url = buildUrl({minDate: now - oneDay * 600, maxDate: now - oneDay * 365, minPoints: 300});
 
-      goGetHn(url, function(data) {
+      goGet(url, function(data) {
         devLog('Got HN stories from 365 to 600 days over 300 points. Count is: ' + data.hits.length);
-        saveHNStories(data.hits, true);
+        saveStories(data.hits, true);
       });
     }, every1Day);
   }, 50000); //stagger
@@ -237,11 +237,11 @@ exports.startHNCrawler = function(globalIo) {
   setTimeout(function() {
     setInterval(function() {
       var now = new Date().getTime() / 1000;
-      var url = buildHNUrl({minDate: 0, maxDate: now - oneDay * 600, minPoints: 400});
+      var url = buildUrl({minDate: 0, maxDate: now - oneDay * 600, minPoints: 400});
 
-      goGetHn(url, function(data) {
+      goGet(url, function(data) {
         devLog('Got HN stories over 600 days old and over 400 points. Count is: ' + data.hits.length);
-        saveHNStories(data.hits, true);
+        saveStories(data.hits, true);
       });
     }, every1Day);
   }, 50000); //stagger

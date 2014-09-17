@@ -29,8 +29,8 @@ NB.StoryPanel = (function() {
   }
 
 
-  function renderReddit(story) {
-    var dom = story.rd.domain.toLowerCase();
+  function renderRdt(story) {
+    var dom = story.rdt.domain.toLowerCase();
     story.content = '';
     NB.StoryModel.setCurrentStory('panel', story); //to get a quick change in the panel.
 
@@ -43,7 +43,7 @@ NB.StoryPanel = (function() {
 
     //get comments and append. NB done() is not needed.
     function appendComments() {
-      NB.Comments.getForRdStory(story.rd.shortId, function(commentTree) {
+      NB.Comments.getForRdtStory(story.rdt.shortId, function(commentTree) {
         story.content += '<h3 class="comment-separator">Comments</h3>';
         story.content += commentTree.html();
         NB.StoryModel.setCurrentStory('panel', story);
@@ -51,8 +51,8 @@ NB.StoryPanel = (function() {
     }
 
 
-    if (story.rd.self) {
-      NB.Comments.getForRdStory(story.rd.shortId, function(commentTree) {
+    if (story.rdt.self) {
+      NB.Comments.getForRdtStory(story.rdt.shortId, function(commentTree) {
         story.content = commentTree.html();
         done();
       });
@@ -112,12 +112,12 @@ NB.StoryPanel = (function() {
     }
 
 
-  } //END renderReddit
+  } //END renderRdt
 
 
 
 
-  function renderHackerNews(story) {
+  function renderHxn(story) {
 
     if (story.url) {
       if (story.url.match(/pdf\?*.*$/)) {
@@ -133,7 +133,7 @@ NB.StoryPanel = (function() {
       }
     } else {
 //       console.log(story);
-      NB.Comments.getForHnStory(story, function(commentTree) {
+      NB.Comments.getForHxnStory(story, function(commentTree) {
         story.content = commentTree;
         NB.StoryModel.setCurrentStory('panel', story);
       });
@@ -150,12 +150,12 @@ NB.StoryPanel = (function() {
 
     //The story panel element is passed into these funciton because if it goes to readability it's an async call
     //and I don't want to mess around with cbs everywhere
-    if (story.source === 'rd') {
-      renderReddit(story);
+    if (story.source === 'rdt') {
+      renderRdt(story);
     }
 
-    if (story.source === 'hn') {
-      renderHackerNews(story);
+    if (story.source === 'hxn') {
+      renderHxn(story);
     }
 
   };
