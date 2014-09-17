@@ -91,7 +91,8 @@ NB.Settings = (function() {
     }
 
     var src = settings.source();
-    if (settings[src + 'MinScore']() !== previousSettings[src + 'MinScore']) {
+    var koScore = settings[src + 'MinScore'];
+    if (koScore && koScore() !== previousSettings[src + 'MinScore']) {
       NB.Chart.reset();
       NB.Data.getData();
     }
@@ -122,13 +123,25 @@ NB.Settings = (function() {
   };
 
   Settings.getSetting = function(setting) {
+    if (!settings[setting]) {
+      console.log(setting + ' is not a setting.');
+      return;
+    }
     return settings[setting]();
   };
   Settings.setSetting = function(setting, value) {
+    if (!settings[setting]) { //TODO test for "typeof function"
+      console.log(setting + ' is not something that can be set.');
+      return;
+    }
     settings[setting](value);
     saveSettings();
   };
   Settings.getColor = function(source, category) {
+    if (!settings[source + 'CategoryColors']) {
+      console.log('There are no colours for this source');
+      return;
+    }
     var arr = settings[source + 'CategoryColors']();
     var defaultColor;
     for (var i = 0; i < arr.length; i++) {

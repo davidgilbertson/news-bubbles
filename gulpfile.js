@@ -40,7 +40,7 @@ gulp.task('html', ['styles', 'scripts'], function () {
   return gulp.src('app/index.html')
     .pipe($.useref.assets({searchPath: '{.tmp,app}'}))
     .pipe(jsFilter)
-    .pipe($.uglify())
+    // .pipe($.uglify())
     .pipe(jsFilter.restore())
     .pipe(cssFilter)
     // .pipe($.csso())
