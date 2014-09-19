@@ -4,44 +4,20 @@ var path = require('path')
   , Story = models.Story
 ;
 
-exports.renameAllIds = function(cb) {
-  console.log('renameAllIds() ...');
-  var startTime = new Date().getTime();
-
-  Story
-    .find({}, {history: false})
-    .exec(function(err, docs) {
-      var story, oldId, newId, count = 0;
-      for (var i = 0; i < docs.length; i++) {
-        story = docs[i];
-        oldId = story.id;
-        newId = oldId.replace('hn-', 'hxn-').replace('rd-', 'rdt-');
-        if (oldId !== newId) {
-          count++;
-          story.id = newId;
-          story.save();
-        }
-      }
-      console.log('Query finished in ' + (new Date().getTime() - startTime) + 'ms');
-      cb({success: 'cahnged ' + count});
-    });
-
-
-};
 
 exports.getRecentStoriesByCount = function(source, limit, minScore, cb) {
   // console.log(new Date(), 'getRecentStoriesByCount() sending query to database with limit', limit);
   var startTime = new Date().getTime();
   console.log('Query:');
   console.log(' >> Story.find({source: "' + source + '", score: {$gte: ' + minScore + '}}, {history: false})');
-  console.log(' >> .sort(\'-postDate\')');
+  console.log(' >> .sort({postDate: -1})');
   console.log(' >> .limit(' + limit + ')');
   console.log(' >> .hint({source: 1, postDate: 1, score: 1})');
 
   minScore = minScore || 1;
   Story
     .find({source: source, score: {$gte: minScore}}, {history: false})
-    .sort('-postDate')
+    .sort({postDate: -1})
     .limit(limit)
     .hint({source: 1, postDate: 1, score: 1}) //use this index
     .exec(function(err, docs) {
@@ -173,3 +149,27 @@ exports.upsertHxnStory = function(obj, cb) {
   });
 
 };
+
+
+// exports.renameAllIds = function(cb) {
+//   console.log('renameAllIds() ...');
+//   var startTime = new Date().getTime();
+
+//   Story
+//     .find({}, {history: false})
+//     .exec(function(err, docs) {
+//       var story, oldId, newId, count = 0;
+//       for (var i = 0; i < docs.length; i++) {
+//         story = docs[i];
+//         oldId = story.id;
+//         newId = oldId.replace('hn-', 'hxn-').replace('rd-', 'rdt-');
+//         if (oldId !== newId) {
+//           count++;
+//           story.id = newId;
+//           story.save();
+//         }
+//       }
+//       console.log('Query finished in ' + (new Date().getTime() - startTime) + 'ms');
+//       cb({success: 'cahnged ' + count});
+//     });
+// };

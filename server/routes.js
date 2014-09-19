@@ -30,11 +30,11 @@ module.exports = function(app) {
     res.send('Forced reddit crawl');
   });
 
-  app.get('/dbOps/massRename', function(req, res) {
-    storyController.renameAllIds(function(response) {
-      res.json(response);
-    });
-  });
+  // app.get('/dbOps/massRename', function(req, res) {
+  //   storyController.renameAllIds(function(response) {
+  //     res.json(response);
+  //   });
+  // });
 
 
 };
