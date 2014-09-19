@@ -15,14 +15,23 @@ NB.main = (function() {
 
   var rdtSource = $('#news-source-rdt');
   var hxnSource = $('#news-source-hxn');
+  var favSource = $('#news-source-fav');
 
   if (src === 'rdt') {
     rdtSource.addClass('active');
     hxnSource.removeClass('active');
+    favSource.removeClass('active');
   } else if (src === 'hxn') {
     rdtSource.removeClass('active');
     hxnSource.addClass('active');
+    favSource.removeClass('active');
+  } else if (src === 'fav') {
+    rdtSource.removeClass('active');
+    hxnSource.removeClass('active');
+    favSource.addClass('active');
   }
+
+  d3.select('body').classed(src, true);
 
   //On page load, use the APIs directly from the client to get a fresh batch of results
   //The server will be emitting new/changed stories as they become available.

@@ -51,20 +51,11 @@
   transition: opacity 500ms;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   -webkit-tap-highlight-color: transparent;
-/*   fill: $story-color; */
   opacity: 0.7;
-/*   stroke: lighten($story-color, 5%); */
   transition: 200ms;
   cursor: pointer;
-/*   &-show {
-    fill: $show-color;
-    stroke: lighten($show-color, 5%);
-  }
-  &-ask {
-    fill: $ask-color;
-    stroke: lighten($ask-color, 5%);
-  } */
-  &.read {
+  
+  body:not(.fav) &.read { //yeah that's not confusing AT ALL
     fill-opacity: 0.1;
     stroke-opacity: 0.5;
   }

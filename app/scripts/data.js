@@ -106,6 +106,7 @@ NB.Data = (function() {
         NB.Chart.drawStories();
       }
     });
+
   }
 
 
@@ -149,13 +150,18 @@ NB.Data = (function() {
     var source = NB.Settings.getSetting('source') || 'rdt'; //this should never be empty, but 'rdt' is there for the fun of it.
     var minScore = NB.Settings.getSetting(source + 'MinScore');
 
-//     console.log('Data.getData:', source, limit, minScore);
-//     limit = limit || NB.HITS_PER_PAGE;
     if (source === 'rdt') {
       getRdtData(minScore);
-    }
-    if (source === 'hxn') {
+    } else if (source === 'hxn') {
       getHxnData(minScore);
+    } else if (source === 'fav') {
+      var stories = NB.Favs.getAll();
+      stories.forEach(function(fav) {
+        fav.postDate = new Date(fav.postDate);
+      });
+
+      Data.stories = stories;
+      NB.Chart.drawStories();
     }
   };
 

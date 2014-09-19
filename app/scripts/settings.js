@@ -15,6 +15,7 @@ NB.Settings = (function() {
       if (localSettings.clickAction) { settings.clickAction(localSettings.clickAction); }
       if (localSettings.rightClickAction) { settings.rightClickAction(localSettings.rightClickAction); }
       if (localSettings.source) {
+        //TODO replace this logic with versioning the localstorage
         if (localSettings.source === 'rd') { localSettings.source = 'rdt'; }
         if (localSettings.source === 'hn') { localSettings.source = 'hxn'; }
         settings.source(localSettings.source);
@@ -22,6 +23,7 @@ NB.Settings = (function() {
       if (localSettings.hitLimit) { settings.hitLimit(+localSettings.hitLimit); }
       if (localSettings.rdtMinScore) { settings.rdtMinScore(+localSettings.rdtMinScore); }
       if (localSettings.hxnMinScore) { settings.hxnMinScore(+localSettings.hxnMinScore); }
+
     }
   }
 
@@ -34,6 +36,8 @@ NB.Settings = (function() {
       hitLimit: ko.observable(200),
       rdtMinScore: ko.observable(500),
       hxnMinScore: ko.observable(5),
+      favMinScore: ko.observable(0),
+      //TODO this will need to be universal so that favourites will be coloured correctly.
       hxnCategoryColors: ko.observableArray([
         {category: 'Ask HN', color: '#e74c3c'},
         {category: 'Show HN', color: '#16a085'},

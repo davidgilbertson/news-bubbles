@@ -270,8 +270,6 @@ NB.Chart = (function() {
 
   //Call this when the screen layout/size changes
   function setDimensions() {
-//     console.log('setDimensions()');
-
     h = parseInt(d3.select('#chart-wrapper').style('height'), 10) - 4; //I don't know why
     w = NB.splitPos;
 
@@ -283,7 +281,6 @@ NB.Chart = (function() {
 
     maxCircle = document.body.offsetHeight / 20;
     margins.top = 40 + maxCircle / 2;
-//     margins.left = maxCircle / 2;
 
     chartWrapper
       .attr('width', w)
@@ -293,13 +290,6 @@ NB.Chart = (function() {
       .attr('transform', 'translate(' + margins.left + ',' + margins.top + ')')
       .attr('width', w - margins.left - margins.right)
       .attr('height', h - margins.top - margins.bottom);
-
-    //Note that the clip path goes all the way to the top and right of the screen
-//     plotAreaClip
-//       .attr('x', margins.left)
-//       .attr('y', 0)
-//       .attr('width', w - margins.left)
-//       .attr('height', h - margins.bottom);
 
     x.range([40, w - 20]);
     y.range([h - margins.bottom - 7, margins.top]);
@@ -328,7 +318,6 @@ NB.Chart = (function() {
 
   //Call this when data changes
   function setScales() {
-//     console.log('setScales()');
     var oldMaxDate = maxDate;
     var oldMinDate = minDate;
     minDate = Math.min(minDate, d3.min(NB.Data.stories, function(d) { return d.postDate; }));
@@ -337,15 +326,6 @@ NB.Chart = (function() {
 
     minCommentCount = Math.min(minCommentCount, d3.min(NB.Data.stories, function(d) { return d.commentCount; }));
     maxCommentCount = Math.max(maxCommentCount, d3.max(NB.Data.stories, function(d) { return d.commentCount; }));
-
-//     if (isNaN(minCommentCount) || isNaN(maxCommentCount)) {
-
-//       if (NB.IS_LOCALHOST) {
-// //         debugger;
-//       } else {
-//         console.log('Something went wrong with this data:', NB.Data.stories);
-//       }
-//     }
 
     var src = NB.Settings.getSetting('source');
     var minScore = NB.Settings.getSetting(src + 'MinScore');
@@ -379,11 +359,9 @@ NB.Chart = (function() {
   }
 
   function init() {
-//     console.log('init()');
     d3.selectAll('#svg-bubble-chart > *').remove();
     chartWrapper = d3.select('#svg-bubble-chart');
     tooltip = d3.select('#tooltip'); //TODO move out of init?
-
 
     minDate = Infinity;
     maxDate = 0;
@@ -436,10 +414,7 @@ NB.Chart = (function() {
 /*  --  Exported Methods  --  */
 
   Chart.drawStories = function() {
-//     console.log('Chart.darwStories()');
-    //TODO, must these be synchronous?
     setScales();
-
     setDimensions();
     drawStories('slow');
   };

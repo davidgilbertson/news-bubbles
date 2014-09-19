@@ -5,7 +5,10 @@ var NB = NB || {};
 NB.StoryModel = (function() {
   var StoryModel = {};
 
+
+  //TODO these really should inherit from a common parent.
   StoryModel.tooltipStory = {
+    raw: {},
     name: ko.observable(),
     url: ko.observable(),
     sourceUrl: ko.observable(),
@@ -17,10 +20,12 @@ NB.StoryModel = (function() {
     commentCount: ko.observable(),
     score: ko.observable(),
     timeString: ko.observable(),
-    dateString: ko.observable()
+    dateString: ko.observable(),
+    isFav: ko.observable(false)
   };
 
   StoryModel.panelStory = {
+    raw: {},
     name: ko.observable('News Bubbles'),
     url: ko.observable(),
     sourceUrl: ko.observable(),
@@ -33,7 +38,8 @@ NB.StoryModel = (function() {
     score: ko.observable(),
     timeString: ko.observable(),
     dateString: ko.observable(),
-    content: ko.observable('Select a bubble on the left do display its content here.')
+    content: ko.observable('Select a bubble on the left do display its content here.'),
+    isFav: ko.observable(false)
   };
 
   StoryModel.setCurrentStory = function(tooltipOrPanel, story) {
@@ -46,6 +52,7 @@ NB.StoryModel = (function() {
       , authorUrl;
     var name = story.name;
     var category = story.category || '';
+    var isFav = NB.Favs.isFav(story);
 
     var color = NB.Settings.getColor(story.source, category);
 
@@ -85,6 +92,9 @@ NB.StoryModel = (function() {
 //       console.log('I have a category:', category, story);
 //     }
 
+    storyObj.raw = story;
+//     console.log('Fav status:', storyObj.isFav());
+
     storyObj
       .name(name)
       .url(url)
@@ -97,11 +107,17 @@ NB.StoryModel = (function() {
       .commentCount(story.commentCount)
       .score(Math.round(story.score))
       .timeString(timeFormatter(story.postDate))
-      .dateString(dateFormatter(story.postDate));
+      .dateString(dateFormatter(story.postDate))
+      .isFav(isFav);
+      
 
     if (tooltipOrPanel === 'panel') {
         storyObj.content(story.content);
     }
+  };
+
+  StoryModel.favStory = function(story) {
+    toggleFav(story);
   };
 
 

@@ -42,9 +42,10 @@ function goGet(url, cb) {
 //TODO this probably belongs in controllers, but don't want callback soup or passing io around everywhere right now
 function saveStories(data, suppressResults) {
   // console.log('  --  Saving', data.length, 'stories  --');
+  var stories = data.hits;
   var newOrUpdatedStories = [];
   var savedStories = 0;
-  data.forEach(function(d) {
+  stories.forEach(function(d) {
     storyController.upsertHxnStory(d, function(newOrUpdatedStory) {
       if (newOrUpdatedStory) {
         newOrUpdatedStories.push(newOrUpdatedStory);
@@ -79,8 +80,7 @@ exports.forceFetch = function() {
   var url = buildUrl({minDate: 0, maxDate: now, minPoints: 1});
 
   goGet(url, function(data) {
-    devLog('Got HN stories from last 30 mins. Count is: ' + data.hits.length);
-    saveStories(data.hits);
+    saveStories(data);
   });
 };
 
@@ -96,8 +96,7 @@ exports.startCrawler = function(globalIo) {
     var url = buildUrl({minDate: now - oneMin * 30, maxDate: now});
 
     goGet(url, function(data) {
-      devLog('Got HN stories from last 30 mins. Count is: ' + data.hits.length);
-      saveStories(data.hits);
+      saveStories(data);
     });
   // }, every1Min);
   }, every1Min);
@@ -107,17 +106,8 @@ exports.startCrawler = function(globalIo) {
     setInterval(function() {
       var now = new Date().getTime() / 1000;
       var url = buildUrl({minDate: now - oneHour * 2, maxDate: now - oneMin * 30});
-      goGet(url, function(response) {
-        //TODO: i need this try/catch to be centralised...
-        try {
-          if (response) {
-            devLog('Got HN stories from 30 mins to 2 hours. Count is: ' + response.hits.length);
-            saveStories(response.hits);
-          }
-        } catch (err) {
-          console.log('Hacker news fetch error:', err);
-          console.log('response was', response);
-        }
+      goGet(url, function(data) {
+        saveStories(data);
       });
     }, every5Mins);
   }, 10000); //stagger
@@ -129,8 +119,7 @@ exports.startCrawler = function(globalIo) {
       var url = buildUrl({minDate: now - oneHour * 6, maxDate: now - oneHour * 2});
 
       goGet(url, function(data) {
-        devLog('Got HN stories from 2 to 6 hours. Count is: ' + data.hits.length);
-        saveStories(data.hits);
+        saveStories(data);
       });
     }, every10Mins);
   }, 20000); //stagger
@@ -142,8 +131,7 @@ exports.startCrawler = function(globalIo) {
       var url = buildUrl({minDate: now - oneHour * 12, maxDate: now - oneHour * 6});
 
       goGet(url, function(data) {
-        devLog('Got HN stories from 6 to 12 hours. Count is: ' + data.hits.length);
-        saveStories(data.hits);
+        saveStories(data);
       });
     }, every20Mins);
   }, 30000); //stagger
@@ -156,8 +144,7 @@ exports.startCrawler = function(globalIo) {
       var url = buildUrl({minDate: now - oneHour * 24, maxDate: now - oneHour * 12});
 
       goGet(url, function(data) {
-        devLog('Got HN stories from 12 to 24 hours. Count is: ' + data.hits.length);
-        saveStories(data.hits);
+        saveStories(data);
       });
     }, every30Mins);
   }, 40000); //stagger
@@ -175,8 +162,7 @@ exports.startCrawler = function(globalIo) {
       var url = buildUrl({minDate: now - oneDay * 30, maxDate: now - oneDay, minPoints: 100});
 
       goGet(url, function(data) {
-        devLog('Got HN stories from 1 to 30 days over 100 points. Count is: ' + data.hits.length);
-        saveStories(data.hits, true);
+        saveStories(data, true);
       });
     }, every1Day);
   }, 50000); //stagger
@@ -188,8 +174,7 @@ exports.startCrawler = function(globalIo) {
       var url = buildUrl({minDate: now - oneDay * 90, maxDate: now - oneDay * 30, minPoints: 150});
 
       goGet(url, function(data) {
-        devLog('Got HN stories from 30 to 90 days over 150 points. Count is: ' + data.hits.length);
-        saveStories(data.hits, true);
+        saveStories(data, true);
       });
     }, every1Day);
   }, 50000); //stagger
@@ -201,8 +186,7 @@ exports.startCrawler = function(globalIo) {
       var url = buildUrl({minDate: now - oneDay * 200, maxDate: now - oneDay * 90, minPoints: 150});
 
       goGet(url, function(data) {
-        devLog('Got HN stories from 90 to 200 days over 200 points. Count is: ' + data.hits.length);
-        saveStories(data.hits, true);
+        saveStories(data, true);
       });
     }, every1Day);
   }, 50000); //stagger
@@ -214,8 +198,7 @@ exports.startCrawler = function(globalIo) {
       var url = buildUrl({minDate: now - oneDay * 365, maxDate: now - oneDay * 200, minPoints: 250});
 
       goGet(url, function(data) {
-        devLog('Got HN stories from 200 to 365 days over 250 points. Count is: ' + data.hits.length);
-        saveStories(data.hits, true);
+        saveStories(data, true);
       });
     }, every1Day);
   }, 50000); //stagger
@@ -227,8 +210,7 @@ exports.startCrawler = function(globalIo) {
       var url = buildUrl({minDate: now - oneDay * 600, maxDate: now - oneDay * 365, minPoints: 300});
 
       goGet(url, function(data) {
-        devLog('Got HN stories from 365 to 600 days over 300 points. Count is: ' + data.hits.length);
-        saveStories(data.hits, true);
+        saveStories(data, true);
       });
     }, every1Day);
   }, 50000); //stagger
@@ -240,8 +222,7 @@ exports.startCrawler = function(globalIo) {
       var url = buildUrl({minDate: 0, maxDate: now - oneDay * 600, minPoints: 400});
 
       goGet(url, function(data) {
-        devLog('Got HN stories over 600 days old and over 400 points. Count is: ' + data.hits.length);
-        saveStories(data.hits, true);
+        saveStories(data, true);
       });
     }, every1Day);
   }, 50000); //stagger
