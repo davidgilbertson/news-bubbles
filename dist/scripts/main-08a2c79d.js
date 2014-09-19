@@ -30,6 +30,7 @@ NB.Settings = (function() {
       if (localSettings.clickAction) { settings.clickAction(localSettings.clickAction); }
       if (localSettings.rightClickAction) { settings.rightClickAction(localSettings.rightClickAction); }
       if (localSettings.source) {
+        //TODO replace this logic with versioning the localstorage
         if (localSettings.source === 'rd') { localSettings.source = 'rdt'; }
         if (localSettings.source === 'hn') { localSettings.source = 'hxn'; }
         settings.source(localSettings.source);
@@ -37,6 +38,7 @@ NB.Settings = (function() {
       if (localSettings.hitLimit) { settings.hitLimit(+localSettings.hitLimit); }
       if (localSettings.rdtMinScore) { settings.rdtMinScore(+localSettings.rdtMinScore); }
       if (localSettings.hxnMinScore) { settings.hxnMinScore(+localSettings.hxnMinScore); }
+
     }
   }
 
@@ -49,6 +51,8 @@ NB.Settings = (function() {
       hitLimit: ko.observable(200),
       rdtMinScore: ko.observable(500),
       hxnMinScore: ko.observable(5),
+      favMinScore: ko.observable(0),
+      //TODO this will need to be universal so that favourites will be coloured correctly.
       hxnCategoryColors: ko.observableArray([
         {category: 'Ask HN', color: '#e74c3c'},
         {category: 'Show HN', color: '#16a085'},
@@ -307,6 +311,7 @@ NB.Data = (function() {
         NB.Chart.drawStories();
       }
     });
+
   }
 
 
@@ -350,13 +355,18 @@ NB.Data = (function() {
     var source = NB.Settings.getSetting('source') || 'rdt'; //this should never be empty, but 'rdt' is there for the fun of it.
     var minScore = NB.Settings.getSetting(source + 'MinScore');
 
-//     console.log('Data.getData:', source, limit, minScore);
-//     limit = limit || NB.HITS_PER_PAGE;
     if (source === 'rdt') {
       getRdtData(minScore);
-    }
-    if (source === 'hxn') {
+    } else if (source === 'hxn') {
       getHxnData(minScore);
+    } else if (source === 'fav') {
+      var stories = NB.Favs.getAll();
+      stories.forEach(function(fav) {
+        fav.postDate = new Date(fav.postDate);
+      });
+
+      Data.stories = stories;
+      NB.Chart.drawStories();
     }
   };
 
@@ -372,7 +382,7 @@ NB.Data = (function() {
 
         html += '<figure>';
         html += '<img src="' + data.link + '">';
-        html += '<figcaption>' + data.description + '</figcaption>';
+        html += data.description ? ('<figcaption>' + data.description + '</figcaption>') : '';
         html += '</figure>';
 
       } else {
@@ -384,9 +394,9 @@ NB.Data = (function() {
 
           html += '<figure>';
           html += '<img src="' + img.link + '">';
-          html += '<figcaption>' + img.title + '</figcaption>';
+          html += img.title ? ('<figcaption>' + img.title + '</figcaption>') : '';
           html += '</figure>';
-          html += img.description ? '<p>' + img.description + '</p>' : '';
+          html += img.description ? ('<p>' + img.description + '</p>') : '';
         }
       }
 
@@ -404,6 +414,80 @@ NB.Data = (function() {
   return Data;
 })();
 
+'use strict';
+
+var NB = NB || {};
+
+NB.Favs = (function() {
+  var Favs = {};
+
+  var store = [];
+
+  function init() {
+    //favourite array
+    if (localStorage.favs) {
+      var favs = JSON.parse(localStorage.favs);
+      if (Array.isArray(favs)) {
+        store = favs;
+      }
+    }
+  }
+
+  Favs.addToFavs = function(story) {
+//     console.log('Adding story to favs:', story);
+    store.push(story);
+    localStorage.favs = JSON.stringify(store);
+  };
+
+  Favs.removeFromFavs = function(story) {
+//     console.log('Removing story from favs:', story);
+    var id = story.id;
+    store.forEach(function(fav, i) {
+      if (fav.id === id) {
+        store.splice(i, 1);
+        localStorage.favs = JSON.stringify(store);
+        return;
+      }
+    });
+  };
+
+  Favs.isFav = function(story) {
+    if (!store.length) { return false; }
+    var id = story.id;
+    var hasMatch = false;
+
+    store.forEach(function(fav) {
+      if (fav.id === id) { hasMatch = true; }
+    });
+
+    return hasMatch;
+  };
+
+  //adds/removes from the store, returns true if it's now a fav, false otherwise
+  Favs.toggleFav = function(koStory) {
+    var story = koStory.raw;
+    var isFav = Favs.isFav(story);
+    if (isFav) {
+      Favs.removeFromFavs(story);
+      koStory.isFav(false);
+      return false;
+    } else {
+      Favs.addToFavs(story);
+      koStory.isFav(true);
+      return true;
+    }
+  };
+
+  Favs.getAll = function() {
+    return store;
+  };
+
+
+
+
+  init();
+  return Favs;
+})();
 'use strict';
 var NB = NB || {};
 
@@ -549,16 +633,27 @@ NB.Chart = (function() {
     }
   }
 
-  //TODO: What a mess
-  function bubbleClicked(d) {
-
-    //move to back
+  function moveToBack(domEl) {
     var domEl = d3.event.currentTarget;
     if (domEl.previousSibling) {
       var parent = domEl.parentNode;
       var firstChild = parent.firstChild.nextSibling; //the first element is the overlay rectangle, the rest are circles.
       parent.insertBefore(domEl, firstChild);
     }
+
+  }
+
+  //TODO: What a mess
+  function bubbleClicked(d) {
+
+    //move to back
+    moveToBack(d3.event.currentTarget)
+//     var domEl = d3.event.currentTarget;
+//     if (domEl.previousSibling) {
+//       var parent = domEl.parentNode;
+//       var firstChild = parent.firstChild.nextSibling; //the first element is the overlay rectangle, the rest are circles.
+//       parent.insertBefore(domEl, firstChild);
+//     }
 
     //get the D3 flvoured dom el
     var el = d3.select(d3.event.currentTarget);
@@ -683,6 +778,7 @@ NB.Chart = (function() {
     var setting = NB.Settings.getSetting('rightClickAction');
     if (setting === 'nothing') { return; }
     d3.event.preventDefault();
+    moveToBack(d3.event.currentTarget)
 
     var el = d3.select(d3.event.currentTarget);
 
@@ -762,8 +858,6 @@ NB.Chart = (function() {
 
   //Call this when the screen layout/size changes
   function setDimensions() {
-//     console.log('setDimensions()');
-
     h = parseInt(d3.select('#chart-wrapper').style('height'), 10) - 4; //I don't know why
     w = NB.splitPos;
 
@@ -775,7 +869,6 @@ NB.Chart = (function() {
 
     maxCircle = document.body.offsetHeight / 20;
     margins.top = 40 + maxCircle / 2;
-//     margins.left = maxCircle / 2;
 
     chartWrapper
       .attr('width', w)
@@ -785,13 +878,6 @@ NB.Chart = (function() {
       .attr('transform', 'translate(' + margins.left + ',' + margins.top + ')')
       .attr('width', w - margins.left - margins.right)
       .attr('height', h - margins.top - margins.bottom);
-
-    //Note that the clip path goes all the way to the top and right of the screen
-//     plotAreaClip
-//       .attr('x', margins.left)
-//       .attr('y', 0)
-//       .attr('width', w - margins.left)
-//       .attr('height', h - margins.bottom);
 
     x.range([40, w - 20]);
     y.range([h - margins.bottom - 7, margins.top]);
@@ -820,7 +906,6 @@ NB.Chart = (function() {
 
   //Call this when data changes
   function setScales() {
-//     console.log('setScales()');
     var oldMaxDate = maxDate;
     var oldMinDate = minDate;
     minDate = Math.min(minDate, d3.min(NB.Data.stories, function(d) { return d.postDate; }));
@@ -829,15 +914,6 @@ NB.Chart = (function() {
 
     minCommentCount = Math.min(minCommentCount, d3.min(NB.Data.stories, function(d) { return d.commentCount; }));
     maxCommentCount = Math.max(maxCommentCount, d3.max(NB.Data.stories, function(d) { return d.commentCount; }));
-
-//     if (isNaN(minCommentCount) || isNaN(maxCommentCount)) {
-
-//       if (NB.IS_LOCALHOST) {
-// //         debugger;
-//       } else {
-//         console.log('Something went wrong with this data:', NB.Data.stories);
-//       }
-//     }
 
     var src = NB.Settings.getSetting('source');
     var minScore = NB.Settings.getSetting(src + 'MinScore');
@@ -871,11 +947,9 @@ NB.Chart = (function() {
   }
 
   function init() {
-//     console.log('init()');
     d3.selectAll('#svg-bubble-chart > *').remove();
     chartWrapper = d3.select('#svg-bubble-chart');
     tooltip = d3.select('#tooltip'); //TODO move out of init?
-
 
     minDate = Infinity;
     maxDate = 0;
@@ -928,10 +1002,7 @@ NB.Chart = (function() {
 /*  --  Exported Methods  --  */
 
   Chart.drawStories = function() {
-//     console.log('Chart.darwStories()');
-    //TODO, must these be synchronous?
     setScales();
-
     setDimensions();
     drawStories('slow');
   };
@@ -1044,29 +1115,51 @@ NB.Events = (function() {
   /*  ---------------  */
 
   //TODO this could probably be one event on .news-sources-source
+  //TODO this could all be a nav model.
   var rdtSource = $('#news-source-rdt');
   var hxnSource = $('#news-source-hxn');
+  var favSource = $('#news-source-fav');
+
+  function setBodyClass(src) {
+    d3.select('body').classed('rdt', src === 'rdt');
+    d3.select('body').classed('hxn', src === 'hxn');
+    d3.select('body').classed('fav', src === 'fav');
+  }
 
   rdtSource.on('click', function() {
+    setBodyClass('rdt');
     rdtSource.addClass('active');
     hxnSource.removeClass('active');
+    favSource.removeClass('active');
     NB.Settings.setSetting('source', 'rdt');
     NB.Chart.reset(); //TODO build reset into getData?
-    var minScore = NB.Settings.getSetting('rdtMinScore');
+//     var minScore = NB.Settings.getSetting('rdtMinScore');
 
-    NB.Data.getData('rtd', minScore); //TODO get the settings for limits and min scores
+    NB.Data.getData(); //TODO get the settings for limits and min scores
   });
 
   hxnSource.on('click', function() {
+    setBodyClass('hxn');
     rdtSource.removeClass('active');
     hxnSource.addClass('active');
+    favSource.removeClass('active');
     NB.Settings.setSetting('source', 'hxn');
     NB.Chart.reset();
 
-    var minScore = NB.Settings.getSetting('hxnMinScore');
-    NB.Data.getData('hxn', minScore); //TODO get the settings for limits and min scores
+//     var minScore = NB.Settings.getSetting('hxnMinScore');
+    NB.Data.getData(); //TODO get the settings for limits and min scores
   });
+  favSource.on('click', function() {
+    setBodyClass('fav');
+    rdtSource.removeClass('active');
+    hxnSource.removeClass('active');
+    favSource.addClass('active');
+    NB.Settings.setSetting('source', 'fav');
+    NB.Chart.reset();
 
+//     var minScore = NB.Settings.getSetting('hxnMinScore');
+    NB.Data.getData();
+  });
 
 
   /*  --------------  */
@@ -1376,7 +1469,10 @@ var NB = NB || {};
 NB.StoryModel = (function() {
   var StoryModel = {};
 
+
+  //TODO these really should inherit from a common parent.
   StoryModel.tooltipStory = {
+    raw: {},
     name: ko.observable(),
     url: ko.observable(),
     sourceUrl: ko.observable(),
@@ -1388,10 +1484,12 @@ NB.StoryModel = (function() {
     commentCount: ko.observable(),
     score: ko.observable(),
     timeString: ko.observable(),
-    dateString: ko.observable()
+    dateString: ko.observable(),
+    isFav: ko.observable(false)
   };
 
   StoryModel.panelStory = {
+    raw: {},
     name: ko.observable('News Bubbles'),
     url: ko.observable(),
     sourceUrl: ko.observable(),
@@ -1404,7 +1502,8 @@ NB.StoryModel = (function() {
     score: ko.observable(),
     timeString: ko.observable(),
     dateString: ko.observable(),
-    content: ko.observable('Select a bubble on the left do display its content here.')
+    content: ko.observable('Select a bubble on the left do display its content here.'),
+    isFav: ko.observable(false)
   };
 
   StoryModel.setCurrentStory = function(tooltipOrPanel, story) {
@@ -1417,6 +1516,7 @@ NB.StoryModel = (function() {
       , authorUrl;
     var name = story.name;
     var category = story.category || '';
+    var isFav = NB.Favs.isFav(story);
 
     var color = NB.Settings.getColor(story.source, category);
 
@@ -1456,6 +1556,9 @@ NB.StoryModel = (function() {
 //       console.log('I have a category:', category, story);
 //     }
 
+    storyObj.raw = story;
+//     console.log('Fav status:', storyObj.isFav());
+
     storyObj
       .name(name)
       .url(url)
@@ -1468,11 +1571,17 @@ NB.StoryModel = (function() {
       .commentCount(story.commentCount)
       .score(Math.round(story.score))
       .timeString(timeFormatter(story.postDate))
-      .dateString(dateFormatter(story.postDate));
+      .dateString(dateFormatter(story.postDate))
+      .isFav(isFav);
+      
 
     if (tooltipOrPanel === 'panel') {
         storyObj.content(story.content);
     }
+  };
+
+  StoryModel.favStory = function(story) {
+    toggleFav(story);
   };
 
 
@@ -1495,14 +1604,23 @@ NB.main = (function() {
 
   var rdtSource = $('#news-source-rdt');
   var hxnSource = $('#news-source-hxn');
+  var favSource = $('#news-source-fav');
 
   if (src === 'rdt') {
     rdtSource.addClass('active');
     hxnSource.removeClass('active');
+    favSource.removeClass('active');
   } else if (src === 'hxn') {
     rdtSource.removeClass('active');
     hxnSource.addClass('active');
+    favSource.removeClass('active');
+  } else if (src === 'fav') {
+    rdtSource.removeClass('active');
+    hxnSource.removeClass('active');
+    favSource.addClass('active');
   }
+
+  d3.select('body').classed(src, true);
 
   //On page load, use the APIs directly from the client to get a fresh batch of results
   //The server will be emitting new/changed stories as they become available.
