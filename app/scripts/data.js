@@ -171,7 +171,7 @@ NB.Data = (function() {
 
         html += '<figure>';
         html += '<img src="' + data.link + '">';
-        html += '<figcaption>' + data.description + '</figcaption>';
+        html += data.description ? ('<figcaption>' + data.description + '</figcaption>') : '';
         html += '</figure>';
 
       } else {
@@ -183,9 +183,9 @@ NB.Data = (function() {
 
           html += '<figure>';
           html += '<img src="' + img.link + '">';
-          html += '<figcaption>' + img.title + '</figcaption>';
+          html += img.title ? ('<figcaption>' + img.title + '</figcaption>') : '';
           html += '</figure>';
-          html += img.description ? '<p>' + img.description + '</p>' : '';
+          html += img.description ? ('<p>' + img.description + '</p>') : '';
         }
       }
 
