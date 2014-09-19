@@ -328,7 +328,16 @@ NB.Chart = (function() {
     maxCommentCount = Math.max(maxCommentCount, d3.max(NB.Data.stories, function(d) { return d.commentCount; }));
 
     var src = NB.Settings.getSetting('source');
-    var minScore = NB.Settings.getSetting(src + 'MinScore');
+
+    var minScore = 0;
+
+    if (src === 'fav') {
+      minScore = d3.min(NB.Data.stories, function(d) { return d.score; });
+    } else {
+      minScore = NB.Settings.getSetting(src + 'MinScore');
+    }
+
+
     var medianScore = d3.median(NB.Data.stories, function(d) { return d.score; });
 
     //calculate the exponent based on the position of the median in the set
