@@ -45,16 +45,27 @@ NB.Chart = (function() {
     }
   }
 
-  //TODO: What a mess
-  function bubbleClicked(d) {
-
-    //move to back
+  function moveToBack(domEl) {
     var domEl = d3.event.currentTarget;
     if (domEl.previousSibling) {
       var parent = domEl.parentNode;
       var firstChild = parent.firstChild.nextSibling; //the first element is the overlay rectangle, the rest are circles.
       parent.insertBefore(domEl, firstChild);
     }
+
+  }
+
+  //TODO: What a mess
+  function bubbleClicked(d) {
+
+    //move to back
+    moveToBack(d3.event.currentTarget)
+//     var domEl = d3.event.currentTarget;
+//     if (domEl.previousSibling) {
+//       var parent = domEl.parentNode;
+//       var firstChild = parent.firstChild.nextSibling; //the first element is the overlay rectangle, the rest are circles.
+//       parent.insertBefore(domEl, firstChild);
+//     }
 
     //get the D3 flvoured dom el
     var el = d3.select(d3.event.currentTarget);
@@ -179,6 +190,7 @@ NB.Chart = (function() {
     var setting = NB.Settings.getSetting('rightClickAction');
     if (setting === 'nothing') { return; }
     d3.event.preventDefault();
+    moveToBack(d3.event.currentTarget)
 
     var el = d3.select(d3.event.currentTarget);
 
