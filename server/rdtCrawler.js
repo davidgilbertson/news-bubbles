@@ -75,80 +75,80 @@ function startCrawler() {
       loops: 15,
       lastKnownAfter: undefined
     },
-    // {
-    //   name: 'Looper 2',
-    //   list: 'new',
-    //   count: 0,
-    //   interval: 30000,
-    //   loops: 30,
-    //   lastKnownAfter: undefined
-    // },
-    // {
-    //   name: 'Looper 3',
-    //   list: 'new',
-    //   count: 0,
-    //   interval: 60000,
-    //   loops: 60,
-    //   lastKnownAfter: undefined
-    // },
-    // {
-    //   name: 'Looper 4',
-    //   list: 'new',
-    //   count: 0,
-    //   interval: 120000,
-    //   loops: 120,
-    //   lastKnownAfter: undefined
-    // },
-    // {
-    //   name: 'Looper 5',
-    //   list: 'new',
-    //   count: 0,
-    //   interval: 240000,
-    //   loops: 240,
-    //   lastKnownAfter: undefined
-    // },
+    {
+      name: 'Looper 2',
+      list: 'new',
+      count: 0,
+      interval: 30000,
+      loops: 30,
+      lastKnownAfter: undefined
+    },
+    {
+      name: 'Looper 3',
+      list: 'new',
+      count: 0,
+      interval: 60000,
+      loops: 60,
+      lastKnownAfter: undefined
+    },
+    {
+      name: 'Looper 4',
+      list: 'new',
+      count: 0,
+      interval: 120000,
+      loops: 120,
+      lastKnownAfter: undefined
+    },
+    {
+      name: 'Looper 5',
+      list: 'new',
+      count: 0,
+      interval: 240000,
+      loops: 240,
+      lastKnownAfter: undefined
+    },
 
     //'hot' loopers
-    // {
-    //   name: 'Looper 6',
-    //   list: 'hot',
-    //   count: 0,
-    //   interval: 15000,
-    //   loops: 15,
-    //   lastKnownAfter: undefined
-    // },
-    // {
-    //   name: 'Looper 7',
-    //   list: 'hot',
-    //   count: 0,
-    //   interval: 30000,
-    //   loops: 30,
-    //   lastKnownAfter: undefined
-    // },
-    // {
-    //   name: 'Looper 8',
-    //   list: 'hot',
-    //   count: 0,
-    //   interval: 60000,
-    //   loops: 60,
-    //   lastKnownAfter: undefined
-    // },
-    // {
-    //   name: 'Looper 9',
-    //   list: 'hot',
-    //   count: 0,
-    //   interval: 120000,
-    //   loops: 120,
-    //   lastKnownAfter: undefined
-    // },
-    // {
-    //   name: 'Looper 10',
-    //   list: 'hot',
-    //   count: 0,
-    //   interval: 240000,
-    //   loops: 240,
-    //   lastKnownAfter: undefined
-    // }
+    {
+      name: 'Looper 6',
+      list: 'hot',
+      count: 0,
+      interval: 15000,
+      loops: 15,
+      lastKnownAfter: undefined
+    },
+    {
+      name: 'Looper 7',
+      list: 'hot',
+      count: 0,
+      interval: 30000,
+      loops: 30,
+      lastKnownAfter: undefined
+    },
+    {
+      name: 'Looper 8',
+      list: 'hot',
+      count: 0,
+      interval: 60000,
+      loops: 60,
+      lastKnownAfter: undefined
+    },
+    {
+      name: 'Looper 9',
+      list: 'hot',
+      count: 0,
+      interval: 120000,
+      loops: 120,
+      lastKnownAfter: undefined
+    },
+    {
+      name: 'Looper 10',
+      list: 'hot',
+      count: 0,
+      interval: 240000,
+      loops: 240,
+      lastKnownAfter: undefined
+    }
   ];
 
   function fetch(looper) {
