@@ -26,6 +26,8 @@ exports.getRecentStoriesByCount = function(source, limit, minScore, cb) {
     });
 };
 
+var rdtStory, hxnStory; //out here to test preventing memory leak
+
 exports.upsertRdtStory = function(obj, cb) {
   var newOrChangedStory = false;
   var id = 'rdt-' + obj.data.name;
@@ -59,7 +61,7 @@ exports.upsertRdtStory = function(obj, cb) {
       }
 
     } else {
-      var story = new Story({
+      rdtStory = new Story({
         id: id,
         source: 'rdt',
         sourceId: obj.name,
@@ -83,9 +85,8 @@ exports.upsertRdtStory = function(obj, cb) {
           subreddit: obj.subreddit
         }
       });
-      story.save();
-      // console.log('New story:', story.id, ',', story.name);
-      cb(story);
+      rdtStory.save();
+      cb(rdtStory);
     }
   });
 };
@@ -124,7 +125,7 @@ exports.upsertHxnStory = function(obj, cb) {
       // console.log('Updated the existing story:', doc.name);
 
     } else {
-      var story = new Story({
+      hxnStory = new Story({
         id: id,
         source: 'hxn',
         sourceId: obj.objectID,
@@ -142,9 +143,9 @@ exports.upsertHxnStory = function(obj, cb) {
           storyText: obj.story_text
         }
       });
-      story.save();
+      hxnStory.save();
       // console.log('New story:', story.id, ',', story.name);
-      cb(story);
+      cb(hxnStory);
     }
   });
 
