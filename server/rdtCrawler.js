@@ -73,7 +73,8 @@ function startCrawler() {
       count: 0,
       interval: 5000,
       loops: 15,
-      lastKnownAfter: undefined
+      lastKnownAfter: undefined,
+      inProgress: false
     },
     {
       name: 'Looper 2',
@@ -81,7 +82,8 @@ function startCrawler() {
       count: 0,
       interval: 31000,
       loops: 30,
-      lastKnownAfter: undefined
+      lastKnownAfter: undefined,
+      inProgress: false
     },
     {
       name: 'Looper 3',
@@ -89,7 +91,8 @@ function startCrawler() {
       count: 0,
       interval: 61000,
       loops: 60,
-      lastKnownAfter: undefined
+      lastKnownAfter: undefined,
+      inProgress: false
     },
     // {
     //   name: 'Looper 4',
@@ -97,7 +100,8 @@ function startCrawler() {
     //   count: 0,
     //   interval: 127000,
     //   loops: 120,
-    //   lastKnownAfter: undefined
+    //   lastKnownAfter: undefined,
+         // inProgress: false
     // },
     // {
     //   name: 'Looper 5',
@@ -105,7 +109,8 @@ function startCrawler() {
     //   count: 0,
     //   interval: 241000,
     //   loops: 240,
-    //   lastKnownAfter: undefined
+    //   lastKnownAfter: undefined,
+         // inProgress: false
     // },
 
     //'hot' loopers
@@ -115,7 +120,8 @@ function startCrawler() {
       count: 0,
       interval: 17000,
       loops: 15,
-      lastKnownAfter: undefined
+      lastKnownAfter: undefined,
+      inProgress: false
     },
     {
       name: 'Looper 7',
@@ -123,7 +129,8 @@ function startCrawler() {
       count: 0,
       interval: 37000,
       loops: 30,
-      lastKnownAfter: undefined
+      lastKnownAfter: undefined,
+      inProgress: false
     },
     // {
     //   name: 'Looper 8',
@@ -131,7 +138,8 @@ function startCrawler() {
     //   count: 0,
     //   interval: 60000,
     //   loops: 60,
-    //   lastKnownAfter: undefined
+    //   lastKnownAfter: undefined,
+         // inProgress: false
     // },
     // {
     //   name: 'Looper 9',
@@ -139,7 +147,8 @@ function startCrawler() {
     //   count: 0,
     //   interval: 120000,
     //   loops: 120,
-    //   lastKnownAfter: undefined
+    //   lastKnownAfter: undefined,
+         // inProgress: false
     // },
     // {
     //   name: 'Looper 10',
@@ -147,16 +156,20 @@ function startCrawler() {
     //   count: 0,
     //   interval: 240000,
     //   loops: 240,
-    //   lastKnownAfter: undefined
+    //   lastKnownAfter: undefined,
+         // inProgress: false
     // }
   ];
 
   function fetch(looper) {
+    console.log(looper.name + ' - getting...');
     var url = buildUrl({after: looper.lastKnownAfter, list: looper.list});
     // devLog(looper.name, 'doing fetch', looper.count, 'of', looper.loops);
     // devLog(looper.count, '- Getting data with the URL:', url);
 
     goGet(url, function(response) {
+      console.log(looper.name + ' - got');
+      looper.inProgress === false;
       try {
         if (response.data) { //this should save the try, but who knows.
           saveStories(response.data.children);
@@ -173,6 +186,11 @@ function startCrawler() {
 
   function startLooper(looper) {
     setInterval(function() {
+      if (looper.inProgress) {
+        console.log('previous loop still in progress, skipping this');
+        return;
+      } //I think overlapping might be causing problems
+      looper.inProgress === true;
       if (looper.count > looper.loops) {
         looper.count = 0;
         looper.lastKnownAfter = undefined;
