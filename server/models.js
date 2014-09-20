@@ -33,6 +33,7 @@ storySchema.set('autoIndex', false); //redundant since I've removed indexes, but
 
 storySchema.pre('save', function(next) {
   //TODO, if the category already exists I can skip this. Save it updating on updates, no?
+  //TOOD this really belongs in the controller as a function getCategory() or something.
   var tags, category;
 
   if (this.source === 'hxn') {

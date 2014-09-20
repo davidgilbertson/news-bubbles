@@ -20,6 +20,7 @@ exports.getRecentStoriesByCount = function(source, limit, minScore, cb) {
     .sort({postDate: -1})
     .limit(limit)
     .hint({source: 1, postDate: 1, score: 1}) //use this index
+    .lean()
     .exec(function(err, docs) {
       console.log('Query returned ' + docs.length + ' items in ' + (new Date().getTime() - startTime) + 'ms');
       cb(docs);
@@ -86,7 +87,7 @@ exports.upsertRdtStory = function(obj, cb) {
         }
       });
       rdtStory.save();
-      cb(rdtStory);
+      cb(rdtStory.toObject());
     }
   });
 };
@@ -145,7 +146,7 @@ exports.upsertHxnStory = function(obj, cb) {
       });
       hxnStory.save();
       // console.log('New story:', story.id, ',', story.name);
-      cb(hxnStory);
+      cb(hxnStory.toObject());
     }
   });
 
