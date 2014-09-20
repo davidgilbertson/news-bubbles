@@ -203,7 +203,7 @@ var NB = NB || {};
 
 //Constants
 NB.DUR_FAST = 200; //should match _variables.scss duration variable
-NB.DUR_SLOW = 3000;
+NB.DUR_SLOW = 2000;
 NB.RESIZER_WIDTH = 24;
 NB.splitPos = 0;
 
@@ -850,6 +850,7 @@ NB.Chart = (function() {
     //Update
     points
       .transition()
+      .ease('cubic-out')
       .delay(function(d, i) {
 //         console.log('delaying by', i * delay);
         return i * delay;

@@ -2,12 +2,16 @@
 
 //devLog will print to console in DEV only.
 exports.devLog = function() {
+  if (!process.env.DEV) { return; }
+  var args = arguments;
 
-  if (process.env.DEV) {
+  function go() {
     var result = '';
-    for (var i = 0; i < arguments.length; i++) {
-      result += arguments[i] + ' ';
+    for (var i = 0; i < args.length; i++) {
+      result += args[i] + ' ';
     }
     console.log(result);
   }
+
+  process.nextTick(go);
 };
