@@ -32,6 +32,7 @@ NB.Data = (function() {
         existing.score = d.score;
       } else {
         if (d.postDate > NB.oldestStory && d.score > minScore) { //I don't want to add stories that are older than what's on the chart
+          console.log('Adding story: postDate:', d.postDate, ' current oldest:', NB.oldestStory);
           Data.stories.push(d);
         }
       }
@@ -49,6 +50,9 @@ NB.Data = (function() {
   }
 
   function parseInitialData(data, captureOldest, cb) {
+    if (captureOldest) {
+      NB.oldestStory = Infinity;
+    }
 //     console.log('parseInitialData()');
     data.forEach(function(s) {
       s.postDate = new Date(s.postDate);
@@ -94,13 +98,9 @@ NB.Data = (function() {
     socket = io(); //TODO only get the server to send data for reddit or hxn?
 
     socket.on('data', function(msg) {
-//       console.log(msg.data);
-
-      //funny. If socket HAPPENS to fire while the first GET is in progress,
-      //it fails becuase Data.stories is empty, so merge does nothing
-      //So just ignore this event if Data.stories is not yet populated
       if (!Data.stories.length) { return; }
-      var src = NB.Settings.getSetting('source') || 'rdt';
+
+      var src = NB.Settings.getSetting('source');
       if (msg.data.length && msg.source === src) { //e.g. if it's the reddit view and the data is reddit data
         mergeStories(parseSocketIoData(msg.data));
         NB.Chart.drawStories();
@@ -147,6 +147,7 @@ NB.Data = (function() {
   };
 
   Data.getData = function() {
+//     NB.timer.next('Fetching data');
     var source = NB.Settings.getSetting('source') || 'rdt'; //this should never be empty, but 'rdt' is there for the fun of it.
     var minScore = NB.Settings.getSetting(source + 'MinScore');
 

@@ -5,42 +5,43 @@ var NB = NB || {};
 NB.StoryModel = (function() {
   var StoryModel = {};
 
+  function init() {
+    //TODO these really should inherit from a common parent.
+    StoryModel.tooltipStory = {
+      raw: {},
+      name: ko.observable(),
+      url: ko.observable(),
+      sourceUrl: ko.observable(),
+      authorUrl: ko.observable(),
+      domain: ko.observable(),
+      category: ko.observable(),
+      color: ko.observable(),
+      author: ko.observable(),
+      commentCount: ko.observable(),
+      score: ko.observable(),
+      timeString: ko.observable(),
+      dateString: ko.observable(),
+      isFav: ko.observable(false)
+    };
 
-  //TODO these really should inherit from a common parent.
-  StoryModel.tooltipStory = {
-    raw: {},
-    name: ko.observable(),
-    url: ko.observable(),
-    sourceUrl: ko.observable(),
-    authorUrl: ko.observable(),
-    domain: ko.observable(),
-    category: ko.observable(),
-    color: ko.observable(),
-    author: ko.observable(),
-    commentCount: ko.observable(),
-    score: ko.observable(),
-    timeString: ko.observable(),
-    dateString: ko.observable(),
-    isFav: ko.observable(false)
-  };
-
-  StoryModel.panelStory = {
-    raw: {},
-    name: ko.observable('News Bubbles'),
-    url: ko.observable(),
-    sourceUrl: ko.observable(),
-    authorUrl: ko.observable(),
-    domain: ko.observable(),
-    category: ko.observable(),
-    color: ko.observable(),
-    author: ko.observable(),
-    commentCount: ko.observable(),
-    score: ko.observable(),
-    timeString: ko.observable(),
-    dateString: ko.observable(),
-    content: ko.observable('Select a bubble on the left do display its content here.'),
-    isFav: ko.observable(false)
-  };
+    StoryModel.panelStory = {
+      raw: {},
+      name: ko.observable('News Bubbles'),
+      url: ko.observable(),
+      sourceUrl: ko.observable(),
+      authorUrl: ko.observable(),
+      domain: ko.observable(),
+      category: ko.observable(),
+      color: ko.observable(),
+      author: ko.observable(),
+      commentCount: ko.observable(),
+      score: ko.observable(),
+      timeString: ko.observable(),
+      dateString: ko.observable(),
+      content: ko.observable(''),
+      isFav: ko.observable(false)
+    };
+  }
 
   StoryModel.setCurrentStory = function(tooltipOrPanel, story) {
     var storyObj = StoryModel[tooltipOrPanel + 'Story'];
@@ -120,6 +121,25 @@ NB.StoryModel = (function() {
     toggleFav(story);
   };
 
+  StoryModel.clear = function() {
+    StoryModel.panelStory
+      .name('')
+      .url('')
+      .sourceUrl('')
+      .authorUrl('')
+      .domain('')
+      .category('')
+      .color('')
+      .author('')
+      .commentCount('')
+      .score('')
+      .timeString('')
+      .dateString('')
+      .content('')
+      .isFav('');
+      
+  };
 
+  init();
   return StoryModel;
 })();

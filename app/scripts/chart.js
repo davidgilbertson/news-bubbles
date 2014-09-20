@@ -17,6 +17,7 @@ NB.Chart = (function() {
     , minDate = Infinity //TODO set this lot down in init() so they get reset
     , maxDate = 0
     , maxScore = 0
+    , minScore = 0
     , minCommentCount = Infinity
     , maxCommentCount = 0
     , xAxis
@@ -218,8 +219,9 @@ NB.Chart = (function() {
       .attr('r', function(d) {
         return z(d.commentCount);
       })
-      .attr('cx', function() { return x(maxDate); })
-      .attr('cy', function() { return y(0); })
+      .attr('cx', function() { return x(maxDate) + 100; })
+//       .attr('cy', function() { return y(0); })
+      .attr('cy', function() { return y(minScore) + 100; })
       .attr('fill', function(d) {
         return NB.Settings.getColor(d.source, d.category);
       })
@@ -249,6 +251,7 @@ NB.Chart = (function() {
     points
       .transition()
       .delay(function(d, i) {
+//         console.log('delaying by', i * delay);
         return i * delay;
       })
       .duration(duration)
@@ -318,6 +321,7 @@ NB.Chart = (function() {
 
   //Call this when data changes
   function setScales() {
+//     NB.timer.next('Setting scales');
     var oldMaxDate = maxDate;
     var oldMinDate = minDate;
     minDate = Math.min(minDate, d3.min(NB.Data.stories, function(d) { return d.postDate; }));
@@ -329,7 +333,7 @@ NB.Chart = (function() {
 
     var src = NB.Settings.getSetting('source');
 
-    var minScore = 0;
+    minScore = 0;
 
     if (src === 'fav') {
       minScore = d3.min(NB.Data.stories, function(d) { return d.score; });
@@ -368,6 +372,7 @@ NB.Chart = (function() {
   }
 
   function init() {
+//     NB.timer.next('Initialising Chart');
     d3.selectAll('#svg-bubble-chart > *').remove();
     chartWrapper = d3.select('#svg-bubble-chart');
     tooltip = d3.select('#tooltip'); //TODO move out of init?
@@ -402,9 +407,7 @@ NB.Chart = (function() {
     yAxisG = chartAxes.append('g')
       .classed('chart-axis-y', true);
 
-
     initZoom();
-
 
     plotArea = chartWrapper
       .append('g')
@@ -426,6 +429,7 @@ NB.Chart = (function() {
     setScales();
     setDimensions();
     drawStories('slow');
+//     NB.timer.stop();
   };
 
   Chart.reset = function() {

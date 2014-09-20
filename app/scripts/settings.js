@@ -28,6 +28,10 @@ NB.Settings = (function() {
   }
 
   function init() {
+    d3.select('#open-settings-btn').on('click', Settings.openSettings);
+    d3.select('#save-settings-btn').on('click', Settings.saveSettings);
+    d3.select('#cancel-settings-btn').on('click', Settings.cancelSettings);
+
     //Init a settings objects with some defaults.
     settings = {
       clickAction: ko.observable('storyPanel'), //storyPanel | storyTooltip
@@ -53,16 +57,21 @@ NB.Settings = (function() {
       ])
     };
 
-    settingsEl = $('#settings-wrapper');
+    settingsEl = d3.select('#settings-wrapper');
 
-    ko.applyBindings(settings, settingsEl[0]);
+    ko.applyBindings(settings, settingsEl.node(0));
 
     retrieveLocalSettings(); //Override the defaults if they were in local storage.
 
   }
 
   function closeSettings() {
-    settingsEl.fadeOut(100);
+//     settingsEl.fadeOut(100);
+    settingsEl
+      .transition().duration(500)
+      .style('opacity', 0)
+      .transition()
+      .style('display', 'none');
   }
 
   function saveSettings() {
@@ -116,7 +125,11 @@ NB.Settings = (function() {
   /*  ---------------  */
 
   Settings.openSettings = function() {
-    settingsEl.fadeIn(100);
+//     settingsEl.fadeIn(500);
+    settingsEl
+      .style('display', 'block')
+      .transition().duration(100)
+      .style('opacity', 1);
   };
 
   Settings.saveSettings = function() {

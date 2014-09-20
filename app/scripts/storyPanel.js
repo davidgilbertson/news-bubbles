@@ -32,7 +32,6 @@ NB.StoryPanel = (function() {
   function renderRdt(story) {
     var dom = story.rdt.domain.toLowerCase();
     story.content = '';
-    NB.StoryModel.setCurrentStory('panel', story); //to get a quick change in the panel.
 
     function done(thenAppendComments) {
       NB.StoryModel.setCurrentStory('panel', story);
@@ -119,23 +118,40 @@ NB.StoryPanel = (function() {
 
   function renderHxn(story) {
 
+    function appendComments() {
+      NB.Comments.getForHxnStory(story, function(commentTree) {
+        story.content += '<h3 class="comment-separator">Comments</h3>';
+        story.content += commentTree;
+        NB.StoryModel.setCurrentStory('panel', story);
+      });
+    }
+
+    function done(thenAppendComments) {
+      NB.StoryModel.setCurrentStory('panel', story);
+      if (thenAppendComments) {
+        appendComments();
+      }
+    }
+
     if (story.url) {
       if (story.url.match(/pdf\?*.*$/)) {
-        story.content = '<a href="' + story.url + '" target="_blank">Download/open this PDF</a>';
-        NB.StoryModel.setCurrentStory('panel', story);
+        story.content = '<a href="' + story.url + '" target="_blank">Open this PDF</a>';
+        done(true);
+//         NB.StoryModel.setCurrentStory('panel', story);
 
       } else {
         getReadability(story, function(content) {
           story.content = content;
-          NB.StoryModel.setCurrentStory('panel', story);
+          done(true);
+//           NB.StoryModel.setCurrentStory('panel', story);
 
         });
       }
     } else {
-//       console.log(story);
       NB.Comments.getForHxnStory(story, function(commentTree) {
         story.content = commentTree;
-        NB.StoryModel.setCurrentStory('panel', story);
+        done(false);
+//         NB.StoryModel.setCurrentStory('panel', story);
       });
 
     }
@@ -147,6 +163,7 @@ NB.StoryPanel = (function() {
   /*  --  PUBLIC  --  */
 
   StoryPanel.render = function(story) {
+    NB.StoryModel.setCurrentStory('panel', story); //to get a quick change in the panel.
 
     //The story panel element is passed into these funciton because if it goes to readability it's an async call
     //and I don't want to mess around with cbs everywhere
@@ -159,6 +176,11 @@ NB.StoryPanel = (function() {
     }
 
   };
+
+  StoryPanel.clear = function() {
+    NB.StoryModel.clear();
+
+  }
 
 
   return StoryPanel;

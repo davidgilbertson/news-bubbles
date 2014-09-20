@@ -70,12 +70,11 @@ NB.Comments = (function() {
     if (story.hxn.storyText) {
       $result.append(story.hxn.storyText);
       $result.append('<h3 class="comment-separator">Comments</h3>');
-      // $result.append('<hr>');
     }
     var html = [
       '<p class="comment-list-title">Head on over to ',
-        '<a href="' + sourceUrl + '" target="_blank">Hacker News</a> to add yours.',
-      '</p><hr>'
+        '<a href="' + sourceUrl + '" target="_blank">Hacker News</a> to comment.',
+      '</p>'
     ].join('');
     $result.append(html);
 

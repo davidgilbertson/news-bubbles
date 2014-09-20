@@ -73,15 +73,6 @@ NB.Events = (function() {
   /*  --  Settings  --  */
   /*  ----------------  */
 
-  $('#open-settings-btn').on('click', function() {
-    NB.Settings.openSettings();
-  });
-  $('#save-settings-btn').on('click', function() {
-    NB.Settings.saveSettings();
-  });
-  $('#cancel-settings-btn').on('click', function() {
-    NB.Settings.cancelSettings();
-  });
 
 
 
@@ -89,52 +80,44 @@ NB.Events = (function() {
   /*  --  Sources  --  */
   /*  ---------------  */
 
-  //TODO this could probably be one event on .news-sources-source
-  //TODO this could all be a nav model.
-  var rdtSource = $('#news-source-rdt');
-  var hxnSource = $('#news-source-hxn');
-  var favSource = $('#news-source-fav');
+//   var rdtSource = $('#news-source-rdt');
+//   var hxnSource = $('#news-source-hxn');
+//   var favSource = $('#news-source-fav');
 
-  function setBodyClass(src) {
-    d3.select('body').classed('rdt', src === 'rdt');
-    d3.select('body').classed('hxn', src === 'hxn');
-    d3.select('body').classed('fav', src === 'fav');
-  }
+//   function setBodyClass(src) {
+//     d3.select('body').classed('rdt', src === 'rdt');
+//     d3.select('body').classed('hxn', src === 'hxn');
+//     d3.select('body').classed('fav', src === 'fav');
+//   }
 
-  rdtSource.on('click', function() {
-    setBodyClass('rdt');
-    rdtSource.addClass('active');
-    hxnSource.removeClass('active');
-    favSource.removeClass('active');
-    NB.Settings.setSetting('source', 'rdt');
-    NB.Chart.reset(); //TODO build reset into getData?
-//     var minScore = NB.Settings.getSetting('rdtMinScore');
+//   rdtSource.on('click', function() {
+//     setBodyClass('rdt');
+//     rdtSource.addClass('active');
+//     hxnSource.removeClass('active');
+//     favSource.removeClass('active');
+//     NB.Settings.setSetting('source', 'rdt');
+//     NB.Chart.reset(); //TODO build reset into getData?
+//     NB.Data.getData(); //TODO get the settings for limits and min scores
+//   });
 
-    NB.Data.getData(); //TODO get the settings for limits and min scores
-  });
-
-  hxnSource.on('click', function() {
-    setBodyClass('hxn');
-    rdtSource.removeClass('active');
-    hxnSource.addClass('active');
-    favSource.removeClass('active');
-    NB.Settings.setSetting('source', 'hxn');
-    NB.Chart.reset();
-
-//     var minScore = NB.Settings.getSetting('hxnMinScore');
-    NB.Data.getData(); //TODO get the settings for limits and min scores
-  });
-  favSource.on('click', function() {
-    setBodyClass('fav');
-    rdtSource.removeClass('active');
-    hxnSource.removeClass('active');
-    favSource.addClass('active');
-    NB.Settings.setSetting('source', 'fav');
-    NB.Chart.reset();
-
-//     var minScore = NB.Settings.getSetting('hxnMinScore');
-    NB.Data.getData();
-  });
+//   hxnSource.on('click', function() {
+//     setBodyClass('hxn');
+//     rdtSource.removeClass('active');
+//     hxnSource.addClass('active');
+//     favSource.removeClass('active');
+//     NB.Settings.setSetting('source', 'hxn');
+//     NB.Chart.reset();
+//     NB.Data.getData(); //TODO get the settings for limits and min scores
+//   });
+//   favSource.on('click', function() {
+//     setBodyClass('fav');
+//     rdtSource.removeClass('active');
+//     hxnSource.removeClass('active');
+//     favSource.addClass('active');
+//     NB.Settings.setSetting('source', 'fav');
+//     NB.Chart.reset();
+//     NB.Data.getData();
+//   });
 
 
   /*  --------------  */
