@@ -1,4 +1,7 @@
 'use strict';
+
+// require('v8-profiler');
+
 var path = require('path')
   , port = process.env.PORT || 9000
   // , conn = process.env.MONGOHQ_URL || 'mongodb://localhost/news_bubbles'
@@ -7,6 +10,7 @@ var path = require('path')
   , hxnCrawler = require(path.join(__dirname, 'hxnCrawler'))
   , rdtCrawler = require(path.join(__dirname, 'rdtCrawler'))
 ;
+
 
 //TODO change to createConnections
 mongoose.connect(conn);
@@ -26,8 +30,8 @@ exports.start = function(app) {
 
   db.on('open', function() {
     console.log('Database connection opened.');
-    // hxnCrawler.startCrawler(io);
-    rdtCrawler.startCrawler(io);
+    hxnCrawler.startCrawler(io);
+    // rdtCrawler.startCrawler(io);
     http.listen(port);
 
   });

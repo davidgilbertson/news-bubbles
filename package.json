@@ -34,6 +34,7 @@
     "jshint-stylish": "^0.2.0",
     "main-bower-files": "^1.0.2",
     "opn": "^0.1.1",
+    "v8-profiler": "^5.1.1",
     "wiredep": "^1.4.3"
   },
   "engines": {
