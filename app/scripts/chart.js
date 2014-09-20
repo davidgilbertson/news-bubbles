@@ -250,6 +250,7 @@ NB.Chart = (function() {
     //Update
     points
       .transition()
+      .ease('cubic-out')
       .delay(function(d, i) {
 //         console.log('delaying by', i * delay);
         return i * delay;
