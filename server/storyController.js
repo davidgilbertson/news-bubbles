@@ -87,7 +87,7 @@ exports.upsertRdtStory = function(obj, cb) {
         }
       });
       rdtStory.save();
-      cb(rdtStory.toObject());
+      cb(rdtStory);
     }
   });
 };
@@ -146,7 +146,7 @@ exports.upsertHxnStory = function(obj, cb) {
       });
       hxnStory.save();
       // console.log('New story:', story.id, ',', story.name);
-      cb(hxnStory.toObject());
+      cb(hxnStory);
     }
   });
 

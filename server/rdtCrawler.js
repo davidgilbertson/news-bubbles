@@ -11,7 +11,7 @@ var path = require('path')
 
 //TODO this probably belongs in controllers, but don't want callback soup or passing io around everywhere right now
 function saveStories(data, suppressResults) {
-  console.log('  --  Saving', data.length, 'RDT stories  --');
+  // console.log('  --  Saving', data.length, 'RDT stories  --');
 
   var usage = process.memoryUsage();
   var rss = Math.round(+usage.rss / (1024 * 1024)) + 'mb';
@@ -62,7 +62,7 @@ function buildUrl(props) {
 }
 
 function startCrawler() {
-  // devLog('starting the reddit crawler');
+  devLog('starting the reddit crawler');
 
   /* -- looper variables  --  */
   //'new' loopers
@@ -109,46 +109,46 @@ function startCrawler() {
     },
 
     //'hot' loopers
-    // {
-    //   name: 'Looper 6',
-    //   list: 'hot',
-    //   count: 0,
-    //   interval: 15000,
-    //   loops: 15,
-    //   lastKnownAfter: undefined
-    // },
-    // {
-    //   name: 'Looper 7',
-    //   list: 'hot',
-    //   count: 0,
-    //   interval: 30000,
-    //   loops: 30,
-    //   lastKnownAfter: undefined
-    // },
-    // {
-    //   name: 'Looper 8',
-    //   list: 'hot',
-    //   count: 0,
-    //   interval: 60000,
-    //   loops: 60,
-    //   lastKnownAfter: undefined
-    // },
-    // {
-    //   name: 'Looper 9',
-    //   list: 'hot',
-    //   count: 0,
-    //   interval: 120000,
-    //   loops: 120,
-    //   lastKnownAfter: undefined
-    // },
-    // {
-    //   name: 'Looper 10',
-    //   list: 'hot',
-    //   count: 0,
-    //   interval: 240000,
-    //   loops: 240,
-    //   lastKnownAfter: undefined
-    // }
+    {
+      name: 'Looper 6',
+      list: 'hot',
+      count: 0,
+      interval: 15000,
+      loops: 15,
+      lastKnownAfter: undefined
+    },
+    {
+      name: 'Looper 7',
+      list: 'hot',
+      count: 0,
+      interval: 30000,
+      loops: 30,
+      lastKnownAfter: undefined
+    },
+    {
+      name: 'Looper 8',
+      list: 'hot',
+      count: 0,
+      interval: 60000,
+      loops: 60,
+      lastKnownAfter: undefined
+    },
+    {
+      name: 'Looper 9',
+      list: 'hot',
+      count: 0,
+      interval: 120000,
+      loops: 120,
+      lastKnownAfter: undefined
+    },
+    {
+      name: 'Looper 10',
+      list: 'hot',
+      count: 0,
+      interval: 240000,
+      loops: 240,
+      lastKnownAfter: undefined
+    }
   ];
 
   function fetch(looper) {

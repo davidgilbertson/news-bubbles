@@ -48,7 +48,7 @@ function saveStories(data, suppressResults) {
   console.log('  --  Memory usage  --  |  rss:', rss, ' Heap Total:', heapTotal, ' Heap Used:', heapUsed);
 
   try {
-    console.log('  --  Saving', data.hits.length, 'HXN stories  --');
+    // console.log('  --  Saving', data.hits.length, 'HXN stories  --');
     if (!data) { return; }
     var stories = data.hits;
     var newOrUpdatedStories = [];
@@ -98,7 +98,7 @@ exports.forceFetch = function() {
 
 exports.startCrawler = function(globalIo) {
   io = globalIo;
-  // console.log('Starting Hacker News crawler');
+  console.log('Starting Hacker News crawler');
   // io.emit('data update', {data: 'yes, there will totally be data here'});
 
   //Get stories from last 30 mins
