@@ -1,8 +1,12 @@
 'use strict';
 
 // require('v8-profiler');
-var agent = require('webkit-devtools-agent');
-agent.start();
+
+if (process.env.DEV) {
+  var agent = require('webkit-devtools-agent');
+  agent.start();
+}
+
 
 var path = require('path')
   , port = process.env.PORT || 9000
