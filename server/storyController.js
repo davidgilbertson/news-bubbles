@@ -56,7 +56,7 @@ exports.upsertRdtStory = function(obj, cb) {
       // doc.history = historyArray;
       doc.save();
       if (newOrChangedStory) {
-        cb(doc);
+        cb(doc.toObject());
       } else {
         cb(null);
       }
@@ -87,7 +87,7 @@ exports.upsertRdtStory = function(obj, cb) {
         }
       });
       rdtStory.save();
-      cb(rdtStory);
+      cb(rdtStory.toObject());
     }
   });
 };
@@ -117,7 +117,7 @@ exports.upsertHxnStory = function(obj, cb) {
       doc.save();
       if (newOrChangedStory) {
         // console.log('Updated story:', doc.id, ',', doc.name);
-        cb(doc);
+        cb(doc.toObject());
       } else {
         // console.log('Existing story, no change', doc.id, ',', doc.name);
         cb(null);
@@ -146,7 +146,7 @@ exports.upsertHxnStory = function(obj, cb) {
       });
       hxnStory.save();
       // console.log('New story:', story.id, ',', story.name);
-      cb(hxnStory);
+      cb(hxnStory.toObject());
     }
   });
 
