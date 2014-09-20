@@ -11,6 +11,15 @@ var path = require('path')
 
 //TODO this probably belongs in controllers, but don't want callback soup or passing io around everywhere right now
 function saveStories(data, suppressResults) {
+  console.log('  --  Saving', data.length, 'RDT stories  --');
+
+  var usage = process.memoryUsage();
+  var rss = Math.round(+usage.rss / (1024 * 1024)) + 'mb';
+  var heapTotal = Math.round(+usage.heapTotal / (1024 * 1024)) + 'mb';
+  var heapUsed = Math.round(+usage.heapUsed / (1024 * 1024)) + 'mb';
+  console.log('  --  Memory usage  --  |  rss:', rss, ' Heap Total:', heapTotal, ' Heap Used:', heapUsed);
+
+
   // console.log('  --  Saving', data.length, 'stories  --');
   var newOrUpdatedStories = [];
   var savedStories = 0;
@@ -35,7 +44,7 @@ function goGet(url, cb) {
   var options = {
     url: url,
     json: true,
-    'User-Agent': 'news-bubbles.herokuapp.com/0.3.3 by davidgilbertson'
+    'User-Agent': 'news-bubbles.herokuapp.com/0.3.6 by davidgilbertson'
   };
 
   request.get(options, function(err, req, data) {
@@ -53,7 +62,7 @@ function buildUrl(props) {
 }
 
 function startCrawler() {
-  devLog('starting the reddit crawler');
+  // devLog('starting the reddit crawler');
 
   /* -- looper variables  --  */
   //'new' loopers
@@ -174,7 +183,6 @@ function startCrawler() {
     }, looper.interval);
   }
 
-  //TODO: yeah, I could put the loopers in an array.
   for (var i = 0; i < loopers.length; i++) {
     startLooper(loopers[i]);
   }
