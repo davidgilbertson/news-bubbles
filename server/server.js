@@ -2,10 +2,10 @@
 
 // require('v8-profiler');
 
-if (process.env.DEV) {
+// if (process.env.DEV) {
   var agent = require('webkit-devtools-agent');
   agent.start();
-}
+// }
 
 
 var path = require('path')
