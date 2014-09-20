@@ -11,16 +11,8 @@ var path = require('path')
 
 //TODO this probably belongs in controllers, but don't want callback soup or passing io around everywhere right now
 function saveStories(data, suppressResults) {
-  // console.log('  --  Saving', data.length, 'RDT stories  --');
+  // devLog('  --  Saving', data.length, 'RDT stories  --');
 
-  var usage = process.memoryUsage();
-  var rss = Math.round(+usage.rss / (1024 * 1024)) + 'mb';
-  var heapTotal = Math.round(+usage.heapTotal / (1024 * 1024)) + 'mb';
-  var heapUsed = Math.round(+usage.heapUsed / (1024 * 1024)) + 'mb';
-  console.log('  --  Memory usage  --  |  rss:', rss, ' Heap Total:', heapTotal, ' Heap Used:', heapUsed);
-
-
-  // console.log('  --  Saving', data.length, 'stories  --');
   var newOrUpdatedStories = [];
   var savedStories = 0;
   data.forEach(function(d) {
@@ -62,7 +54,7 @@ function buildUrl(props) {
 }
 
 function startCrawler() {
-  devLog('starting the reddit crawler');
+  devLog('Starting Reddit crawler');
 
   /* -- looper variables  --  */
   //'new' loopers
@@ -71,7 +63,7 @@ function startCrawler() {
       name: 'Looper 1',
       list: 'new',
       count: 0,
-      interval: 5000,
+      interval: 11000,
       loops: 15,
       lastKnownAfter: undefined,
       inProgress: false
@@ -162,22 +154,22 @@ function startCrawler() {
   ];
 
   function fetch(looper) {
-    console.log(looper.name + ' - getting...');
+    devLog(looper.name + ' - getting...');
     var url = buildUrl({after: looper.lastKnownAfter, list: looper.list});
     // devLog(looper.name, 'doing fetch', looper.count, 'of', looper.loops);
     // devLog(looper.count, '- Getting data with the URL:', url);
 
     goGet(url, function(response) {
-      console.log(looper.name + ' - got');
-      looper.inProgress === false;
+      devLog(looper.name + ' - got');
+      looper.inProgress = false;
       try {
         if (response.data) { //this should save the try, but who knows.
           saveStories(response.data.children);
           looper.lastKnownAfter = response.data.after;
         }
       } catch (err) {
-        console.log('Error in reddit crawler:', err);
-        console.log('response was', response);
+        // devLog('Error in reddit crawler:', err);
+        // devLog('response was', response);
         looper.count = 0;
         looper.lastKnownAfter = undefined;
       }
@@ -187,10 +179,10 @@ function startCrawler() {
   function startLooper(looper) {
     setInterval(function() {
       if (looper.inProgress) {
-        console.log('previous loop still in progress, skipping this');
+        devLog('previous loop still in progress, skipping this');
         return;
       } //I think overlapping might be causing problems
-      looper.inProgress === true;
+      looper.inProgress = true;
       if (looper.count > looper.loops) {
         looper.count = 0;
         looper.lastKnownAfter = undefined;
@@ -201,9 +193,15 @@ function startCrawler() {
     }, looper.interval);
   }
 
-  for (var i = 0; i < loopers.length; i++) {
-    startLooper(loopers[i]);
-  }
+  // for (var i = 0; i < loopers.length; i++) {
+  //   startLooper(loopers[i]);
+  // }
+  //replacing loop with a list becuase synchronous inside async? Wild guess.
+  startLooper(loopers[0]);
+  startLooper(loopers[1]);
+  startLooper(loopers[2]);
+  startLooper(loopers[3]);
+  startLooper(loopers[4]);
 }
 
 
@@ -223,7 +221,7 @@ exports.forceFetch = function(limit, list) {
     url = buildUrl({after: lastKnownAfter, list: list});
     // devLog('Getting data with the URL:', url);
 
-    console.log('tick', count);
+    devLog('tick', count);
     goGet(url, function(response) {
       if (response.data && response.data.children) {
         saveStories(response.data.children);
@@ -235,7 +233,7 @@ exports.forceFetch = function(limit, list) {
 
   var interval = setInterval(function() {
     if (count >= loops) {
-      console.log('done');
+      devLog('done');
       clearInterval(interval);
     } else {
       count++;

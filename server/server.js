@@ -37,6 +37,14 @@ var db = mongoose.connection;
 exports.start = function(app) {
   console.log('Server Starting');
 
+  setInterval(function() {
+    var usage = process.memoryUsage();
+    var rss = Math.round(+usage.rss / (1024 * 1024)) + 'mb';
+    var heapTotal = Math.round(+usage.heapTotal / (1024 * 1024)) + 'mb';
+    var heapUsed = Math.round(+usage.heapUsed / (1024 * 1024)) + 'mb';
+    console.log('  --  Memory usage  --  |  rss:', rss, ' Heap Total:', heapTotal, ' Heap Used:', heapUsed);
+  }, 10000);
+
   //Create a socket.io instance and send it to crawlers
   //The crawlers will io.emit() the data when they fetch something new
   var http = require('http').Server(app);
@@ -48,8 +56,8 @@ exports.start = function(app) {
 
   db.on('open', function() {
     console.log('Database connection opened.');
-    hxnCrawler.startCrawler(io);
-    rdtCrawler.startCrawler(io);
+    // hxnCrawler.startCrawler(io);
+    // rdtCrawler.startCrawler(io);
     http.listen(port);
 
   });

@@ -41,14 +41,7 @@ function goGet(url, cb) {
 
 //TODO this probably belongs in controllers, but don't want callback soup or passing io around everywhere right now
 function saveStories(data, suppressResults) {
-  var usage = process.memoryUsage();
-  var rss = Math.round(+usage.rss / (1024 * 1024)) + 'mb';
-  var heapTotal = Math.round(+usage.heapTotal / (1024 * 1024)) + 'mb';
-  var heapUsed = Math.round(+usage.heapUsed / (1024 * 1024)) + 'mb';
-  console.log('  --  Memory usage  --  |  rss:', rss, ' Heap Total:', heapTotal, ' Heap Used:', heapUsed);
-
   try {
-    // console.log('  --  Saving', data.hits.length, 'HXN stories  --');
     if (!data) { return; }
     var stories = data.hits;
     var newOrUpdatedStories = [];
@@ -68,7 +61,7 @@ function saveStories(data, suppressResults) {
       });
     });
   } catch (err) {
-    console.log('Error saving HXN stories:', err);
+    // console.log('Error saving HXN stories:', err);
   }
 }
 
