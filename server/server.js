@@ -2,10 +2,10 @@
 
 // require('v8-profiler');
 
-// if (process.env.DEV) {
+if (process.env.DEV) { //doesn't work on heroku
   var agent = require('webkit-devtools-agent');
   agent.start();
-// }
+}
 
 
 var path = require('path')
@@ -36,7 +36,7 @@ exports.start = function(app) {
 
   db.on('open', function() {
     console.log('Database connection opened.');
-    hxnCrawler.startCrawler(io);
+    // hxnCrawler.startCrawler(io);
     rdtCrawler.startCrawler(io);
     http.listen(port);
 
