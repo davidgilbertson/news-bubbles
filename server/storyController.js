@@ -8,11 +8,11 @@ var path = require('path')
 exports.getRecentStoriesByCount = function(source, limit, minScore, cb) {
   // console.log(new Date(), 'getRecentStoriesByCount() sending query to database with limit', limit);
   var startTime = new Date().getTime();
-  console.log('Query:');
-  console.log(' >> Story.find({source: "' + source + '", score: {$gte: ' + minScore + '}}, {history: false})');
-  console.log(' >> .sort({postDate: -1})');
-  console.log(' >> .limit(' + limit + ')');
-  console.log(' >> .hint({source: 1, postDate: 1, score: 1})');
+  // console.log('Query:');
+  // console.log(' >> Story.find({source: "' + source + '", score: {$gte: ' + minScore + '}}, {history: false})');
+  // console.log(' >> .sort({postDate: -1})');
+  // console.log(' >> .limit(' + limit + ')');
+  // console.log(' >> .hint({source: 1, postDate: 1, score: 1})');
 
   minScore = minScore || 1;
   Story
@@ -21,7 +21,7 @@ exports.getRecentStoriesByCount = function(source, limit, minScore, cb) {
     .limit(limit)
     .hint({source: 1, postDate: 1, score: 1}) //use this index
     .exec(function(err, docs) {
-      console.log('Query returned in ' + (new Date().getTime() - startTime) + 'ms');
+      console.log('Query returned ' + docs.length + ' items in ' + (new Date().getTime() - startTime) + 'ms');
       cb(docs);
     });
 };

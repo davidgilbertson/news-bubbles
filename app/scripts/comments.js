@@ -52,9 +52,6 @@ NB.Comments = (function() {
     if (selfText) {
       $result.append(selfText);
       $result.append('<h3 class="comment-separator">Comments</h3>');
-//       $result.append('<hr>');
-    } else {
-//       $result.append('<p class="comment-list-title">To contibute your own wisdom to the conversation, head on over to <a href="' + story.url + '" target="_blank">reddit</a>.</p><hr>');
     }
     $result.append(getChildren(commentTree[1].data.children));
 

@@ -6,7 +6,7 @@
     <meta name="description" content="A visual display for hacker news stories.">
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 
-    <link rel="stylesheet" href="styles/main-54b8f083.css">
+    <link rel="stylesheet" href="styles/main-f00717c1.css">
 
     <link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
     <link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
@@ -32,7 +32,7 @@
 
 
 
-    <header class="header">
+    <header id="header-wrapper" class="header">
       <h1 class="header-title">NEWS BUBBLES</h1>
       <div id="open-settings-btn" class="header-icons-wrapper">
         <svg width="25" height="25">
@@ -42,9 +42,15 @@
         </svg>
       </div>
       <div class="news-sources">
-        <button id="news-source-rdt" class="news-sources-source">REDDIT</button>
-        <button id="news-source-hxn" class="news-sources-source">HACKER NEWS</button>
-        <button id="news-source-fav" class="news-sources-source">FAVORITES</button>
+        <button id="news-source-rdt"
+          class="news-sources-source"
+          data-bind="css: {active: currentSource() === 'rdt'}, click: NB.Nav.navigate.bind($data, 'rdt')">REDDIT</button>
+        <button id="news-source-hxn"
+          class="news-sources-source"
+          data-bind="css: {active: currentSource() === 'hxn'}, click: NB.Nav.navigate.bind($data, 'hxn')">HACKER NEWS</button>
+        <button id="news-source-fav"
+          class="news-sources-source"
+          data-bind="css: {active: currentSource() === 'fav'}, click: NB.Nav.navigate.bind($data, 'fav')">FAVORITES</button>
       </div>
     </header>
 
@@ -61,13 +67,10 @@
           <div id="story-panel-toggle" class="story-panel-toggle">«</div>
         </div>
         <div id="story-panel-content" class="story-wrapper">
-          <!-- <div id="story-panel-fav-star" class="fav-star-wrapper"> -->
-          <!-- </div> -->
           <div id="story-title" class="story-title">
             <h1 data-bind="css: {active: isFav()}">
               <svg id="fav-star" data-bind="click: NB.Favs.toggleFav">
-                <!-- <polygon class="fav-star" points="0.37,7.3 7.25,7.3 9.37,0.42 11.5,7.3 18.37,7.3 12.81,11.55 14.93,18.42 9.37,14.17 3.81,18.42 5.93,11.55"/></polygon> -->
-                <polygon class="fav-star"  points="0.37,7.3 7.25,7.3 9.37,0.42 11.5,7.3 18.37,7.3 12.81,11.55 14.93,18.42 9.37,14.17 3.81,18.42 5.93,11.55"/></polygon>
+                <polygon class="fav-star" points="0.37,7.3 7.25,7.3 9.37,0.42 11.5,7.3 18.37,7.3 12.81,11.55 14.93,18.42 9.37,14.17 3.81,18.42 5.93,11.55"/></polygon>
               </svg>
               <a data-bind="attr: {href: url}, text: name" target="_blank">...</a>
             </h1>
@@ -224,7 +227,7 @@
     <script src="/socket.io/socket.io.js"></script>
 
 
-    <script src="scripts/main-08a2c79d.js"></script>
+    <script src="scripts/main-b8bd48ed.js"></script>
 
   </body>
 </html>

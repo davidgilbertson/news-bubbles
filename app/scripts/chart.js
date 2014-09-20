@@ -321,7 +321,6 @@ NB.Chart = (function() {
 
   //Call this when data changes
   function setScales() {
-//     NB.timer.next('Setting scales');
     var oldMaxDate = maxDate;
     var oldMinDate = minDate;
     minDate = Math.min(minDate, d3.min(NB.Data.stories, function(d) { return d.postDate; }));
@@ -372,7 +371,6 @@ NB.Chart = (function() {
   }
 
   function init() {
-//     NB.timer.next('Initialising Chart');
     d3.selectAll('#svg-bubble-chart > *').remove();
     chartWrapper = d3.select('#svg-bubble-chart');
     tooltip = d3.select('#tooltip'); //TODO move out of init?
@@ -429,7 +427,6 @@ NB.Chart = (function() {
     setScales();
     setDimensions();
     drawStories('slow');
-//     NB.timer.stop();
   };
 
   Chart.reset = function() {

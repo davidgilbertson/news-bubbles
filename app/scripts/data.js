@@ -32,7 +32,6 @@ NB.Data = (function() {
         existing.score = d.score;
       } else {
         if (d.postDate > NB.oldestStory && d.score > minScore) { //I don't want to add stories that are older than what's on the chart
-          console.log('Adding story: postDate:', d.postDate, ' current oldest:', NB.oldestStory);
           Data.stories.push(d);
         }
       }
@@ -147,7 +146,6 @@ NB.Data = (function() {
   };
 
   Data.getData = function() {
-//     NB.timer.next('Fetching data');
     var source = NB.Settings.getSetting('source') || 'rdt'; //this should never be empty, but 'rdt' is there for the fun of it.
     var minScore = NB.Settings.getSetting(source + 'MinScore');
 

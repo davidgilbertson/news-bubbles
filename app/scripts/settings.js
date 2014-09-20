@@ -37,7 +37,7 @@ NB.Settings = (function() {
       clickAction: ko.observable('storyPanel'), //storyPanel | storyTooltip
       rightClickAction: ko.observable('toggleRead'), // toggleRead | nothing
       source: ko.observable('rdt'), // rdt | hxn
-      hitLimit: ko.observable(200),
+      hitLimit: ko.observable(100),
       rdtMinScore: ko.observable(500),
       hxnMinScore: ko.observable(5),
       favMinScore: ko.observable(0),

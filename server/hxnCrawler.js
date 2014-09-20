@@ -42,23 +42,28 @@ function goGet(url, cb) {
 //TODO this probably belongs in controllers, but don't want callback soup or passing io around everywhere right now
 function saveStories(data, suppressResults) {
   // console.log('  --  Saving', data.length, 'stories  --');
-  var stories = data.hits;
-  var newOrUpdatedStories = [];
-  var savedStories = 0;
-  stories.forEach(function(d) {
-    storyController.upsertHxnStory(d, function(newOrUpdatedStory) {
-      if (newOrUpdatedStory) {
-        newOrUpdatedStories.push(newOrUpdatedStory);
-      }
-      savedStories++;
-      if (savedStories === data.length) {
-        savedStories = 0;
-        if (newOrUpdatedStories.length && !suppressResults) {
-          io.emit('data', {source: 'hxn', data: newOrUpdatedStories});
+  try {
+    if (!data) { return; }
+    var stories = data.hits;
+    var newOrUpdatedStories = [];
+    var savedStories = 0;
+    stories.forEach(function(d) {
+      storyController.upsertHxnStory(d, function(newOrUpdatedStory) {
+        if (newOrUpdatedStory) {
+          newOrUpdatedStories.push(newOrUpdatedStory);
         }
-      }
+        savedStories++;
+        if (savedStories === data.length) {
+          savedStories = 0;
+          if (newOrUpdatedStories.length && !suppressResults) {
+            io.emit('data', {source: 'hxn', data: newOrUpdatedStories});
+          }
+        }
+      });
     });
-  });
+  } catch (err) {
+    console.log('Error saving HXN stories:', err);
+  }
 }
 
 function buildUrl(props) {

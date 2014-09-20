@@ -7,6 +7,8 @@ var path = require('path')
   , hxnCrawler = require(path.join(__dirname, 'hxnCrawler'))
   , rdtCrawler = require(path.join(__dirname, 'rdtCrawler'))
 ;
+
+//TODO change to createConnections
 mongoose.connect(conn);
 var db = mongoose.connection;
 
@@ -24,11 +26,7 @@ exports.start = function(app) {
 
   db.on('open', function() {
     console.log('Database connection opened.');
-    // try {
-      hxnCrawler.startCrawler(io);
-    // } catch (err) {
-      // console.log('Error in HXN crawler:', err);
-    // }
+    hxnCrawler.startCrawler(io);
     rdtCrawler.startCrawler(io);
     http.listen(port);
 

@@ -43,12 +43,16 @@ NB.Settings = (function() {
   }
 
   function init() {
+    d3.select('#open-settings-btn').on('click', Settings.openSettings);
+    d3.select('#save-settings-btn').on('click', Settings.saveSettings);
+    d3.select('#cancel-settings-btn').on('click', Settings.cancelSettings);
+
     //Init a settings objects with some defaults.
     settings = {
       clickAction: ko.observable('storyPanel'), //storyPanel | storyTooltip
       rightClickAction: ko.observable('toggleRead'), // toggleRead | nothing
       source: ko.observable('rdt'), // rdt | hxn
-      hitLimit: ko.observable(200),
+      hitLimit: ko.observable(100),
       rdtMinScore: ko.observable(500),
       hxnMinScore: ko.observable(5),
       favMinScore: ko.observable(0),
@@ -68,16 +72,21 @@ NB.Settings = (function() {
       ])
     };
 
-    settingsEl = $('#settings-wrapper');
+    settingsEl = d3.select('#settings-wrapper');
 
-    ko.applyBindings(settings, settingsEl[0]);
+    ko.applyBindings(settings, settingsEl.node(0));
 
     retrieveLocalSettings(); //Override the defaults if they were in local storage.
 
   }
 
   function closeSettings() {
-    settingsEl.fadeOut(100);
+//     settingsEl.fadeOut(100);
+    settingsEl
+      .transition().duration(500)
+      .style('opacity', 0)
+      .transition()
+      .style('display', 'none');
   }
 
   function saveSettings() {
@@ -131,7 +140,11 @@ NB.Settings = (function() {
   /*  ---------------  */
 
   Settings.openSettings = function() {
-    settingsEl.fadeIn(100);
+//     settingsEl.fadeIn(500);
+    settingsEl
+      .style('display', 'block')
+      .transition().duration(100)
+      .style('opacity', 1);
   };
 
   Settings.saveSettings = function() {
@@ -254,6 +267,9 @@ NB.Data = (function() {
   }
 
   function parseInitialData(data, captureOldest, cb) {
+    if (captureOldest) {
+      NB.oldestStory = Infinity;
+    }
 //     console.log('parseInitialData()');
     data.forEach(function(s) {
       s.postDate = new Date(s.postDate);
@@ -299,13 +315,9 @@ NB.Data = (function() {
     socket = io(); //TODO only get the server to send data for reddit or hxn?
 
     socket.on('data', function(msg) {
-//       console.log(msg.data);
-
-      //funny. If socket HAPPENS to fire while the first GET is in progress,
-      //it fails becuase Data.stories is empty, so merge does nothing
-      //So just ignore this event if Data.stories is not yet populated
       if (!Data.stories.length) { return; }
-      var src = NB.Settings.getSetting('source') || 'rdt';
+
+      var src = NB.Settings.getSetting('source');
       if (msg.data.length && msg.source === src) { //e.g. if it's the reddit view and the data is reddit data
         mergeStories(parseSocketIoData(msg.data));
         NB.Chart.drawStories();
@@ -605,6 +617,7 @@ NB.Chart = (function() {
     , minDate = Infinity //TODO set this lot down in init() so they get reset
     , maxDate = 0
     , maxScore = 0
+    , minScore = 0
     , minCommentCount = Infinity
     , maxCommentCount = 0
     , xAxis
@@ -806,8 +819,9 @@ NB.Chart = (function() {
       .attr('r', function(d) {
         return z(d.commentCount);
       })
-      .attr('cx', function() { return x(maxDate); })
-      .attr('cy', function() { return y(0); })
+      .attr('cx', function() { return x(maxDate) + 100; })
+//       .attr('cy', function() { return y(0); })
+      .attr('cy', function() { return y(minScore) + 100; })
       .attr('fill', function(d) {
         return NB.Settings.getColor(d.source, d.category);
       })
@@ -837,6 +851,7 @@ NB.Chart = (function() {
     points
       .transition()
       .delay(function(d, i) {
+//         console.log('delaying by', i * delay);
         return i * delay;
       })
       .duration(duration)
@@ -916,7 +931,16 @@ NB.Chart = (function() {
     maxCommentCount = Math.max(maxCommentCount, d3.max(NB.Data.stories, function(d) { return d.commentCount; }));
 
     var src = NB.Settings.getSetting('source');
-    var minScore = NB.Settings.getSetting(src + 'MinScore');
+
+    minScore = 0;
+
+    if (src === 'fav') {
+      minScore = d3.min(NB.Data.stories, function(d) { return d.score; });
+    } else {
+      minScore = NB.Settings.getSetting(src + 'MinScore');
+    }
+
+
     var medianScore = d3.median(NB.Data.stories, function(d) { return d.score; });
 
     //calculate the exponent based on the position of the median in the set
@@ -981,9 +1005,7 @@ NB.Chart = (function() {
     yAxisG = chartAxes.append('g')
       .classed('chart-axis-y', true);
 
-
     initZoom();
-
 
     plotArea = chartWrapper
       .append('g')
@@ -1098,15 +1120,6 @@ NB.Events = (function() {
   /*  --  Settings  --  */
   /*  ----------------  */
 
-  $('#open-settings-btn').on('click', function() {
-    NB.Settings.openSettings();
-  });
-  $('#save-settings-btn').on('click', function() {
-    NB.Settings.saveSettings();
-  });
-  $('#cancel-settings-btn').on('click', function() {
-    NB.Settings.cancelSettings();
-  });
 
 
 
@@ -1114,52 +1127,44 @@ NB.Events = (function() {
   /*  --  Sources  --  */
   /*  ---------------  */
 
-  //TODO this could probably be one event on .news-sources-source
-  //TODO this could all be a nav model.
-  var rdtSource = $('#news-source-rdt');
-  var hxnSource = $('#news-source-hxn');
-  var favSource = $('#news-source-fav');
+//   var rdtSource = $('#news-source-rdt');
+//   var hxnSource = $('#news-source-hxn');
+//   var favSource = $('#news-source-fav');
 
-  function setBodyClass(src) {
-    d3.select('body').classed('rdt', src === 'rdt');
-    d3.select('body').classed('hxn', src === 'hxn');
-    d3.select('body').classed('fav', src === 'fav');
-  }
+//   function setBodyClass(src) {
+//     d3.select('body').classed('rdt', src === 'rdt');
+//     d3.select('body').classed('hxn', src === 'hxn');
+//     d3.select('body').classed('fav', src === 'fav');
+//   }
 
-  rdtSource.on('click', function() {
-    setBodyClass('rdt');
-    rdtSource.addClass('active');
-    hxnSource.removeClass('active');
-    favSource.removeClass('active');
-    NB.Settings.setSetting('source', 'rdt');
-    NB.Chart.reset(); //TODO build reset into getData?
-//     var minScore = NB.Settings.getSetting('rdtMinScore');
+//   rdtSource.on('click', function() {
+//     setBodyClass('rdt');
+//     rdtSource.addClass('active');
+//     hxnSource.removeClass('active');
+//     favSource.removeClass('active');
+//     NB.Settings.setSetting('source', 'rdt');
+//     NB.Chart.reset(); //TODO build reset into getData?
+//     NB.Data.getData(); //TODO get the settings for limits and min scores
+//   });
 
-    NB.Data.getData(); //TODO get the settings for limits and min scores
-  });
-
-  hxnSource.on('click', function() {
-    setBodyClass('hxn');
-    rdtSource.removeClass('active');
-    hxnSource.addClass('active');
-    favSource.removeClass('active');
-    NB.Settings.setSetting('source', 'hxn');
-    NB.Chart.reset();
-
-//     var minScore = NB.Settings.getSetting('hxnMinScore');
-    NB.Data.getData(); //TODO get the settings for limits and min scores
-  });
-  favSource.on('click', function() {
-    setBodyClass('fav');
-    rdtSource.removeClass('active');
-    hxnSource.removeClass('active');
-    favSource.addClass('active');
-    NB.Settings.setSetting('source', 'fav');
-    NB.Chart.reset();
-
-//     var minScore = NB.Settings.getSetting('hxnMinScore');
-    NB.Data.getData();
-  });
+//   hxnSource.on('click', function() {
+//     setBodyClass('hxn');
+//     rdtSource.removeClass('active');
+//     hxnSource.addClass('active');
+//     favSource.removeClass('active');
+//     NB.Settings.setSetting('source', 'hxn');
+//     NB.Chart.reset();
+//     NB.Data.getData(); //TODO get the settings for limits and min scores
+//   });
+//   favSource.on('click', function() {
+//     setBodyClass('fav');
+//     rdtSource.removeClass('active');
+//     hxnSource.removeClass('active');
+//     favSource.addClass('active');
+//     NB.Settings.setSetting('source', 'fav');
+//     NB.Chart.reset();
+//     NB.Data.getData();
+//   });
 
 
   /*  --------------  */
@@ -1228,9 +1233,6 @@ NB.Comments = (function() {
     if (selfText) {
       $result.append(selfText);
       $result.append('<h3 class="comment-separator">Comments</h3>');
-//       $result.append('<hr>');
-    } else {
-//       $result.append('<p class="comment-list-title">To contibute your own wisdom to the conversation, head on over to <a href="' + story.url + '" target="_blank">reddit</a>.</p><hr>');
     }
     $result.append(getChildren(commentTree[1].data.children));
 
@@ -1246,12 +1248,11 @@ NB.Comments = (function() {
     if (story.hxn.storyText) {
       $result.append(story.hxn.storyText);
       $result.append('<h3 class="comment-separator">Comments</h3>');
-      // $result.append('<hr>');
     }
     var html = [
       '<p class="comment-list-title">Head on over to ',
-        '<a href="' + sourceUrl + '" target="_blank">Hacker News</a> to add yours.',
-      '</p><hr>'
+        '<a href="' + sourceUrl + '" target="_blank">Hacker News</a> to comment.',
+      '</p>'
     ].join('');
     $result.append(html);
 
@@ -1331,7 +1332,6 @@ NB.StoryPanel = (function() {
   function renderRdt(story) {
     var dom = story.rdt.domain.toLowerCase();
     story.content = '';
-    NB.StoryModel.setCurrentStory('panel', story); //to get a quick change in the panel.
 
     function done(thenAppendComments) {
       NB.StoryModel.setCurrentStory('panel', story);
@@ -1418,23 +1418,40 @@ NB.StoryPanel = (function() {
 
   function renderHxn(story) {
 
+    function appendComments() {
+      NB.Comments.getForHxnStory(story, function(commentTree) {
+        story.content += '<h3 class="comment-separator">Comments</h3>';
+        story.content += commentTree;
+        NB.StoryModel.setCurrentStory('panel', story);
+      });
+    }
+
+    function done(thenAppendComments) {
+      NB.StoryModel.setCurrentStory('panel', story);
+      if (thenAppendComments) {
+        appendComments();
+      }
+    }
+
     if (story.url) {
       if (story.url.match(/pdf\?*.*$/)) {
-        story.content = '<a href="' + story.url + '" target="_blank">Download/open this PDF</a>';
-        NB.StoryModel.setCurrentStory('panel', story);
+        story.content = '<a href="' + story.url + '" target="_blank">Open this PDF</a>';
+        done(true);
+//         NB.StoryModel.setCurrentStory('panel', story);
 
       } else {
         getReadability(story, function(content) {
           story.content = content;
-          NB.StoryModel.setCurrentStory('panel', story);
+          done(true);
+//           NB.StoryModel.setCurrentStory('panel', story);
 
         });
       }
     } else {
-//       console.log(story);
       NB.Comments.getForHxnStory(story, function(commentTree) {
         story.content = commentTree;
-        NB.StoryModel.setCurrentStory('panel', story);
+        done(false);
+//         NB.StoryModel.setCurrentStory('panel', story);
       });
 
     }
@@ -1446,6 +1463,7 @@ NB.StoryPanel = (function() {
   /*  --  PUBLIC  --  */
 
   StoryPanel.render = function(story) {
+    NB.StoryModel.setCurrentStory('panel', story); //to get a quick change in the panel.
 
     //The story panel element is passed into these funciton because if it goes to readability it's an async call
     //and I don't want to mess around with cbs everywhere
@@ -1459,6 +1477,11 @@ NB.StoryPanel = (function() {
 
   };
 
+  StoryPanel.clear = function() {
+    NB.StoryModel.clear();
+
+  }
+
 
   return StoryPanel;
 })();
@@ -1469,42 +1492,43 @@ var NB = NB || {};
 NB.StoryModel = (function() {
   var StoryModel = {};
 
+  function init() {
+    //TODO these really should inherit from a common parent.
+    StoryModel.tooltipStory = {
+      raw: {},
+      name: ko.observable(),
+      url: ko.observable(),
+      sourceUrl: ko.observable(),
+      authorUrl: ko.observable(),
+      domain: ko.observable(),
+      category: ko.observable(),
+      color: ko.observable(),
+      author: ko.observable(),
+      commentCount: ko.observable(),
+      score: ko.observable(),
+      timeString: ko.observable(),
+      dateString: ko.observable(),
+      isFav: ko.observable(false)
+    };
 
-  //TODO these really should inherit from a common parent.
-  StoryModel.tooltipStory = {
-    raw: {},
-    name: ko.observable(),
-    url: ko.observable(),
-    sourceUrl: ko.observable(),
-    authorUrl: ko.observable(),
-    domain: ko.observable(),
-    category: ko.observable(),
-    color: ko.observable(),
-    author: ko.observable(),
-    commentCount: ko.observable(),
-    score: ko.observable(),
-    timeString: ko.observable(),
-    dateString: ko.observable(),
-    isFav: ko.observable(false)
-  };
-
-  StoryModel.panelStory = {
-    raw: {},
-    name: ko.observable('News Bubbles'),
-    url: ko.observable(),
-    sourceUrl: ko.observable(),
-    authorUrl: ko.observable(),
-    domain: ko.observable(),
-    category: ko.observable(),
-    color: ko.observable(),
-    author: ko.observable(),
-    commentCount: ko.observable(),
-    score: ko.observable(),
-    timeString: ko.observable(),
-    dateString: ko.observable(),
-    content: ko.observable('Select a bubble on the left do display its content here.'),
-    isFav: ko.observable(false)
-  };
+    StoryModel.panelStory = {
+      raw: {},
+      name: ko.observable('News Bubbles'),
+      url: ko.observable(),
+      sourceUrl: ko.observable(),
+      authorUrl: ko.observable(),
+      domain: ko.observable(),
+      category: ko.observable(),
+      color: ko.observable(),
+      author: ko.observable(),
+      commentCount: ko.observable(),
+      score: ko.observable(),
+      timeString: ko.observable(),
+      dateString: ko.observable(),
+      content: ko.observable(''),
+      isFav: ko.observable(false)
+    };
+  }
 
   StoryModel.setCurrentStory = function(tooltipOrPanel, story) {
     var storyObj = StoryModel[tooltipOrPanel + 'Story'];
@@ -1584,8 +1608,65 @@ NB.StoryModel = (function() {
     toggleFav(story);
   };
 
+  StoryModel.clear = function() {
+    StoryModel.panelStory
+      .name('')
+      .url('')
+      .sourceUrl('')
+      .authorUrl('')
+      .domain('')
+      .category('')
+      .color('')
+      .author('')
+      .commentCount('')
+      .score('')
+      .timeString('')
+      .dateString('')
+      .content('')
+      .isFav('');
+      
+  };
 
+  init();
   return StoryModel;
+})();
+'use strict';
+
+var NB = NB || {};
+
+NB.Nav = (function() {
+  var Nav = {}
+    , currentSource
+  ;
+
+  function init() {
+    currentSource = NB.Settings.getSetting('source');
+    Nav.navModel.currentSource(currentSource);
+  }
+
+  Nav.navModel = {
+    currentSource: ko.observable(currentSource)
+  }
+
+  Nav.navigate = function(newSource) {
+    NB.Layout.hideStoryPanel();
+    NB.StoryModel.clear();
+//     console.log('Going to navigate to', newSource);
+    Nav.navModel.currentSource(newSource);
+    NB.Settings.setSetting('source', newSource);
+
+    NB.Chart.reset();
+    NB.Data.getData();
+
+    //TODO: less dumb way to do this?    
+    var body = d3.select('body');
+    body.classed('rdt', newSource === 'rdt');
+    body.classed('hxn', newSource === 'hxn');
+    body.classed('fav', newSource === 'fav');
+  };
+  
+  init();
+  return Nav;
 })();
 'use strict';
 var NB = NB || {};
@@ -1594,31 +1675,10 @@ NB.main = (function() {
   NB.splitPos = document.body.offsetWidth - NB.RESIZER_WIDTH;
   NB.Layout.render();
   NB.Layout.init();
-//   var minScore = 1;
-//   NB.source = 'rd'; //some default
-
-//   var src = document.location.search.replace('?src=', ''); //TODO this would fail with multiple params
 
   var src = NB.Settings.getSetting('source') || 'rdt'; //this should never be empty, but 'rd' is there for the fun of it.
   var minScore = NB.Settings.getSetting(src + 'MinScore');
 
-  var rdtSource = $('#news-source-rdt');
-  var hxnSource = $('#news-source-hxn');
-  var favSource = $('#news-source-fav');
-
-  if (src === 'rdt') {
-    rdtSource.addClass('active');
-    hxnSource.removeClass('active');
-    favSource.removeClass('active');
-  } else if (src === 'hxn') {
-    rdtSource.removeClass('active');
-    hxnSource.addClass('active');
-    favSource.removeClass('active');
-  } else if (src === 'fav') {
-    rdtSource.removeClass('active');
-    hxnSource.removeClass('active');
-    favSource.addClass('active');
-  }
 
   d3.select('body').classed(src, true);
 
@@ -1628,11 +1688,13 @@ NB.main = (function() {
 
   ko.applyBindings(NB.StoryModel.tooltipStory, document.getElementById('story-tooltip'));
   ko.applyBindings(NB.StoryModel.panelStory, document.getElementById('story-panel'));
+  ko.applyBindings(NB.Nav.navModel, document.getElementById('header-wrapper'));
 
   if (!('ontouchstart' in window) && !(window.DocumentTouch && document instanceof DocumentTouch)) {
     d3.select('body').classed('no-touch', true);
     NB.hasTouch = false;
   }
+
 
 
 })();

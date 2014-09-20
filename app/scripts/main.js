@@ -2,9 +2,6 @@
 var NB = NB || {};
 
 NB.main = (function() {
-
-//   NB.timer.start('Page loaded', 'v1');
-  
   NB.splitPos = document.body.offsetWidth - NB.RESIZER_WIDTH;
   NB.Layout.render();
   NB.Layout.init();
