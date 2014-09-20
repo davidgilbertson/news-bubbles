@@ -2,10 +2,22 @@
 
 // require('v8-profiler');
 
-if (process.env.DEV) { //doesn't work on heroku
+if (process.env.DEV) {
+  require('nodetime').profile({
+    accountKey: '05d915a7339098057141246ef49ab77a3c5bd013',
+    appName: 'News Bubbles Dev' // optional
+  });
   var agent = require('webkit-devtools-agent');
   agent.start();
+} else {
+  if (process.env.NODETIME_ACCOUNT_KEY) {
+    require('nodetime').profile({
+      accountKey: process.env.NODETIME_ACCOUNT_KEY,
+      appName: 'News Bubbles' // optional
+    });
+  }
 }
+
 
 
 var path = require('path')

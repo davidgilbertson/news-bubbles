@@ -4,6 +4,7 @@
   "dependencies": {
     "express": "^4.8.4",
     "mongoose": "^3.8.15",
+    "nodetime": "^0.8.15",
     "request": "^2.40.0",
     "socket.io": "^1.0.6",
     "webkit-devtools-agent": "^0.3.1"
