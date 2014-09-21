@@ -9,11 +9,13 @@ var path = require('path')
   , prodLog = utils.prodLog
   ;
 
-
+// function emitData(data) {
+//   io.emit('data', data);
+// }
 
 //TODO this probably belongs in controllers, but don't want callback soup or passing io around everywhere right now
 function saveStories(data, suppressResults) {
-  prodLog('  --  Saving', data.length, 'RDT stories  --');
+  devLog('  --  Saving', data.length, 'RDT stories  --');
 
   var newOrUpdatedStories = [];
   var savedStories = 0;
@@ -26,7 +28,10 @@ function saveStories(data, suppressResults) {
       if (savedStories === data.length) {
         savedStories = 0;
         if (newOrUpdatedStories.length && !suppressResults) {
-          process.nextTick(io.emit('data', {source: 'rdt', data: newOrUpdatedStories}));
+          process.nextTick(function() {
+            io.emit('data', {source: 'rdt', data: newOrUpdatedStories});
+          });
+
         }
       }
     });
@@ -56,7 +61,7 @@ function buildUrl(props) {
 }
 
 function startCrawler() {
-  devLog('Starting Reddit crawler');
+  prodLog('Starting Reddit crawler');
 
   /* -- looper variables  --  */
   //'new' loopers
