@@ -10,11 +10,11 @@ var path = require('path')
   , getInProgress = false
   ;
 
-function emitData(data) {
-  process.nextTick(function() {
-    global.io.emit('data', [data]); //TODO not array, update client side to accept single object
-  });
-}
+// function emitData(data) {
+//   process.nextTick(function() {
+//     global.io.emit('data', [data]); //TODO not array, update client side to accept single object
+//   });
+// }
 
 function upsert(story) {
   process.nextTick(function() {

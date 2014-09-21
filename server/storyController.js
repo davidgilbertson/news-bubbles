@@ -61,73 +61,116 @@ exports.getRecentStoriesByCount = function(source, limit, minScore, cb) {
 };
 
 var rdtStory, hxnStory; //out here to test preventing memory leak
+var totalChanges = 0;
 
-exports.upsertRdtStory = function(obj, cb) {
-  var newOrChangedStory = false;
-  var id = 'rdt-' + obj.data.name;
-  var kind = obj.kind;
+function saveNew(newStory) {
+  devLog('Saving new story:', newStory.title);
+  var kind = newStory.kind;
 
+  // var tags, category;
+
+  //   category = '';
+  //   if (!this.rdt) { return; }
+  //   if (this.rdt.subreddit) {
+  //     category = this.rdt.subreddit;
+  //   } else {
+  //     category = this.rdt.domain;
+  //   }
+
+  // this.category = category.replace('i.imgur.com', 'imgur.com').replace(/^self\./, '');
+
+
+  rdtStory = new Story({
+    id: 'rdt-' + newStory.name,
+    source: 'rdt',
+    sourceId: newStory.name,
+    name: newStory.title,
+    desc: null,
+    postDate: newStory.created_utc * 1000,
+    postDateSeconds: newStory.created_utc,
+    url: newStory.url,
+    commentCount: newStory.num_comments,
+    score: newStory.score,
+    author: newStory.author,
+    thumbnail: newStory.thumbnail,
+    rdt: {
+      kind: kind,
+      domain: newStory.domain,
+      shortId: newStory.id,
+      fullId: newStory.name,
+      permalink: newStory.permalink,
+      self: newStory.is_self,
+      selftext: newStory.selftext,
+      subreddit: newStory.subreddit
+    }
+  });
+  rdtStory.save();
+  totalChanges++;
+  devLog(totalChanges + ' changes.');
+  // devLog('Story new, sending new object');
+  emitData('rdt', [rdtStory.toObject()]); //TODO not array, update client side to accept single object
+  // cb(rdtStory.toObject());
+}
+
+function update(existingStory, newStory) {
+  var hasChanged = false;
+  // var newOrChangedStory = false;
+  // var historyArray = doc.history || [];
+  // var historyItem = {
+  //   dateTime: new Date(),
+  //   commentCount: doc.commentCount,
+  //   score: doc.score
+  // };
+
+  //TODO, turning off history for now (15 sep 2014) cos it's murdering my free disk space
+  // historyArray.push(historyItem);
+
+  //TODO maybe only log changes of more than 10% or so? Reduces the writes heaps, right?
+  //So change from 3,012 to 3,104 gets igorned
+  var commentDiff = Math.abs(existingStory.commentCount - newStory.num_comments) / existingStory.commentCount;
+  var scoreDiff = Math.abs(existingStory.score - newStory.score) / existingStory.score;
+
+  if (commentDiff > 0.1) {
+    devLog('Story comment count change: ' + existingStory.commentCount + ' >> ' + newStory.num_comments);
+    existingStory.commentCount = newStory.num_comments;
+    hasChanged = true;
+  }
+  if (scoreDiff > 0.1) {
+    devLog('Story score change: ' + existingStory.score + ' >> ' + newStory.score);
+    existingStory.score = newStory.score;
+    hasChanged = true;
+  }
+  if (hasChanged) {
+    // existingStory.history = historyArray;
+    totalChanges++;
+    devLog(totalChanges + ' changes.');
+    existingStory.save();
+    emitData('rdt', [existingStory.toObject()]); //TODO not array, update client side to accept single object
+  }
+  // if (newOrChangedStory) {
+  //   // devLog('Story changed, sending updated object');
+  //   // cb(existingStory.toObject());
+  // } else {
+  //   // cb(null);
+  // }
+
+
+}
+
+exports.upsertRdtStory = function(obj) {
   obj = obj.data;
+  var id = 'rdt-' + obj.name;
 
   Story.findOne({id: id}, function(err, doc) {
     if (doc) {
-      // var historyArray = doc.history || [];
-      // var historyItem = {
-      //   dateTime: new Date(),
-      //   commentCount: doc.commentCount,
-      //   score: doc.score
-      // };
-
-      //TODO, turning off history for now (15 sep 2014) cos it's murdering my free disk space
-      // historyArray.push(historyItem);
-
-      if (doc.commentCount !== obj.num_comments || doc.score !== obj.score) {
-        newOrChangedStory = true;
-      }
-      doc.commentCount = obj.num_comments;
-      doc.score = obj.score;
-      // doc.history = historyArray;
-      doc.save();
-      if (newOrChangedStory) {
-        // devLog('Story changed, sending updated object');
-        emitData('rdt', [doc.toObject()]); //TODO not array, update client side to accept single object
-        // cb(doc.toObject());
-      } else {
-        // cb(null);
-      }
-
+      update(doc, obj);
     } else {
-      rdtStory = new Story({
-        id: id,
-        source: 'rdt',
-        sourceId: obj.name,
-        name: obj.title,
-        desc: null,
-        postDate: obj.created_utc * 1000,
-        postDateSeconds: obj.created_utc,
-        url: obj.url,
-        commentCount: obj.num_comments,
-        score: obj.score,
-        author: obj.author,
-        thumbnail: obj.thumbnail,
-        rdt: {
-          kind: kind,
-          domain: obj.domain,
-          shortId: obj.id,
-          fullId: obj.name,
-          permalink: obj.permalink,
-          self: obj.is_self,
-          selftext: obj.selftext,
-          subreddit: obj.subreddit
-        }
-      });
-      rdtStory.save();
-      // devLog('Story new, sending new object');
-      emitData('rdt', [rdtStory.toObject()]); //TODO not array, update client side to accept single object
-      // cb(rdtStory.toObject());
+      saveNew(obj);
     }
   });
 };
+
+
 
 exports.upsertHxnStory = function(obj, cb) {
   var id = 'hxn-' + obj.objectID;
