@@ -38,33 +38,33 @@ exports.getStories = function(req, res) {
     });
   };
 
-exports.getRecentStoriesByCount = function(source, limit, minScore, cb) {
-  // console.log(new Date(), 'getRecentStoriesByCount() sending query to database with limit', limit);
-  // var startTime = new Date().getTime();
-  // console.log('Query:');
-  // console.log(' >> Story.find({source: "' + source + '", score: {$gte: ' + minScore + '}}, {history: false})');
-  // console.log(' >> .sort({postDate: -1})');
-  // console.log(' >> .limit(' + limit + ')');
-  // console.log(' >> .hint({source: 1, postDate: 1, score: 1})');
+// exports.getRecentStoriesByCount = function(source, limit, minScore, cb) {
+//   // console.log(new Date(), 'getRecentStoriesByCount() sending query to database with limit', limit);
+//   // var startTime = new Date().getTime();
+//   // console.log('Query:');
+//   // console.log(' >> Story.find({source: "' + source + '", score: {$gte: ' + minScore + '}}, {history: false})');
+//   // console.log(' >> .sort({postDate: -1})');
+//   // console.log(' >> .limit(' + limit + ')');
+//   // console.log(' >> .hint({source: 1, postDate: 1, score: 1})');
 
-  minScore = minScore || 1;
-  Story
-    .find({source: source, score: {$gte: minScore}}, {history: false})
-    .sort({postDate: -1})
-    .limit(limit)
-    .hint({source: 1, postDate: 1, score: 1}) //use this index
-    .lean()
-    .exec(function(err, docs) {
-      // console.log('Query returned ' + docs.length + ' items in ' + (new Date().getTime() - startTime) + 'ms');
-      cb(docs);
-    });
-};
+//   minScore = minScore || 1;
+//   Story
+//     .find({source: source, score: {$gte: minScore}}, {history: false})
+//     .sort({postDate: -1})
+//     .limit(limit)
+//     .hint({source: 1, postDate: 1, score: 1}) //use this index
+//     .lean()
+//     .exec(function(err, docs) {
+//       // console.log('Query returned ' + docs.length + ' items in ' + (new Date().getTime() - startTime) + 'ms');
+//       cb(docs);
+//     });
+// };
 
 var rdtStory, hxnStory; //out here to test preventing memory leak
 var totalChanges = 0;
 
 function saveNew(newStory) {
-  devLog('Saving new story:', newStory.title);
+  // devLog('Saving new story:', newStory.title);
 
   var category;
   if (newStory.subreddit) {
@@ -102,7 +102,7 @@ function saveNew(newStory) {
   });
   rdtStory.save();
   totalChanges++;
-  devLog(totalChanges + ' changes.');
+  // devLog(totalChanges + ' changes.');
   // devLog('Story new, sending new object');
   emitData('rdt', [rdtStory.toObject()]); //TODO not array, update client side to accept single object
   // cb(rdtStory.toObject());
@@ -130,19 +130,19 @@ function update(existingStory, newStory) {
   var scoreDiffPer = scoreDiff / existingStory.score;
 
   if (commentDiff > 3 && commentDiffPer > 0.1) {
-    devLog('Story comment count change: ' + existingStory.commentCount + ' >> ' + newStory.num_comments);
+    // devLog('Story comment count change: ' + existingStory.commentCount + ' >> ' + newStory.num_comments);
     existingStory.commentCount = newStory.num_comments;
     hasChanged = true;
   }
   if (scoreDiff > 3 && scoreDiffPer > 0.1) {
-    devLog('Story score change: ' + existingStory.score + ' >> ' + newStory.score);
+    // devLog('Story score change: ' + existingStory.score + ' >> ' + newStory.score);
     existingStory.score = newStory.score;
     hasChanged = true;
   }
   if (hasChanged) {
     // existingStory.history = historyArray;
     totalChanges++;
-    devLog(totalChanges + ' changes.');
+    // devLog(totalChanges + ' changes.');
     existingStory.save();
     emitData('rdt', [existingStory.toObject()]); //TODO not array, update client side to accept single object
   }

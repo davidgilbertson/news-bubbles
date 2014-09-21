@@ -250,7 +250,7 @@ NB.Data = (function() {
         existing.score = d.score;
       } else {
         if (d.postDate > NB.oldestStory && d.score > minScore) { //I don't want to add stories that are older than what's on the chart
-          console.log('Adding a story:', d.name);
+//           console.log('Adding a story:', d.name);
           Data.stories.push(d);
         }
       }
