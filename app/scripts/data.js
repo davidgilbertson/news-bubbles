@@ -98,7 +98,7 @@ NB.Data = (function() {
     socket = io(); //TODO only get the server to send data for reddit or hxn?
 
     socket.on('data', function(msg) {
-//       console.log('socket.on(\'data\')', msg);
+      console.log('socket.on(\'data\')', msg);
       if (!Data.stories.length) { return; } //TODO need to remove this if I want to use IO even for the first fetch.
 
       var src = NB.Settings.getSetting('source');

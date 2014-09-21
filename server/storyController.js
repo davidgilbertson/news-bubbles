@@ -65,20 +65,15 @@ var totalChanges = 0;
 
 function saveNew(newStory) {
   devLog('Saving new story:', newStory.title);
-  var kind = newStory.kind;
 
-  // var tags, category;
+  var category;
+  if (newStory.subreddit) {
+    category = newStory.subreddit;
+  } else {
+    category = newStory.domain;
+  }
 
-  //   category = '';
-  //   if (!this.rdt) { return; }
-  //   if (this.rdt.subreddit) {
-  //     category = this.rdt.subreddit;
-  //   } else {
-  //     category = this.rdt.domain;
-  //   }
-
-  // this.category = category.replace('i.imgur.com', 'imgur.com').replace(/^self\./, '');
-
+  category = category.replace('i.imgur.com', 'imgur.com').replace(/^self\./, '');
 
   rdtStory = new Story({
     id: 'rdt-' + newStory.name,
@@ -89,12 +84,13 @@ function saveNew(newStory) {
     postDate: newStory.created_utc * 1000,
     postDateSeconds: newStory.created_utc,
     url: newStory.url,
+    category: category,
     commentCount: newStory.num_comments,
     score: newStory.score,
     author: newStory.author,
     thumbnail: newStory.thumbnail,
     rdt: {
-      kind: kind,
+      kind: newStory.kind,
       domain: newStory.domain,
       shortId: newStory.id,
       fullId: newStory.name,
@@ -127,15 +123,18 @@ function update(existingStory, newStory) {
 
   //TODO maybe only log changes of more than 10% or so? Reduces the writes heaps, right?
   //So change from 3,012 to 3,104 gets igorned
-  var commentDiff = Math.abs(existingStory.commentCount - newStory.num_comments) / existingStory.commentCount;
-  var scoreDiff = Math.abs(existingStory.score - newStory.score) / existingStory.score;
+  var commentDiff = Math.abs(existingStory.commentCount - newStory.num_comments);
+  var commentDiffPer = commentDiff / existingStory.commentCount;
 
-  if (commentDiff > 0.1) {
+  var scoreDiff = Math.abs(existingStory.score - newStory.score);
+  var scoreDiffPer = scoreDiff / existingStory.score;
+
+  if (commentDiff > 3 && commentDiffPer > 0.1) {
     devLog('Story comment count change: ' + existingStory.commentCount + ' >> ' + newStory.num_comments);
     existingStory.commentCount = newStory.num_comments;
     hasChanged = true;
   }
-  if (scoreDiff > 0.1) {
+  if (scoreDiff > 3 && scoreDiffPer > 0.1) {
     devLog('Story score change: ' + existingStory.score + ' >> ' + newStory.score);
     existingStory.score = newStory.score;
     hasChanged = true;
@@ -176,6 +175,7 @@ exports.upsertHxnStory = function(obj, cb) {
   var id = 'hxn-' + obj.objectID;
   var newOrChangedStory = false;
 
+
   //TODO add a new method of Story called 'upsertAndMerge'
   //TODO maybe a different method for HN and reddit, maybe shared?
   Story.findOne({id: id}, function(err, doc) {
@@ -206,6 +206,16 @@ exports.upsertHxnStory = function(obj, cb) {
       // console.log('Updated the existing story:', doc.name);
 
     } else {
+      var category = 'Hacker News story'; //TODO I'd rather get the domain from the URL here.
+      if (obj._tags && obj._tags.length) {
+        var tags = obj._tags;
+        if (tags.indexOf('ask_hn') > -1) {
+          category = 'Ask HN';
+        } else if (tags.indexOf('show_hn') > -1) {
+          category = 'Show HN';
+        }
+      }
+
       hxnStory = new Story({
         id: id,
         source: 'hxn',
@@ -215,6 +225,7 @@ exports.upsertHxnStory = function(obj, cb) {
         postDate: obj.created_at,
         postDateSeconds: obj.created_at_i,
         url: obj.url,
+        category: category,
         commentCount: obj.num_comments,
         score: obj.points,
         author: obj.author,
