@@ -7,7 +7,7 @@ var path = require('path')
   , request = require('request')
   , io
   , storyController = require(path.join(__dirname, 'storyController'))
-  , utils = require(path.join(__dirname, 'utils')).devLog
+  , utils = require(path.join(__dirname, 'utils'))
   , devLog = utils.devLog
   , prodLog = utils.prodLog
   , HITS_PER_PAGE_LIMIT = 1000
