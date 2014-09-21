@@ -43,8 +43,8 @@ function goGet(url, cb) {
 
 //TODO this probably belongs in controllers, but don't want callback soup or passing io around everywhere right now
 function saveStories(data, suppressResults) {
-  devLog('  --  Saving', data.length, 'HXN stories  --');
   try {
+    devLog('  --  Saving', data.hits.length, 'HXN stories  --');
     if (!data) { return; }
     var stories = data.hits;
     var newOrUpdatedStories = [];
@@ -64,7 +64,7 @@ function saveStories(data, suppressResults) {
       });
     });
   } catch (err) {
-    // devLog('Error saving HXN stories:', err);
+    devLog('Error saving HXN stories:', err);
   }
 }
 
@@ -105,8 +105,8 @@ exports.startCrawler = function(globalIo) {
     goGet(url, function(data) {
       saveStories(data);
     });
-  }, every10Secs); //TODO this should not be uncommented in prod
-  // }, every1Min);
+  // }, every10Secs); //TODO this should not be uncommented in prod
+  }, every1Min);
 
   //Get stories from 30 mins to 2 hours
   setTimeout(function() {

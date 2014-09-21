@@ -9,32 +9,45 @@ var path = require('path')
   , prodLog = utils.prodLog
   ;
 
-// function emitData(data) {
-//   io.emit('data', data);
-// }
+function emitData(data) {
+  process.nextTick(function() {
+    io.emit('data', data);
+  });
+}
+
+function upsert(story) {
+  process.nextTick(function() {
+
+    storyController.upsertRdtStory(story, function(newOrUpdatedStory) {
+      if (newOrUpdatedStory) {
+        emitData({source: 'rdt', data: [newOrUpdatedStory]}); //TODO not array, update client side
+      }
+    });
+
+  });
+  // var newOrUpdatedStories = [];
+  // var savedStories = 0;
+  // storyController.upsertRdtStory(story, function(newOrUpdatedStory) {
+  //   if (newOrUpdatedStory) {
+  //     // newOrUpdatedStories.push(newOrUpdatedStory);
+  //     emitData({source: 'rdt', data: [newOrUpdatedStory]}); //TODO not array, update client side
+  //   }
+  //   // savedStories++;
+  //   // if (savedStories === data.length) {
+  //   //   savedStories = 0;
+  //   //   if (newOrUpdatedStories.length && !suppressResults) {
+  //   //     emitData({source: 'rdt', data: newOrUpdatedStories});
+  //   //   }
+  //   // }
+  // });
+}
 
 //TODO this probably belongs in controllers, but don't want callback soup or passing io around everywhere right now
 function saveStories(data, suppressResults) {
   devLog('  --  Saving', data.length, 'RDT stories  --');
 
-  var newOrUpdatedStories = [];
-  var savedStories = 0;
-  data.forEach(function(d) {
-    storyController.upsertRdtStory(d, function(newOrUpdatedStory) {
-      if (newOrUpdatedStory) {
-        newOrUpdatedStories.push(newOrUpdatedStory);
-      }
-      savedStories++;
-      if (savedStories === data.length) {
-        savedStories = 0;
-        if (newOrUpdatedStories.length && !suppressResults) {
-          process.nextTick(function() {
-            io.emit('data', {source: 'rdt', data: newOrUpdatedStories});
-          });
-
-        }
-      }
-    });
+  data.forEach(function(story) {
+    upsert(story);
   });
 }
 
