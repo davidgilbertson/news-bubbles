@@ -13,7 +13,7 @@ var path = require('path')
 
 //TODO this probably belongs in controllers, but don't want callback soup or passing io around everywhere right now
 function saveStories(data, suppressResults) {
-  // devLog('  --  Saving', data.length, 'RDT stories  --');
+  prodLog('  --  Saving', data.length, 'RDT stories  --');
 
   var newOrUpdatedStories = [];
   var savedStories = 0;
@@ -26,7 +26,7 @@ function saveStories(data, suppressResults) {
       if (savedStories === data.length) {
         savedStories = 0;
         if (newOrUpdatedStories.length && !suppressResults) {
-          io.emit('data', {source: 'rdt', data: newOrUpdatedStories});
+          process.nextTick(io.emit('data', {source: 'rdt', data: newOrUpdatedStories}));
         }
       }
     });
