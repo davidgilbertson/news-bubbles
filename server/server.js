@@ -48,7 +48,7 @@ exports.start = function(app) {
 
   setInterval(function() {
     process.nextTick(printMemStats);
-  }, 5000);
+  }, 10000);
 
   //Create a socket.io instance and send it to crawlers
   //The crawlers will io.emit() the data when they fetch something new

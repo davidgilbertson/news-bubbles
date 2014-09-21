@@ -7,6 +7,7 @@ var path = require('path')
   , utils = require(path.join(__dirname, 'utils'))
   , devLog = utils.devLog
   , prodLog = utils.prodLog
+  , getInProgress = false
   ;
 
 function emitData(data) {
@@ -53,6 +54,7 @@ function saveStories(data, suppressResults) {
 
 
 function goGet(url, cb) {
+
   var options = {
     url: url,
     json: true,
@@ -181,7 +183,7 @@ function startCrawler() {
 
     goGet(url, function(response) {
       devLog(looper.name + ' - got');
-      looper.inProgress = false;
+      getInProgress = false;
       try {
         if (response.data) { //this should save the try, but who knows.
           saveStories(response.data.children);
@@ -198,11 +200,11 @@ function startCrawler() {
 
   function startLooper(looper) {
     setInterval(function() {
-      if (looper.inProgress) {
-        devLog('previous loop still in progress, skipping this');
+      if (getInProgress) {
+        prodLog('There is a get already in progress, skipping this loop');
         return;
       } //I think overlapping might be causing problems
-      looper.inProgress = true;
+      getInProgress = true;
       if (looper.count > looper.loops) {
         looper.count = 0;
         looper.lastKnownAfter = undefined;
