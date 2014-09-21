@@ -38,17 +38,17 @@ var db = mongoose.connection;
 exports.start = function(app) {
   console.log('Server Starting');
 
-  function printMemStats() {
-    var usage = process.memoryUsage();
-    var rss = Math.round(+usage.rss / (1024 * 1024)) + 'mb';
-    var heapTotal = Math.round(+usage.heapTotal / (1024 * 1024)) + 'mb';
-    var heapUsed = Math.round(+usage.heapUsed / (1024 * 1024)) + 'mb';
-    prodLog('  --  Memory usage  --  |  rss:', rss, ' Heap Total:', heapTotal, ' Heap Used:', heapUsed);
-  }
+  // function printMemStats() {
+  //   var usage = process.memoryUsage();
+  //   var rss = Math.round(+usage.rss / (1024 * 1024)) + 'mb';
+  //   var heapTotal = Math.round(+usage.heapTotal / (1024 * 1024)) + 'mb';
+  //   var heapUsed = Math.round(+usage.heapUsed / (1024 * 1024)) + 'mb';
+  //   prodLog('  --  Memory usage  --  |  rss:', rss, ' Heap Total:', heapTotal, ' Heap Used:', heapUsed);
+  // }
 
-  setInterval(function() {
-    process.nextTick(printMemStats);
-  }, 10000);
+  // setInterval(function() {
+  //   process.nextTick(printMemStats);
+  // }, 10000);
 
   //Create a socket.io instance and send it to crawlers
   //The crawlers will io.emit() the data when they fetch something new
