@@ -2,7 +2,7 @@
 
 var path = require('path')
   , request = require('request')
-  , io
+  // , io
   , storyController = require(path.join(__dirname, 'storyController'))
   , utils = require(path.join(__dirname, 'utils'))
   , devLog = utils.devLog
@@ -12,18 +12,19 @@ var path = require('path')
 
 function emitData(data) {
   process.nextTick(function() {
-    io.emit('data', data);
+    global.io.emit('data', [data]); //TODO not array, update client side to accept single object
   });
 }
 
 function upsert(story) {
   process.nextTick(function() {
 
-    storyController.upsertRdtStory(story, function(newOrUpdatedStory) {
-      if (newOrUpdatedStory) {
-        emitData({source: 'rdt', data: [newOrUpdatedStory]}); //TODO not array, update client side
-      }
-    });
+    // storyController.upsertRdtStory(story, function(newOrUpdatedStory) {
+    //   if (newOrUpdatedStory) {
+    //     emitData({source: 'rdt', data: newOrUpdatedStory});
+    //   }
+    // });
+    storyController.upsertRdtStory(story);
 
   });
   // var newOrUpdatedStories = [];
@@ -44,7 +45,7 @@ function upsert(story) {
 }
 
 //TODO this probably belongs in controllers, but don't want callback soup or passing io around everywhere right now
-function saveStories(data, suppressResults) {
+function saveStories(data) {
   // devLog('  --  Saving', data.length, 'RDT stories  --');
 
   data.forEach(function(story) {
@@ -85,7 +86,7 @@ function startCrawler() {
       name: 'Looper 1',
       list: 'new',
       count: 0,
-      interval: 11000,
+      interval: 3000,
       loops: 15,
       lastKnownAfter: undefined
     },
@@ -222,7 +223,7 @@ function startCrawler() {
 
 
 exports.startCrawler = function(globalIo) {
-  io = globalIo;
+  // io = globalIo;
   startCrawler();
 };
 

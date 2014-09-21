@@ -55,6 +55,8 @@ exports.start = function(app) {
   var http = require('http').Server(app);
   var io = require('socket.io')(http); //TODO put io in global?
 
+  global.io = io;
+
   require(path.join(__dirname, 'routes.js'))(app);
 
   db.on('open', function() {

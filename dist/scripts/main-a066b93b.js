@@ -250,6 +250,7 @@ NB.Data = (function() {
         existing.score = d.score;
       } else {
         if (d.postDate > NB.oldestStory && d.score > minScore) { //I don't want to add stories that are older than what's on the chart
+          console.log('Adding a story:', d.name);
           Data.stories.push(d);
         }
       }
@@ -315,10 +316,12 @@ NB.Data = (function() {
     socket = io(); //TODO only get the server to send data for reddit or hxn?
 
     socket.on('data', function(msg) {
-      if (!Data.stories.length) { return; }
+//       console.log('socket.on(\'data\')', msg);
+      if (!Data.stories.length) { return; } //TODO need to remove this if I want to use IO even for the first fetch.
 
       var src = NB.Settings.getSetting('source');
       if (msg.data.length && msg.source === src) { //e.g. if it's the reddit view and the data is reddit data
+//         console.log('got', msg.data.length, 'stories from IO');
         mergeStories(parseSocketIoData(msg.data));
         NB.Chart.drawStories();
       }

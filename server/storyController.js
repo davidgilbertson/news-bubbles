@@ -2,8 +2,41 @@
 var path = require('path')
   , models = require(path.join(__dirname, 'models'))
   , Story = models.Story
+  , utils = require(path.join(__dirname, 'utils'))
+  , devLog = utils.devLog
+  , prodLog = utils.prodLog
 ;
 
+function emitData(src, data) {
+  process.nextTick(function() {
+    global.io.emit('data', {source: src, data: data});
+  });
+}
+
+exports.getStories = function(req, res) {
+
+  var source = req.params.source
+    , limit = req.params.limit
+    , minScore = req.params.minScore || 0
+  ;
+
+  Story
+    .find({source: source, score: {$gte: minScore}}, {history: false})
+    .sort({postDate: -1})
+    .limit(limit)
+    .hint({source: 1, postDate: 1, score: 1}) //use this index
+    .lean()
+    .exec(function(err, docs) {
+      if (err) {
+        devLog('Error finding stories:', err);
+        return;
+      }
+      devLog('Query returned ' + docs.length + ' iems');
+      res.json(docs); //TODO this could be io.emit(). faster? Weirder?
+      // res.json({msg: 'sent response via io'}); //TODO this could be io.emit(). faster? Weirder?
+      // emitData(docs);
+    });
+  };
 
 exports.getRecentStoriesByCount = function(source, limit, minScore, cb) {
   // console.log(new Date(), 'getRecentStoriesByCount() sending query to database with limit', limit);
@@ -56,9 +89,11 @@ exports.upsertRdtStory = function(obj, cb) {
       // doc.history = historyArray;
       doc.save();
       if (newOrChangedStory) {
-        cb(doc.toObject());
+        // devLog('Story changed, sending updated object');
+        emitData('rdt', [doc.toObject()]); //TODO not array, update client side to accept single object
+        // cb(doc.toObject());
       } else {
-        cb(null);
+        // cb(null);
       }
 
     } else {
@@ -87,7 +122,9 @@ exports.upsertRdtStory = function(obj, cb) {
         }
       });
       rdtStory.save();
-      cb(rdtStory.toObject());
+      // devLog('Story new, sending new object');
+      emitData('rdt', [rdtStory.toObject()]); //TODO not array, update client side to accept single object
+      // cb(rdtStory.toObject());
     }
   });
 };

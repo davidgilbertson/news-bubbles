@@ -14,11 +14,13 @@ module.exports = function(app) {
     });
   });
 
-  app.get('/api/:source/:limit/:minScore', function(req, res) {
-    storyController.getRecentStoriesByCount(req.params.source, req.params.limit, req.params.minScore, function(data) {
-      res.json(data);
-    });
-  });
+  app.get('/api/:source/:limit/:minScore', storyController.getStories);
+
+  // app.get('/api/:source/:limit/:minScore', function(req, res) {
+  //   storyController.getRecentStoriesByCount(req.params.source, req.params.limit, req.params.minScore, function(data) {
+  //     res.json(data);
+  //   });
+  // });
 
   app.get('/crawlers/forceHxnFetch', function(req, res) {
     hxnCrawler.forceFetch();
