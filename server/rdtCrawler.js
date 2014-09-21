@@ -86,7 +86,7 @@ function startCrawler() {
       name: 'Looper 1',
       list: 'new',
       count: 0,
-      interval: 3000,
+      interval: 11000,
       loops: 15,
       lastKnownAfter: undefined
     },
