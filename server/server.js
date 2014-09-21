@@ -18,8 +18,6 @@ if (process.env.DEV) {
   }
 }
 
-
-
 var path = require('path')
   , port = process.env.PORT || 9000
   // , conn = process.env.MONGOHQ_URL || 'mongodb://localhost/news_bubbles'
@@ -56,11 +54,9 @@ exports.start = function(app) {
 
   require(path.join(__dirname, 'routes.js'))(app);
 
-
-
   db.on('open', function() {
     console.log('Database connection opened.');
-    // hxnCrawler.startCrawler(io);
+    hxnCrawler.startCrawler(io);
     // rdtCrawler.startCrawler(io);
     http.listen(port);
 

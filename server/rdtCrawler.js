@@ -4,7 +4,9 @@ var path = require('path')
   , request = require('request')
   , io
   , storyController = require(path.join(__dirname, 'storyController'))
-  , devLog = require(path.join(__dirname, 'utils')).devLog
+  , utils = require(path.join(__dirname, 'utils')).devLog
+  , devLog = utils.devLog
+  , prodLog = utils.prodLog
   ;
 
 

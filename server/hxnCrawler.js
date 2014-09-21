@@ -7,7 +7,9 @@ var path = require('path')
   , request = require('request')
   , io
   , storyController = require(path.join(__dirname, 'storyController'))
-  , devLog = require(path.join(__dirname, 'utils')).devLog
+  , utils = require(path.join(__dirname, 'utils')).devLog
+  , devLog = utils.devLog
+  , prodLog = utils.prodLog
   , HITS_PER_PAGE_LIMIT = 1000
   , MIN_POINTS = 0
 
@@ -61,7 +63,7 @@ function saveStories(data, suppressResults) {
       });
     });
   } catch (err) {
-    // console.log('Error saving HXN stories:', err);
+    // devLog('Error saving HXN stories:', err);
   }
 }
 
@@ -91,7 +93,7 @@ exports.forceFetch = function() {
 
 exports.startCrawler = function(globalIo) {
   io = globalIo;
-  console.log('Starting Hacker News crawler');
+  prodLog('Starting Hacker News crawler');
   // io.emit('data update', {data: 'yes, there will totally be data here'});
 
   //Get stories from last 30 mins
@@ -102,8 +104,8 @@ exports.startCrawler = function(globalIo) {
     goGet(url, function(data) {
       saveStories(data);
     });
+  }, every10Secs); //TODO this should not be uncommented in prod
   // }, every1Min);
-  }, every1Min);
 
   //Get stories from 30 mins to 2 hours
   setTimeout(function() {
@@ -239,7 +241,7 @@ exports.startCrawler = function(globalIo) {
 
 // //TODO this probably belongs in controllers, but don't want callback soup or passing io around everywhere right now
 // function saveRedditStories(data, suppressResults) {
-//   // console.log('  --  Saving', data.length, 'stories  --');
+//   // devLog('  --  Saving', data.length, 'stories  --');
 //   var newOrUpdatedStories = [];
 //   var savedStories = 0;
 //   data.forEach(function(d) {
@@ -300,7 +302,7 @@ exports.startCrawler = function(globalIo) {
 //         saveRedditStories(response.data.children);
 //         lastKnownAfter = response.data.after;
 //       } catch (err) {
-//         console.log('Error in reddit crawler:', err);
+//         devLog('Error in reddit crawler:', err);
 //         count = 0;
 //         lastKnownAfter = undefined;
 //       }
@@ -332,7 +334,7 @@ exports.startCrawler = function(globalIo) {
 //     url = buildRedditUrl({after: lastKnownAfter, list: list});
 //     // devLog('Getting data with the URL:', url);
 
-//     console.log('tick', count);
+//     devLog('tick', count);
 //     goGetReddit(url, function(response) {
 //       if (response.data && response.data.children) {
 //         saveRedditStories(response.data.children);
@@ -344,7 +346,7 @@ exports.startCrawler = function(globalIo) {
 
 //   var interval = setInterval(function() {
 //     if (count >= loops) {
-//       console.log('done');
+//       devLog('done');
 //       clearInterval(interval);
 //     } else {
 //       count++;
