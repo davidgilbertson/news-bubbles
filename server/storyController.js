@@ -129,12 +129,12 @@ function update(existingStory, newStory) {
   var scoreDiff = Math.abs(existingStory.score - newStory.score);
   var scoreDiffPer = scoreDiff / existingStory.score;
 
-  if (commentDiff > 3 && commentDiffPer > 0.1) {
+  if (commentDiff > 4 && commentDiffPer > 0.1) {
     // devLog('Story comment count change: ' + existingStory.commentCount + ' >> ' + newStory.num_comments);
     existingStory.commentCount = newStory.num_comments;
     hasChanged = true;
   }
-  if (scoreDiff > 3 && scoreDiffPer > 0.1) {
+  if (scoreDiff > 4 && scoreDiffPer > 0.1) {
     // devLog('Story score change: ' + existingStory.score + ' >> ' + newStory.score);
     existingStory.score = newStory.score;
     hasChanged = true;

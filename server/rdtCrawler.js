@@ -86,7 +86,7 @@ function startCrawler() {
       name: 'Looper 1',
       list: 'new',
       count: 0,
-      interval: 23000,
+      interval: 31000,
       loops: 15,
       lastKnownAfter: undefined
     },
@@ -94,7 +94,7 @@ function startCrawler() {
       name: 'Looper 2',
       list: 'new',
       count: 0,
-      interval: 31000,
+      interval: 61000,
       loops: 30,
       lastKnownAfter: undefined
     },
@@ -102,7 +102,7 @@ function startCrawler() {
       name: 'Looper 3',
       list: 'new',
       count: 0,
-      interval: 61000,
+      interval: 127000,
       loops: 60,
       lastKnownAfter: undefined
     },
@@ -110,18 +110,18 @@ function startCrawler() {
       name: 'Looper 4',
       list: 'new',
       count: 0,
-      interval: 127000,
+      interval: 241000,
       loops: 120,
       lastKnownAfter: undefined
     },
-    {
-      name: 'Looper 5',
-      list: 'new',
-      count: 0,
-      interval: 241000,
-      loops: 240,
-      lastKnownAfter: undefined
-    },
+    // {
+    //   name: 'Looper 5',
+    //   list: 'new',
+    //   count: 0,
+    //   interval: 241000,
+    //   loops: 240,
+    //   lastKnownAfter: undefined
+    // },
 
     //'hot' loopers
     {
@@ -136,7 +136,7 @@ function startCrawler() {
       name: 'Looper 7',
       list: 'hot',
       count: 0,
-      interval: 37000,
+      interval: 59000,
       loops: 30,
       lastKnownAfter: undefined
     },
@@ -144,7 +144,7 @@ function startCrawler() {
       name: 'Looper 8',
       list: 'hot',
       count: 0,
-      interval: 60000,
+      interval: 123000,
       loops: 60,
       lastKnownAfter: undefined
     },
@@ -152,18 +152,18 @@ function startCrawler() {
       name: 'Looper 9',
       list: 'hot',
       count: 0,
-      interval: 120000,
+      interval: 247000,
       loops: 120,
       lastKnownAfter: undefined
     },
-    {
-      name: 'Looper 10',
-      list: 'hot',
-      count: 0,
-      interval: 240000,
-      loops: 240,
-      lastKnownAfter: undefined
-    }
+    // {
+    //   name: 'Looper 10',
+    //   list: 'hot',
+    //   count: 0,
+    //   interval: 240000,
+    //   loops: 240,
+    //   lastKnownAfter: undefined
+    // }
   ];
 
   function fetch(looper) {
