@@ -86,7 +86,7 @@ function startCrawler() {
       name: 'Looper 1',
       list: 'new',
       count: 0,
-      interval: 31000,
+      interval: 13000,
       loops: 15,
       lastKnownAfter: undefined
     },
@@ -94,7 +94,7 @@ function startCrawler() {
       name: 'Looper 2',
       list: 'new',
       count: 0,
-      interval: 61000,
+      interval: 31000,
       loops: 30,
       lastKnownAfter: undefined
     },
@@ -102,7 +102,7 @@ function startCrawler() {
       name: 'Looper 3',
       list: 'new',
       count: 0,
-      interval: 127000,
+      interval: 61000,
       loops: 60,
       lastKnownAfter: undefined
     },
@@ -110,7 +110,7 @@ function startCrawler() {
       name: 'Looper 4',
       list: 'new',
       count: 0,
-      interval: 241000,
+      interval: 127000,
       loops: 120,
       lastKnownAfter: undefined
     },

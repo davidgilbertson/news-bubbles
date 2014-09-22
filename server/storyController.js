@@ -69,9 +69,9 @@ function saveNew(newStory) {
       subreddit: newStory.subreddit
     }
   });
-  process.nextTick(function() {
+  // process.nextTick(function() {
     rdtStory.save();
-  });
+  // });
 
   // totalChanges++;
   // devLog(totalChanges + ' changes.');
@@ -102,9 +102,9 @@ function update(existingStory, newStory) {
     // totalChanges++;
     // devLog(totalChanges + ' changes.');
 
-    process.nextTick(function() {
+    // process.nextTick(function() {
       existingStory.save(); //TODO: batch these up?
-    });
+    // });
     emitQueue.push(existingStory.toObject());
     hasChanged = false;
     // emitData('rdt', [existingStory.toObject()]); //TODO not array, update client side to accept single object
