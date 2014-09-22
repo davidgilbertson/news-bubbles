@@ -41,7 +41,7 @@ NB.Data = (function() {
 
   //parse story data
   function parseSocketIoData(data) {
-    console.log('parsing', data.length, 'new items');
+//     console.log('parsing', data.length, 'new items', data);
     data.forEach(function(d) {
 //       var jsDate = new Date(d.postDate);
       d.postDate = new Date(d.postDate);

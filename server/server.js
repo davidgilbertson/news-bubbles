@@ -43,7 +43,7 @@ exports.start = function(app) {
     var rss = Math.round(+usage.rss / (1024 * 1024)) + 'mb';
     var heapTotal = Math.round(+usage.heapTotal / (1024 * 1024)) + 'mb';
     var heapUsed = Math.round(+usage.heapUsed / (1024 * 1024)) + 'mb';
-    prodLog('  --  Memory usage  --  |  rss:', rss, ' Heap Total:', heapTotal, ' Heap Used:', heapUsed);
+    devLog('  --  Memory usage  --  |  rss:', rss, ' Heap Total:', heapTotal, ' Heap Used:', heapUsed);
   }
 
   setInterval(function() {
