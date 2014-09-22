@@ -44,7 +44,7 @@ function goGet(url, cb) {
 //TODO this probably belongs in controllers, but don't want callback soup or passing io around everywhere right now
 function saveStories(data, suppressResults) {
   try {
-    devLog('  --  Saving', data.hits.length, 'HXN stories  --');
+    // devLog('  --  Saving', data.hits.length, 'HXN stories  --');
     if (!data) { return; }
     var stories = data.hits;
     var newOrUpdatedStories = [];

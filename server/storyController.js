@@ -5,7 +5,12 @@ var path = require('path')
   , utils = require(path.join(__dirname, 'utils'))
   , devLog = utils.devLog
   , prodLog = utils.prodLog
+  , emitQueue = []
 ;
+var rdtStory, hxnStory; //out here to test preventing memory leak
+var totalChanges = 0;
+
+
 
 function emitData(src, data) {
   process.nextTick(function() {
@@ -13,55 +18,19 @@ function emitData(src, data) {
   });
 }
 
-exports.getStories = function(req, res) {
-
-  var source = req.params.source
-    , limit = req.params.limit
-    , minScore = req.params.minScore || 0
-  ;
-
-  Story
-    .find({source: source, score: {$gte: minScore}}, {history: false})
-    .sort({postDate: -1})
-    .limit(limit)
-    .hint({source: 1, postDate: 1, score: 1}) //use this index
-    .lean()
-    .exec(function(err, docs) {
-      if (err) {
-        devLog('Error finding stories:', err);
-        return;
-      }
-      devLog('Query returned ' + docs.length + ' iems');
-      res.json(docs); //TODO this could be io.emit(). faster? Weirder?
-      // res.json({msg: 'sent response via io'}); //TODO this could be io.emit(). faster? Weirder?
-      // emitData(docs);
+setInterval(function() {
+  if (emitQueue.length) {
+    prodLog('sending', emitQueue.length, ' updated items');
+    process.nextTick(function() {
+      global.io.emit('data', {source: 'rdt', data: emitQueue});
+      emitQueue.length = 0;
+      // totalChanges = 0;
     });
-  };
+    // emitData('rdt', emitQueue);
+  }
+}, 10000);
 
-// exports.getRecentStoriesByCount = function(source, limit, minScore, cb) {
-//   // console.log(new Date(), 'getRecentStoriesByCount() sending query to database with limit', limit);
-//   // var startTime = new Date().getTime();
-//   // console.log('Query:');
-//   // console.log(' >> Story.find({source: "' + source + '", score: {$gte: ' + minScore + '}}, {history: false})');
-//   // console.log(' >> .sort({postDate: -1})');
-//   // console.log(' >> .limit(' + limit + ')');
-//   // console.log(' >> .hint({source: 1, postDate: 1, score: 1})');
 
-//   minScore = minScore || 1;
-//   Story
-//     .find({source: source, score: {$gte: minScore}}, {history: false})
-//     .sort({postDate: -1})
-//     .limit(limit)
-//     .hint({source: 1, postDate: 1, score: 1}) //use this index
-//     .lean()
-//     .exec(function(err, docs) {
-//       // console.log('Query returned ' + docs.length + ' items in ' + (new Date().getTime() - startTime) + 'ms');
-//       cb(docs);
-//     });
-// };
-
-var rdtStory, hxnStory; //out here to test preventing memory leak
-var totalChanges = 0;
 
 function saveNew(newStory) {
   // devLog('Saving new story:', newStory.title);
@@ -100,60 +69,46 @@ function saveNew(newStory) {
       subreddit: newStory.subreddit
     }
   });
-  rdtStory.save();
-  totalChanges++;
+  process.nextTick(function() {
+    rdtStory.save();
+  });
+
+  // totalChanges++;
   // devLog(totalChanges + ' changes.');
   // devLog('Story new, sending new object');
-  emitData('rdt', [rdtStory.toObject()]); //TODO not array, update client side to accept single object
+  emitQueue.push(rdtStory.toObject());
+  // emitData('rdt', [rdtStory.toObject()]); //TODO not array, update client side to accept single object
   // cb(rdtStory.toObject());
 }
 
 function update(existingStory, newStory) {
   var hasChanged = false;
-  // var newOrChangedStory = false;
-  // var historyArray = doc.history || [];
-  // var historyItem = {
-  //   dateTime: new Date(),
-  //   commentCount: doc.commentCount,
-  //   score: doc.score
-  // };
 
-  //TODO, turning off history for now (15 sep 2014) cos it's murdering my free disk space
-  // historyArray.push(historyItem);
-
-  //TODO maybe only log changes of more than 10% or so? Reduces the writes heaps, right?
-  //So change from 3,012 to 3,104 gets igorned
   var commentDiff = Math.abs(existingStory.commentCount - newStory.num_comments);
   var commentDiffPer = commentDiff / existingStory.commentCount;
 
   var scoreDiff = Math.abs(existingStory.score - newStory.score);
   var scoreDiffPer = scoreDiff / existingStory.score;
 
-  if (commentDiff > 2 && commentDiffPer > 0.1) {
-    // devLog('Story comment count change: ' + existingStory.commentCount + ' >> ' + newStory.num_comments);
+  if (commentDiffPer > 0.05) {
     existingStory.commentCount = newStory.num_comments;
     hasChanged = true;
   }
-  if (scoreDiff > 2 && scoreDiffPer > 0.1) {
-    // devLog('Story score change: ' + existingStory.score + ' >> ' + newStory.score);
+  if (scoreDiffPer > 0.05) {
     existingStory.score = newStory.score;
     hasChanged = true;
   }
   if (hasChanged) {
-    // existingStory.history = historyArray;
-    totalChanges++;
+    // totalChanges++;
     // devLog(totalChanges + ' changes.');
-    existingStory.save();
-    emitData('rdt', [existingStory.toObject()]); //TODO not array, update client side to accept single object
+
+    process.nextTick(function() {
+      existingStory.save(); //TODO: batch these up?
+    });
+    emitQueue.push(existingStory.toObject());
+    hasChanged = false;
+    // emitData('rdt', [existingStory.toObject()]); //TODO not array, update client side to accept single object
   }
-  // if (newOrChangedStory) {
-  //   // devLog('Story changed, sending updated object');
-  //   // cb(existingStory.toObject());
-  // } else {
-  //   // cb(null);
-  // }
-
-
 }
 
 exports.upsertRdtStory = function(obj) {
@@ -242,6 +197,34 @@ exports.upsertHxnStory = function(obj, cb) {
   });
 
 };
+
+
+exports.getStories = function(req, res) {
+
+  var source = req.params.source
+    , limit = req.params.limit
+    , minScore = req.params.minScore || 0
+  ;
+
+  Story
+    .find({source: source, score: {$gte: minScore}}, {history: false})
+    .sort({postDate: -1})
+    .limit(limit)
+    .hint({source: 1, postDate: 1, score: 1}) //use this index
+    .lean()
+    .exec(function(err, docs) {
+      if (err) {
+        devLog('Error finding stories:', err);
+        return;
+      }
+      // devLog('Query returned ' + docs.length + ' iems');
+      res.json(docs); //TODO this could be io.emit(). faster? Weirder?
+      // res.json({msg: 'sent response via io'}); //TODO this could be io.emit(). faster? Weirder?
+      // emitData(docs);
+    });
+};
+
+
 
 
 // exports.renameAllIds = function(cb) {
