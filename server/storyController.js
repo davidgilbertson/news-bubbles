@@ -90,11 +90,11 @@ function update(existingStory, newStory) {
   var scoreDiff = Math.abs(existingStory.score - newStory.score);
   var scoreDiffPer = scoreDiff / existingStory.score;
 
-  if (commentDiffPer > 0.05) {
+  if (commentDiffPer > 0.0) {
     existingStory.commentCount = newStory.num_comments;
     hasChanged = true;
   }
-  if (scoreDiffPer > 0.05) {
+  if (scoreDiffPer > 0.0) {
     existingStory.score = newStory.score;
     hasChanged = true;
   }
