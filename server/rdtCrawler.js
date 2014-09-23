@@ -2,7 +2,6 @@
 
 var path = require('path')
   , request = require('request')
-  // , io
   , storyController = require(path.join(__dirname, 'storyController'))
   , utils = require(path.join(__dirname, 'utils'))
   , devLog = utils.devLog
@@ -10,44 +9,16 @@ var path = require('path')
   , getInProgress = false
   ;
 
-// function emitData(data) {
-//   process.nextTick(function() {
-//     global.io.emit('data', [data]); //TODO not array, update client side to accept single object
-//   });
-// }
-
 function upsert(story) {
-  process.nextTick(function() {
-
-    // storyController.upsertRdtStory(story, function(newOrUpdatedStory) {
-    //   if (newOrUpdatedStory) {
-    //     emitData({source: 'rdt', data: newOrUpdatedStory});
-    //   }
-    // });
+  //TODO RITMO: do I need nextTick here? I call it before doing a db write anyway.
+  // process.nextTick(function() {
     storyController.upsertRdtStory(story);
-
-  });
-  // var newOrUpdatedStories = [];
-  // var savedStories = 0;
-  // storyController.upsertRdtStory(story, function(newOrUpdatedStory) {
-  //   if (newOrUpdatedStory) {
-  //     // newOrUpdatedStories.push(newOrUpdatedStory);
-  //     emitData({source: 'rdt', data: [newOrUpdatedStory]}); //TODO not array, update client side
-  //   }
-  //   // savedStories++;
-  //   // if (savedStories === data.length) {
-  //   //   savedStories = 0;
-  //   //   if (newOrUpdatedStories.length && !suppressResults) {
-  //   //     emitData({source: 'rdt', data: newOrUpdatedStories});
-  //   //   }
-  //   // }
   // });
 }
 
 //TODO this probably belongs in controllers, but don't want callback soup or passing io around everywhere right now
 function saveStories(data) {
   // devLog('  --  Saving', data.length, 'RDT stories  --');
-
   data.forEach(function(story) {
     upsert(story);
   });
@@ -55,7 +26,6 @@ function saveStories(data) {
 
 
 function goGet(url, cb) {
-
   var options = {
     url: url,
     json: true,
@@ -203,9 +173,10 @@ function startCrawler() {
         looper.count++;
       }
 
-      process.nextTick(function() {
+      //TODO do I need nextTick here?
+      // process.nextTick(function() {
         fetch(looper);
-      });
+      // });
 
     }, looper.interval);
   }
@@ -213,19 +184,14 @@ function startCrawler() {
   for (var i = 0; i < loopers.length; i++) {
     startLooper(loopers[i]);
   }
-  //replacing loop with a list becuase synchronous inside async? Wild guess.
-  // startLooper(loopers[0]);
-  // startLooper(loopers[1]);
-  // startLooper(loopers[2]);
-  // startLooper(loopers[3]);
-  // startLooper(loopers[4]);
 }
 
 
-exports.startCrawler = function(globalIo) {
-  // io = globalIo;
-  startCrawler();
-};
+// exports.startCrawler = function() {
+//   startCrawler();
+// };
+
+exports.startCrawler = startCrawler;
 
 
 exports.forceFetch = function(limit, list) {
