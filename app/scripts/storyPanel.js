@@ -44,6 +44,11 @@ NB.StoryPanel = (function() {
     function appendComments() {
       NB.Comments.getForRdtStory(story.rdt.shortId, function(commentTree) {
         story.content += '<h3 class="comment-separator">Comments</h3>';
+        story.content += [
+          '<p class="comment-list-title">Head on over to ',
+            '<a href="' + story.sourceUrl + '" target="_blank">Reddit</a> to comment.',
+          '</p>'
+        ].join('');
         story.content += commentTree.html();
         NB.StoryModel.setCurrentStory('panel', story);
       });

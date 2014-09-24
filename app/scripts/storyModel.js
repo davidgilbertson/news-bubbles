@@ -43,6 +43,8 @@ NB.StoryModel = (function() {
     };
   }
 
+  //Code here should normalize data from different sources.
+  //Anything else (like comment URLS) should be done on the server at time of processing.
   StoryModel.setCurrentStory = function(tooltipOrPanel, story) {
     var storyObj = StoryModel[tooltipOrPanel + 'Story'];
     var dateFormatter = d3.time.format('%a, %-e %b %Y');
@@ -57,14 +59,16 @@ NB.StoryModel = (function() {
 
     var color = NB.Settings.getColor(story.source, category);
 
+    
     if (story.source === 'rdt') {
       domain = story.rdt.domain;
-      sourceUrl = 'https://www.reddit.com' + story.rdt.permalink;
-      authorUrl = 'http://www.reddit.com/user/' + story.author;
+      //From 24 sep 2014 the source and author URLs are in the database.
+      sourceUrl = story.sourceUrl || 'https://www.reddit.com' + story.rdt.permalink;
+      authorUrl = story.authorUrl || 'http://www.reddit.com/user/' + story.author;
     }
     if (story.source === 'hxn') {
-      sourceUrl = 'https://news.ycombinator.com/item?id=' + story.sourceId;
-      authorUrl = 'https://news.ycombinator.com/user?id=' + story.author;
+      sourceUrl = story.sourceUrl || 'https://news.ycombinator.com/item?id=' + story.sourceId;
+      authorUrl = story.authorUrl || 'https://news.ycombinator.com/user?id=' + story.author;
       if (!story.url) {
         url = sourceUrl;
       }

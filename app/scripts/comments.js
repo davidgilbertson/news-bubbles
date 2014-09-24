@@ -5,6 +5,15 @@ var NB = NB || {};
 NB.Comments = (function() {
   var Comments = {};
 
+  function parseHtml(str) {
+    var result = $('<textarea>').html(str).text();
+    //yeah I could do (r|u) or something but I'm not going to
+    result = result.replace(/href="(\/r\/.*?)"/g, 'href="http://www.reddit.com$1"');
+    result = result.replace(/href="(\/u\/.*?)"/g, 'href="http://www.reddit.com$1"');
+    result = result.replace(/(<a [^>]*?)(>)/g, '$1 target="_blank"$2');
+    return result;
+  }
+
 
   function parseRdtComments(commentTree, cb) {
     var $result = $('<div>')
@@ -27,9 +36,14 @@ NB.Comments = (function() {
         } else {
           author = commentObj.data.author;
           timeAgo = moment(commentObj.data.created_utc * 1000).fromNow();
-          score = commentObj.data.score + ' points';
+          if (commentObj.data.score_hidden) {
+            score = '[score hidden]';
+          } else {
+            score = commentObj.data.score + ' points';
+          }
 
-          var bodyHtml = $('<textarea>').html(commentObj.data.body_html).text();
+//           var bodyHtml = $('<textarea>').html(commentObj.data.body_html).text();
+          var bodyHtml = parseHtml(commentObj.data.body_html);
           var $commentBody = $('<div class="comment-list-item-text body"></div>');
           $commentBody.append(bodyHtml);
           $child.append($commentBody);
@@ -48,7 +62,7 @@ NB.Comments = (function() {
     }
 
     var story = commentTree[0].data.children[0].data;
-    var selfText = $('<textarea>').html(story.selftext_html).text();
+    var selfText = parseHtml(story.selftext_html);
     if (selfText) {
       $result.append(selfText);
       $result.append('<h3 class="comment-separator">Comments</h3>');
@@ -61,8 +75,6 @@ NB.Comments = (function() {
 
   function parseHxnComments(story, comments, cb) {
     var $result = $('<ul class="comment-list level-1"></ul>');
-    var sourceUrl = 'https://news.ycombinator.com/item?id=' + story.sourceId;
-
 
     if (story.hxn.storyText) {
       $result.append(story.hxn.storyText);
@@ -70,7 +82,7 @@ NB.Comments = (function() {
     }
     var html = [
       '<p class="comment-list-title">Head on over to ',
-        '<a href="' + sourceUrl + '" target="_blank">Hacker News</a> to comment.',
+        '<a href="' + story.sourceUrl + '" target="_blank">Hacker News</a> to comment.',
       '</p>'
     ].join('');
     $result.append(html);

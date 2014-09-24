@@ -5,7 +5,6 @@
 
 var path = require('path')
   , request = require('request')
-  , io
   , storyController = require(path.join(__dirname, 'storyController'))
   , utils = require(path.join(__dirname, 'utils'))
   , devLog = utils.devLog
@@ -51,18 +50,6 @@ function saveStories(data, suppressResults) {
     // var savedStories = 0;
     stories.forEach(function(story) {
       storyController.upsertHxnStory(story, suppressResults);
-      // storyController.upsertHxnStory(d, function(newOrUpdatedStory) {
-      //   if (newOrUpdatedStory) {
-      //     newOrUpdatedStories.push(newOrUpdatedStory);
-      //   }
-      //   savedStories++;
-      //   if (savedStories === data.length) {
-      //     savedStories = 0;
-      //     if (newOrUpdatedStories.length && !suppressResults) {
-      //       io.emit('data', {source: 'hxn', data: newOrUpdatedStories});
-      //     }
-      //   }
-      // });
     });
   } catch (err) {
     devLog('Error saving HXN stories:', err);
@@ -93,8 +80,7 @@ exports.forceFetch = function() {
 };
 
 
-exports.startCrawler = function(globalIo) {
-  io = globalIo;
+exports.startCrawler = function() {
   prodLog('Starting Hacker News crawler');
   // io.emit('data update', {data: 'yes, there will totally be data here'});
 

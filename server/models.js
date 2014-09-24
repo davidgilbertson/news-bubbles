@@ -11,6 +11,8 @@ var storySchema = mongoose.Schema({
   postDate:         Date,
   postDateSeconds:  Number,
   url:              String,
+  sourceUrl:        String,
+  authorUrl:        String,
   category:         String, //e.g. askHN, imgur, askReddit, nytimes.com
   commentCount:     Number,
   score:            Number,
