@@ -81,7 +81,7 @@ exports.forceFetch = function() {
 
 
 exports.startCrawler = function() {
-  prodLog('Starting Hacker News crawler');
+  prodLog('Starting Hacker News crawler!');
   // io.emit('data update', {data: 'yes, there will totally be data here'});
 
   //Get stories from last 30 mins

@@ -54,27 +54,6 @@ gulp.task('html', ['styles', 'scripts'], function () {
     .pipe($.size());
 });
 
-// gulp.task('images', function () {
-//   return gulp.src('app/images/**/*')
-//     .pipe($.cache($.imagemin({
-//       optimizationLevel: 3,
-//       progressive: true,
-//       interlaced: true
-//     })))
-//     .pipe(gulp.dest('dist/images'))
-//     .pipe($.size());
-// });
-
-// gulp.task('fonts', function () {
-//   var mainBowerFiles = require('main-bower-files');
-//   return gulp.src(mainBowerFiles())
-//     .pipe($.filter('**/*.{eot,svg,ttf,woff}'))
-//     .pipe($.flatten())
-//     .pipe(gulp.dest('dist/fonts'))
-//     .pipe($.size());
-// });
-
-
 gulp.task('extras', function () {
   return gulp.src(['app/*.*', '!app/index.html'], { dot: true })
     .pipe(gulp.dest('dist'));
