@@ -28,6 +28,12 @@ var path = require('path')
   , devLog = utils.devLog
   , prodLog = utils.prodLog
   , workers = require(path.join(__dirname, 'workers'))
+  , passport = require('passport')
+  , LocalStrategy = require('passport-local').Strategy
+  , express = require('express')
+  , bodyParser = require('body-parser')
+  , session = require('express-session')
+  , cookieParser = require('cookie-parser')
 ;
 
 
