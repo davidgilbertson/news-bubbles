@@ -1,8 +1,8 @@
 'use strict';
 var path = require('path')
-  , models = require(path.join(__dirname, 'models'))
-  , Story = models.Story
-  , utils = require(path.join(__dirname, 'utils'))
+  , Story = require(path.join(__dirname, '..', 'models', 'Story.model')).Story
+  // , Story = models.Story
+  , utils = require(path.join(__dirname, '..', 'utils'))
   , devLog = utils.devLog
   , prodLog = utils.prodLog
   , rdtEmitQueue = []
@@ -12,14 +12,14 @@ var rdtStory, hxnStory; //out here to test preventing memory leak
 
 setInterval(function() {
   if (rdtEmitQueue.length) {
-    devLog('sending', rdtEmitQueue.length, 'RDT items');
+    // devLog('sending', rdtEmitQueue.length, 'RDT items');
     process.nextTick(function() {
       global.io.emit('data', {source: 'rdt', data: rdtEmitQueue});
       rdtEmitQueue.length = 0;
     });
   }
   if (hxnEmitQueue.length) {
-    devLog('sending', hxnEmitQueue.length, 'HXN items');
+    // devLog('sending', hxnEmitQueue.length, 'HXN items');
     process.nextTick(function() {
       global.io.emit('data', {source: 'hxn', data: hxnEmitQueue});
       hxnEmitQueue.length = 0;

@@ -1,6 +1,6 @@
 'use strict';
 var path = require('path')
-  , models = require(path.join(__dirname, 'models'))
+  , models = require(path.join(__dirname, 'models', 'Story.model'))
   , Story = models.Story
   , utils = require(path.join(__dirname, 'utils'))
   , devLog = utils.devLog

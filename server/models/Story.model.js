@@ -33,37 +33,6 @@ var storySchema = mongoose.Schema({
 
 storySchema.set('autoIndex', false); //redundant since I've removed indexes, but there as a net
 
-// storySchema.pre('save', function(next) {
-//   //TODO, if the category already exists I can skip this. Save it updating on updates, no?
-//   //TOOD this really belongs in the controller as a function getCategory() or something.
-//   var tags, category;
-
-//   if (this.source === 'hxn') {
-//     category = 'Hacker News story';
-//     if (this.hxn && this.hxn.tags && this.hxn.tags.length) {
-//       tags = this.hxn.tags;
-//       if (tags.indexOf('ask_hn') > -1) {
-//         category = 'Ask HN';
-//       } else if (tags.indexOf('show_hn') > -1) {
-//         category = 'Show HN';
-//       }
-//     }
-//   }
-
-//   // if (this.source === 'rdt') {
-//   //   category = '';
-//   //   if (!this.rdt) { return; }
-//   //   if (this.rdt.subreddit) {
-//   //     category = this.rdt.subreddit;
-//   //   } else {
-//   //     category = this.rdt.domain;
-//   //   }
-//   // }
-
-//   this.category = category.replace('i.imgur.com', 'imgur.com').replace(/^self\./, '');
-//   next();
-// });
-
 var Story = mongoose.model('Story', storySchema);
 
 exports.Story = Story;

@@ -44,6 +44,8 @@
         </svg>
       </div>
       <div class="news-sources">
+        <a href="/auth/facebook" class="news-sources-source">Login with Facebook</a>
+        <a href="/auth/local" class="news-sources-source">Local Login</a>
         <button id="news-source-rdt"
           class="news-sources-source"
           data-bind="css: {active: currentSource() === 'rdt'}, click: NB.Nav.navigate.bind($data, 'rdt')">REDDIT</button>

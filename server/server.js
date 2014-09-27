@@ -19,20 +19,17 @@ if (process.env.DEV) {
 }
 
 var path = require('path')
-  , port = process.env.PORT || 9000
+  , port = process.env.PORT || 80
   , conn = process.env.MONGOLAB_URL || 'mongodb://localhost/news_bubbles'
   , mongoose = require('mongoose')
   , hxnCrawler = require(path.join(__dirname, 'hxnCrawler'))
   , rdtCrawler = require(path.join(__dirname, 'rdtCrawler'))
+  , auth = require(path.join(__dirname, 'auth'))
   , utils = require(path.join(__dirname, 'utils'))
   , devLog = utils.devLog
   , prodLog = utils.prodLog
   , workers = require(path.join(__dirname, 'workers'))
-  , passport = require('passport')
-  , LocalStrategy = require('passport-local').Strategy
-  , express = require('express')
   , bodyParser = require('body-parser')
-  , session = require('express-session')
   , cookieParser = require('cookie-parser')
 ;
 
@@ -47,10 +44,10 @@ exports.start = function(app) {
   var http = require('http').Server(app);
   global.io = require('socket.io')(http); //TODO put io in global?
 
-  // global.io = io; //TODO just set the require straight on the global?
+  app.use(cookieParser());
+  app.use(bodyParser());
 
-  workers.startCleanupWorker();
-  workers.startMemoryStatsReporter();
+  auth.setUp(app);
 
   require(path.join(__dirname, 'routes.js'))(app);
 
@@ -58,8 +55,10 @@ exports.start = function(app) {
     prodLog('Database connection opened.');
     hxnCrawler.startCrawler();
     rdtCrawler.startCrawler();
-    http.listen(port);
+    workers.startCleanupWorker();
+    workers.startMemoryStatsReporter();
 
+    http.listen(port);
   });
 
   db.on('error', function(err) {
