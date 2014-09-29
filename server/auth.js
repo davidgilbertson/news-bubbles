@@ -126,7 +126,12 @@ exports.setUp = function(app) {
     res.send('success!');
   });
   app.get('/auth/sign-in-failure', function(req, res) {
-    res.send('Boooo!');
+    res.send('Boooo!'); //TODO handle properly
+  });
+  app.get('/auth/sign-out', function(req, res) {
+    devLog('Signing out user', req.user.name.display);
+    req.logout();
+    res.redirect('/');
   });
 
 };

@@ -18,9 +18,6 @@ module.exports = function(app) {
 
   app.get('/crawlers/forceRdtFetch/:list/:limit', rdtCrawler.forceFetch);
 
-  app.get('/logout', function(req) {
-    req.logout();
-  });
 
   //more routes are in auth.js
 
