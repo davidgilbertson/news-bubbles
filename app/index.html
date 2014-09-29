@@ -43,12 +43,12 @@
           </g>
         </svg>
       </div>
-      <div id="user-actions" class="user-actions">
-        <a href="/auth/facebook" class="news-sources-source" data-bind="visible: displayName() === null">Login with Facebook</a>
-        <span class="user-name" data-bind="visible: displayName, text: displayName"></span>
-        <button class="user-name" data-bind="visible: displayName, click: signOut">(sign out)</button>
+      <div id="user-items" class="user-items header-float">
+        <a href="/auth/facebook" class="user-item header-float" data-bind="visible: signedIn() === false">Login with Facebook</a>
+        <a class="user-item header-float" href="/auth/sign-out" data-bind="visible: signedIn, click: signOut"> (sign out)</a>
+        <span class="user-item header-float" data-bind="visible: signedIn, text: name.first"></span>
       </div>
-      <div id="news-sources" class="news-sources">
+      <div id="news-sources" class="news-sources header-float">
         <button id="news-source-rdt"
           class="news-sources-source"
           data-bind="css: {active: currentSource() === 'rdt'}, click: NB.Nav.navigate.bind($data, 'rdt')">REDDIT</button>

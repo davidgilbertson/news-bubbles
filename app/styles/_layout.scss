@@ -22,11 +22,19 @@
       padding: 12px 3px;
     }
   }
-  .news-sources {
+  .header-float {
     float: right;
     height: 100%;
-/*     padding-right: 20px; */
     color: white;
+  }
+  .user-items {
+    height: 100%;
+    padding: 0 10px;
+    .user-item {
+      padding: 9px 0 0 4px;
+    }
+  }
+  .news-sources {
     cursor: pointer;
     &-source {
       transition: 200ms;

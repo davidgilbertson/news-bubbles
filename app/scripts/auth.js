@@ -5,9 +5,14 @@ NB.Auth = (function() {
   var Auth = {}
     , user = null
     , userModel = {
-        displayName: ko.observable(''),
+        name: {
+          first: ko.observable(''),
+          last: ko.observable(''),
+          display: ko.observable('')
+        },
         signOut: function() {
-          userModel.displayName(null);
+          $.get('/auth/sign-out');
+          Auth.setUser(null);
         },
         signedIn: ko.observable(false) //TODO: Hmmm, implied?
       }
@@ -16,7 +21,7 @@ NB.Auth = (function() {
 
 
   function init() {
-    ko.applyBindings(userModel, document.getElementById('user-actions'));
+    ko.applyBindings(userModel, document.getElementById('user-items'));
   }
 
   
@@ -26,12 +31,16 @@ NB.Auth = (function() {
   Auth.user = userModel; //TODO change to 'get userModel' and update the ko binding
   Auth.setUser = function(user) {
     
-    if (user) {
-      userModel.displayName(user.name.display);
-//       userModel.signedIn(true)
+    if (user && user.name) {
+      userModel.name.first(user.name.first);
+      userModel.name.last(user.name.last);
+      userModel.name.display(user.name.display);
+      userModel.signedIn(true);
     } else {
-      userModel.displayName(null);
-//       userModel.signedIn(false);
+      userModel.name.first(null);
+      userModel.name.last(null);
+      userModel.name.display(null);
+      userModel.signedIn(false);
     }
   };
   Auth.signOut = function() {
