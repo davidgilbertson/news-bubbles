@@ -1,49 +1,50 @@
 'use strict';
 
 var path = require('path')
-  , User = require(path.join(__dirname, '..', 'models', 'User.model')).User
+  , User = require(path.join(__dirname, '..', 'models', 'User.model'))
   , utils = require(path.join(__dirname, '..', 'utils'))
   , devLog = utils.devLog
 ;
 
-exports.findOne = function(userId, cb) {
-  User.findOne({id: userId}, function(err, doc) {
-    if (err) {
-      return cb(err);
-    } else if (!doc) {
-      return cb(null, null);
-    } else {
-      return cb(null, doc);
-    }
-  });
-};
+//called by deserialize
+// exports.findOne = function(user, cb) {
+//   devLog('Looking up user with id:', user.providerId);
 
-exports.findOrCreate = function(user, cb) {
-  devLog('findOrCreate(),id:', user.id);
-  var id = user.id;
-  User.findOne({id: id}, function(err, doc) {
-    devLog('Got this doc back:', doc);
-    if (err) {
-      return cb(err);
-    } else if (!doc) {
-      var newUser = new User({
-        id: id,
-        username: user.displayName,
-        name: {
-          full: user.displayName,
-          first: user.givenName,
-          last: user.familyName
-        }
-      });
+//   User.findOne({providerId: user.providerId, provider: user.providerId}, function(err, doc) {
+//     devLog('findOne() err:', err);
+//     devLog('findOne() usr:', doc);
+//     cb(err, doc);
+//   });
+// };
 
-      if (user.provider === 'facebook') {
-        newUser.facebookProfile = user;
-      }
-      newUser.save();
+//called when trying to log in, accepts a provider user
+// exports.findOrCreate = function(provider, profile, cb) {
+//   devLog('User.findOne({providerId: ' + profile.id + ', provider: ' + provider + '})');
 
-      return cb(null, newUser);
-    } else {
-      return cb(null, doc);
-    }
-  });
-};
+//   User.findOne({providerId: profile.id, provider: provider}, function(err, doc) {
+//     devLog('findOne found one!', doc);
+//     if (err) {
+//       return cb(err);
+//     } else if (!doc) {
+//       var newUser = new User({
+//         providerId: profile.id,
+//         provider: provider,
+//         username: profile.displayName,
+//         name: {
+//           full: profile.displayName,
+//           first: profile.givenName,
+//           last: profile.familyName
+//         }
+//       });
+
+//       if (provider === 'facebook') {
+//         newUser.facebookProfile = profile;
+//       }
+//       newUser.save(function(err) {
+//         return cb(err, newUser);
+//       });
+//     } else {
+//       return cb(null, doc);
+//     }
+//   });
+// };

@@ -56,7 +56,7 @@ exports.start = function(app) {
     hxnCrawler.startCrawler();
     rdtCrawler.startCrawler();
     workers.startCleanupWorker();
-    workers.startMemoryStatsReporter();
+    // workers.startMemoryStatsReporter();
 
     http.listen(port);
   });

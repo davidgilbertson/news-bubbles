@@ -192,6 +192,17 @@ exports.upsertHxnStory = function(obj, suppressResults) {
 
 
 exports.getStories = function(req, res) {
+  console.log('Authenticated? ', req.isAuthenticated());
+  var user = null;
+  if (req.isAuthenticated()) {
+    user = req.user;
+  }
+  console.log('Getting stories, you are user:', user);
+  // if (req.isAuthenticated()) {
+  //   devLog('Oh you are logged in, let me send you settings just for you');
+  // } else {
+  //   devLog('You are not logged in, you are not getting any settings.');
+  // }
 
   var source = req.params.source
     , limit = req.params.limit
@@ -210,34 +221,8 @@ exports.getStories = function(req, res) {
         return;
       }
       // devLog('Query returned ' + docs.length + ' iems');
-      res.json(docs); //TODO this could be io.emit(). faster? Weirder?
+      res.json({user: user, data: docs}); //TODO this could be io.emit(). faster? Weirder?
       // res.json({msg: 'sent response via io'}); //TODO this could be io.emit(). faster? Weirder?
       // emitData(docs);
     });
 };
-
-
-
-
-// exports.renameAllIds = function(cb) {
-//   console.log('renameAllIds() ...');
-//   var startTime = new Date().getTime();
-
-//   Story
-//     .find({}, {history: false})
-//     .exec(function(err, docs) {
-//       var story, oldId, newId, count = 0;
-//       for (var i = 0; i < docs.length; i++) {
-//         story = docs[i];
-//         oldId = story.id;
-//         newId = oldId.replace('hn-', 'hxn-').replace('rd-', 'rdt-');
-//         if (oldId !== newId) {
-//           count++;
-//           story.id = newId;
-//           story.save();
-//         }
-//       }
-//       console.log('Query finished in ' + (new Date().getTime() - startTime) + 'ms');
-//       cb({success: 'cahnged ' + count});
-//     });
-// };

@@ -4,6 +4,7 @@ var path = require('path')
   , passport = require('passport')
   , session = require('express-session')
   , userController = require(path.join(__dirname, 'controllers', 'user.controller'))
+  , User = require(path.join(__dirname, 'models', 'User.model'))
   , utils = require(path.join(__dirname, 'utils'))
   , devLog = utils.devLog
   , LocalStrategy = require('passport-local').Strategy
@@ -13,31 +14,6 @@ var path = require('path')
   // , MY_URL = 'http://news-bubbles.herokuapp.com'
   , MY_URL = 'http://local.news-bubbles.herokuapp.com'
   ;
-
-
-  var users = [
-      { id: 1, username: 'bob', password: 'secret', email: 'bob@example.com' }
-    , { id: 2, username: 'joe', password: 'birthday', email: 'joe@example.com' }
-  ];
-
-  function findById(id, fn) {
-    var idx = id - 1;
-    if (users[idx]) {
-      fn(null, users[idx]);
-    } else {
-      fn(new Error('User ' + id + ' does not exist'));
-    }
-  }
-
-  function findByUsername(username, fn) {
-    for (var i = 0, len = users.length; i < len; i++) {
-      var user = users[i];
-      if (user.username === username) {
-        return fn(null, user);
-      }
-    }
-    return fn(null, null);
-  }
 
 
 var signIn = function(req, res) {
@@ -52,22 +28,16 @@ var signIn = function(req, res) {
 
 exports.setUp = function(app) {
 
-  // Passport session setup.
-  //   To support persistent login sessions, Passport needs to be able to
-  //   serialize users into and deserialize users out of the session.  Typically,
-  //   this will be as simple as storing the user ID when serializing, and finding
-  //   the user by ID when deserializing.
   passport.serializeUser(function(user, done) {
+    console.log('serializing user');
     done(null, user.id);
   });
 
   passport.deserializeUser(function(id, done) {
-    userController.findOne(id, function(err, user) {
+    console.log('deserializing user');
+    User.findById(id, function(err, user) {
       done(err, user);
     });
-    // findById(id, function (err, user) {
-      // done(err, user);
-    // });
   });
 
   passport.use(new FacebookStrategy({
@@ -77,13 +47,38 @@ exports.setUp = function(app) {
     },
     function(accessToken, refreshToken, profile, done) {
       console.log('Seems like fb came back as it should,', profile.displayName);
-      userController.findOrCreate(profile, function(err, user) {
-        if (err) {
-          devLog('Error finding or creating:', err);
-          return done(err);
-        } else {
-          return done(null, user);
-        }
+      process.nextTick(function() {
+
+
+        User.findOne({'facebook.id': profile.id}, function(err, doc) {
+
+          if (err) {
+            return done(err);
+          } else if (!doc) {
+            console.log('findOne did not find one, create a new user');
+
+            var newUser            = new User();
+            newUser.facebook.id    = profile.id;
+            newUser.facebook.token = accessToken;
+            newUser.name.first     = profile.name.givenName;
+            newUser.name.last      = profile.name.familyName;
+            newUser.name.display   = profile.displayName;
+            // newUser.profile        = profile;
+
+            newUser.save(function(err) {
+              return done(err, newUser);
+            });
+          } else {
+            devLog('findOne found one!', doc);
+
+            return done(null, doc);
+          }
+        });
+
+
+        // userController.findOrCreate('facebook', profile, function(err, user) {
+        //   return done(err, user);
+        // });
       });
     }
   ));
@@ -91,45 +86,31 @@ exports.setUp = function(app) {
   passport.use(new LocalStrategy(
     function(username, password, done) {
       userController.findOrCreate({id: username, password: password}, function(err, user) {
-        if (err) {
-          devLog('Error finding or creating:', err);
-          return done(err);
-        } else {
-          return done(null, user);
-        }
+        return done(err, user);
       });
-      // findByUsername(username, function(err, user) {
-      //   if (err) { return done(err); }
-      //   if (!user) { return done(null, false, { message: 'Unknown user ' + username }); }
-      //   if (user.password !== password) { return done(null, false, { message: 'Invalid password' }); }
-      //   return done(null, user);
-      // });
     }
   ));
 
 
-  app.use(session({secret: '567v^&5vr7'}));
-
+  app.use(session({
+    secret: '567v^&5vr7',
+    cookie: {
+      maxAge: 3600000
+    }
+  }));
   app.use(passport.initialize());
   app.use(passport.session());
 
 
   app.get('/auth/local',
     passport.authenticate('local', {
-      failureRedirect: '/auth/sign-in-failure',
-      successRedirect: '/auth/sign-in-success'
+      failureRedirect: '/auth/sign-in-failure'
     }),
     function(req, res) {
       res.redirect('/');
     }
   );
-  // app.get('/sign-in/:strategy', signIn);
 
-
-  // app.get('/auth/facebook/callback', function(req, res) {
-  //   console.log('/auth/facebook/callback');
-  //   res.send('hello');
-  // });
   app.get('/auth/facebook', passport.authenticate('facebook'));
   app.get('/auth/facebook/callback',
     passport.authenticate('facebook', {
@@ -142,11 +123,9 @@ exports.setUp = function(app) {
 
 
   app.get('/auth/sign-in-success', function(req, res) {
-    // res.redirect('/');
     res.send('success!');
   });
   app.get('/auth/sign-in-failure', function(req, res) {
-    // res.redirect('/');
     res.send('Boooo!');
   });
 

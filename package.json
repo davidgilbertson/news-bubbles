@@ -2,10 +2,12 @@
   "name": "news-bubbles",
   "version": "0.3.6",
   "dependencies": {
+    "cookie-session": "^1.0.2",
     "express": "^4.8.4",
     "mongoose": "^3.8.15",
     "nodetime": "^0.8.15",
     "passport": "^0.2.1",
+    "passport-remember-me": "0.0.1",
     "request": "^2.40.0",
     "socket.io": "^1.0.6",
     "webkit-devtools-agent": "^0.3.1"
