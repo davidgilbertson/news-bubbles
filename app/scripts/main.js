@@ -18,7 +18,7 @@ NB.main = (function() {
 
   ko.applyBindings(NB.StoryModel.tooltipStory, document.getElementById('story-tooltip'));
   ko.applyBindings(NB.StoryModel.panelStory, document.getElementById('story-panel'));
-  ko.applyBindings(NB.Nav.navModel, document.getElementById('header-wrapper'));
+  ko.applyBindings(NB.Nav.navModel, document.getElementById('news-sources'));
 
   if (!('ontouchstart' in window) && !(window.DocumentTouch && document instanceof DocumentTouch)) {
     d3.select('body').classed('no-touch', true);

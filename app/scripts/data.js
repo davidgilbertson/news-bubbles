@@ -69,11 +69,12 @@ NB.Data = (function() {
   //TODO should I let the server just io emit the data?
   function getHxnData(minScore) {
     var limit = NB.Settings.getSetting('hitLimit');
-    $.get('/api/hxn/' + limit + '/' + minScore, function(data) {
+    $.get('/api/hxn/' + limit + '/' + minScore, function(response) {
       if (NB.Settings.getSetting('source') !== 'hxn') { return; } //this could occur if the page is changed before the data comes back
-      if (!data.length) { return; } //TODO show user a message for no data to return
-      parseInitialData(data, true, function(data) {
-        Data.stories = data;
+      if (!response.data.length) { return; } //TODO show user a message for no data to return
+      console.log('Got data:', response);
+      parseInitialData(response.data, true, function(parsedData) {
+        Data.stories = parsedData;
         NB.Chart.drawStories();
       });
     });
@@ -82,13 +83,13 @@ NB.Data = (function() {
 
   function getRdtData(minScore) {
     var limit = NB.Settings.getSetting('hitLimit');
-    $.get('/api/rdt/' + limit + '/' + minScore, function(data) {
+    $.get('/api/rdt/' + limit + '/' + minScore, function(response) {
       if (NB.Settings.getSetting('source') !== 'rdt') { return; } //this could occur if the page is changed before the data comes back
-      if (!data.length) { return; } //TODO show user a message for no data to return
-
-      parseInitialData(data, true, function(data) {
+      if (!response.data.length) { return; } //TODO show user a message for no data to return
+      NB.Auth.setUser(response.user); //potentially null
+      parseInitialData(response.data, true, function(parsedData) {
 //         console.log('parseInitialData complete');
-        Data.stories = data;
+        Data.stories = parsedData;
         NB.Chart.drawStories();
       });
     });
