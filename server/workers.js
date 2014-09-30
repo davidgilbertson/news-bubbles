@@ -17,7 +17,7 @@ function startCleanupWorker() {
     var twoDaysAgo = new Date(now - (2 * 24 * 60 * 60 * 1000));
     var fourDaysAgo = new Date(now - (4 * 24 * 60 * 60 * 1000));
     //TODO tweak each of these to keep the db at a reasonable size
-    //2, 4, 8 isn't enough, the DB grow to 500MB in a week
+    //2, 4, 8 isn't enough (I don't think, worth revisiting), the DB grow to 500MB in a week
     Story.remove(
       {
         $or: [
@@ -47,7 +47,7 @@ function startCleanupWorker() {
   cull();
   setInterval(function() {
     cull();
-  }, 1 * 24 * 60 * 60 * 1000); //Daily
+  }, 60 * 60 * 1000); //Hourly
 
 }
 
