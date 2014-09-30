@@ -209,6 +209,8 @@ exports.getStories = function(req, res) {
     , minScore = req.params.minScore || 0
   ;
 
+  prodLog('{source: ' + source + ', score: {$gte: ' + minScore + '}}, {history: false}');
+
   Story
     .find({source: source, score: {$gte: minScore}}, {history: false})
     .sort({postDate: -1})
@@ -220,7 +222,7 @@ exports.getStories = function(req, res) {
         devLog('Error finding stories:', err);
         return;
       }
-      // devLog('Query returned ' + docs.length + ' iems');
+      devLog('Query returned ' + docs.length + ' iems');
       res.json({user: user, data: docs}); //TODO this could be io.emit(). faster? Weirder?
       // res.json({msg: 'sent response via io'}); //TODO this could be io.emit(). faster? Weirder?
       // emitData(docs);
