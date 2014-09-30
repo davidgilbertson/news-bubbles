@@ -6,7 +6,7 @@
     <meta name="description" content="A visual display for news stories.">
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 
-    <link rel="stylesheet" href="styles/main-f00717c1.css">
+    <link rel="stylesheet" href="styles/main-fe32f528.css">
 
     <link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
     <link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
@@ -41,7 +41,12 @@
           </g>
         </svg>
       </div>
-      <div class="news-sources">
+      <!-- <div id="user-items" class="user-items header-float">
+        <a href="/auth/facebook" class="user-item header-float" data-bind="visible: signedIn() === false">Login with Facebook</a>
+        <a class="user-item header-float" href="/auth/sign-out" data-bind="visible: signedIn, click: signOut"> (sign out)</a>
+        <span class="user-item header-float" data-bind="visible: signedIn, text: name.first"></span>
+      </div> -->
+      <div id="news-sources" class="news-sources header-float">
         <button id="news-source-rdt"
           class="news-sources-source"
           data-bind="css: {active: currentSource() === 'rdt'}, click: NB.Nav.navigate.bind($data, 'rdt')">REDDIT</button>
@@ -227,7 +232,7 @@
     <script src="/socket.io/socket.io.js"></script>
 
 
-    <script src="scripts/main-bab390e2.js"></script>
+    <script src="scripts/main-6c2cce13.js"></script>
 
   </body>
 </html>

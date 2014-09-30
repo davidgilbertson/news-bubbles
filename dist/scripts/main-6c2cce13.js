@@ -219,6 +219,57 @@ NB.oldestStory = Infinity;
 'use strict';
 var NB = NB || {};
 
+NB.Auth = (function() {
+  var Auth = {}
+    , user = null
+    , userModel = {
+        name: {
+          first: ko.observable(''),
+          last: ko.observable(''),
+          display: ko.observable('')
+        },
+        signOut: function() {
+          $.get('/auth/sign-out');
+          Auth.setUser(null);
+        },
+        signedIn: ko.observable(false) //TODO: Hmmm, implied?
+      }
+  ;
+
+
+
+  function init() {
+//     ko.applyBindings(userModel, document.getElementById('user-items'));
+  }
+
+  
+  init();
+
+  /*  --  EXPORTS  --  */
+  Auth.user = userModel; //TODO change to 'get userModel' and update the ko binding
+  Auth.setUser = function(user) {
+    
+    if (user && user.name) {
+      userModel.name.first(user.name.first);
+      userModel.name.last(user.name.last);
+      userModel.name.display(user.name.display);
+      userModel.signedIn(true);
+    } else {
+      userModel.name.first(null);
+      userModel.name.last(null);
+      userModel.name.display(null);
+      userModel.signedIn(false);
+    }
+  };
+  Auth.signOut = function() {
+    console.log('OK, will sign out');
+  };
+
+  return Auth;
+})();
+'use strict';
+var NB = NB || {};
+
 NB.Data = (function() {
   var Data = {}
     , store = {}
@@ -287,11 +338,12 @@ NB.Data = (function() {
   //TODO should I let the server just io emit the data?
   function getHxnData(minScore) {
     var limit = NB.Settings.getSetting('hitLimit');
-    $.get('/api/hxn/' + limit + '/' + minScore, function(data) {
+    $.get('/api/hxn/' + limit + '/' + minScore, function(response) {
       if (NB.Settings.getSetting('source') !== 'hxn') { return; } //this could occur if the page is changed before the data comes back
-      if (!data.length) { return; } //TODO show user a message for no data to return
-      parseInitialData(data, true, function(data) {
-        Data.stories = data;
+      if (!response.data.length) { return; } //TODO show user a message for no data to return
+      console.log('Got data:', response);
+      parseInitialData(response.data, true, function(parsedData) {
+        Data.stories = parsedData;
         NB.Chart.drawStories();
       });
     });
@@ -300,13 +352,13 @@ NB.Data = (function() {
 
   function getRdtData(minScore) {
     var limit = NB.Settings.getSetting('hitLimit');
-    $.get('/api/rdt/' + limit + '/' + minScore, function(data) {
+    $.get('/api/rdt/' + limit + '/' + minScore, function(response) {
       if (NB.Settings.getSetting('source') !== 'rdt') { return; } //this could occur if the page is changed before the data comes back
-      if (!data.length) { return; } //TODO show user a message for no data to return
-
-      parseInitialData(data, true, function(data) {
+      if (!response.data.length) { return; } //TODO show user a message for no data to return
+      NB.Auth.setUser(response.user); //potentially null
+      parseInitialData(response.data, true, function(parsedData) {
 //         console.log('parseInitialData complete');
-        Data.stories = data;
+        Data.stories = parsedData;
         NB.Chart.drawStories();
       });
     });
@@ -1714,7 +1766,7 @@ NB.main = (function() {
 
   ko.applyBindings(NB.StoryModel.tooltipStory, document.getElementById('story-tooltip'));
   ko.applyBindings(NB.StoryModel.panelStory, document.getElementById('story-panel'));
-  ko.applyBindings(NB.Nav.navModel, document.getElementById('header-wrapper'));
+  ko.applyBindings(NB.Nav.navModel, document.getElementById('news-sources'));
 
   if (!('ontouchstart' in window) && !(window.DocumentTouch && document instanceof DocumentTouch)) {
     d3.select('body').classed('no-touch', true);
