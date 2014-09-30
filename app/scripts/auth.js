@@ -21,7 +21,7 @@ NB.Auth = (function() {
 
 
   function init() {
-    ko.applyBindings(userModel, document.getElementById('user-items'));
+//     ko.applyBindings(userModel, document.getElementById('user-items'));
   }
 
   
