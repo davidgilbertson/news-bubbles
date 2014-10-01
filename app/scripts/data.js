@@ -32,7 +32,6 @@ NB.Data = (function() {
         existing.score = d.score;
       } else {
         if (d.postDate > NB.oldestStory && d.score > minScore) { //I don't want to add stories that are older than what's on the chart
-//           console.log('Adding a story:', d.name);
           Data.stories.push(d);
         }
       }
@@ -41,9 +40,7 @@ NB.Data = (function() {
 
   //parse story data
   function parseSocketIoData(data) {
-//     console.log('parsing', data.length, 'new items', data);
     data.forEach(function(d) {
-//       var jsDate = new Date(d.postDate);
       d.postDate = new Date(d.postDate);
     });
     sortBy(data, 'commentCount');
@@ -54,9 +51,11 @@ NB.Data = (function() {
     if (captureOldest) {
       NB.oldestStory = Infinity;
     }
-//     console.log('parseInitialData()');
     data.forEach(function(s) {
       s.postDate = new Date(s.postDate);
+      if (!s.isRead) { //if the story is NOT marked as read from the server, then check if it is here.
+        s.isRead = isRead(s.id);
+      }
       if (captureOldest) {
         NB.oldestStory = Math.min(NB.oldestStory, s.postDate);
       }
@@ -88,11 +87,24 @@ NB.Data = (function() {
       if (!response.data.length) { return; } //TODO show user a message for no data to return
       NB.Auth.setUser(response.user); //potentially null
       parseInitialData(response.data, true, function(parsedData) {
-//         console.log('parseInitialData complete');
         Data.stories = parsedData;
         NB.Chart.drawStories();
       });
     });
+  }
+
+  function isRead(id) {
+    var objString = id.toString();
+    var isRead = false;
+    //TODO, does indexOf not do this?
+    for (var i = 0; i < readList.length; i++) {
+      if (objString === readList[i]) {
+//         console.log(readList[i] + 'is already read');
+        isRead = true;
+      }
+    }
+    return isRead;
+
   }
 
 
@@ -100,12 +112,10 @@ NB.Data = (function() {
     socket = io(); //TODO only get the server to send data for reddit or hxn?
 
     socket.on('data', function(msg) {
-//       console.log('socket.on(\'data\')', msg);
       if (!Data.stories.length) { return; } //TODO need to remove this if I want to use IO even for the first fetch.
 
       var src = NB.Settings.getSetting('source');
       if (msg.data.length && msg.source === src) { //e.g. if it's the reddit view and the data is reddit data
-//         console.log('got', msg.data.length, 'stories from IO');
         mergeStories(parseSocketIoData(msg.data));
         NB.Chart.drawStories();
       }
@@ -123,6 +133,7 @@ NB.Data = (function() {
   };
 
   Data.markAsRead = function(id) {
+    if (isRead(id)) { return; } //prevent duplicates
     readList.push(id);
     localStorage.readList = JSON.stringify(readList);
   };
@@ -138,17 +149,6 @@ NB.Data = (function() {
     }
   };
 
-  Data.isRead = function(id) {
-    var objString = id.toString();
-    var isRead = false;
-    for (var i = 0; i < readList.length; i++) {
-      if (objString === readList[i]) {
-//         console.log(readList[i] + 'is already read');
-        isRead = true;
-      }
-    }
-    return isRead;
-  };
 
   Data.getData = function() {
     var source = NB.Settings.getSetting('source') || 'rdt'; //this should never be empty, but 'rdt' is there for the fun of it.

@@ -29,13 +29,6 @@ NB.Chart = (function() {
     , maxiTooltipShowing = false
   ;
 
-  function markAsRead(circle, story) {
-    if (NB.Data.isRead(story.id)) { return; }
-
-    NB.Data.markAsRead(story.id);
-    circle.classed('read', true);
-  }
-
   function toggleRead(circle, story) {
     if (circle.classed('read')) {
       circle.classed('read', false);
@@ -61,12 +54,6 @@ NB.Chart = (function() {
 
     //move to back
     moveToBack(d3.event.currentTarget)
-//     var domEl = d3.event.currentTarget;
-//     if (domEl.previousSibling) {
-//       var parent = domEl.parentNode;
-//       var firstChild = parent.firstChild.nextSibling; //the first element is the overlay rectangle, the rest are circles.
-//       parent.insertBefore(domEl, firstChild);
-//     }
 
     //get the D3 flvoured dom el
     var el = d3.select(d3.event.currentTarget);
@@ -84,7 +71,8 @@ NB.Chart = (function() {
     var setting = NB.Settings.getSetting('clickAction');
 
     if (setting === 'storyPanel') {
-      markAsRead(el, d);
+      NB.Data.markAsRead(d.id);
+      el.classed('read', true);
       NB.Layout.showStoryPanel();
       NB.StoryPanel.render(d);
     }
@@ -229,7 +217,8 @@ NB.Chart = (function() {
         return NB.Settings.getColor(d.source, d.category);
       })
       .classed('story-circle', true)
-      .classed('read', function(d) { return NB.Data.isRead(d.id); })
+      //TODO: don't check each loop for is read, do it once on load
+      .classed('read', function(d) { return d.isRead; })
       .on('click', bubbleClicked)
       .on('mouseover', bubbleMouseover)
       .on('mouseout', bubbleMouseout)
