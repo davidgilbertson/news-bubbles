@@ -108,12 +108,38 @@ NB.Data = (function() {
   }
 
 
+  function markAsUnread(id) {
+    id = id.toString();
+    for (var i = 0; i < readList.length; i++) {
+      if (readList[i] === id) {
+        readList.splice(i,1);
+        localStorage.readList = JSON.stringify(readList);
+        return;
+      }
+    }
+  }
+  function markAsRead(id) {
+    if (isRead(id)) { return; } //prevent duplicates
+    readList.push(id);
+    localStorage.readList = JSON.stringify(readList);
+
+    var user = NB.Auth.getUser();
+    if (user) { //TODO uncomment for testing
+      socket.emit('markAsRead', {userId: user._id, storyId: id});
+    }
+
+  }
+
+
   function init() {
     socket = io(); //TODO only get the server to send data for reddit or hxn?
-
+    
+    Data.socket = socket;
+    
     socket.on('data', function(msg) {
       if (!Data.stories.length) { return; } //TODO need to remove this if I want to use IO even for the first fetch.
 
+//       console.log('IO data:', msg);
       var src = NB.Settings.getSetting('source');
       if (msg.data.length && msg.source === src) { //e.g. if it's the reddit view and the data is reddit data
         mergeStories(parseSocketIoData(msg.data));
@@ -132,22 +158,8 @@ NB.Data = (function() {
     store[key] = value;
   };
 
-  Data.markAsRead = function(id) {
-    if (isRead(id)) { return; } //prevent duplicates
-    readList.push(id);
-    localStorage.readList = JSON.stringify(readList);
-  };
-
-  Data.markAsUnread = function(id) {
-    id = id.toString();
-    for (var i = 0; i < readList.length; i++) {
-      if (readList[i] === id) {
-        readList.splice(i,1);
-        localStorage.readList = JSON.stringify(readList);
-        return;
-      }
-    }
-  };
+  Data.markAsRead = markAsRead;
+  Data.markAsUnread = markAsUnread;
 
 
   Data.getData = function() {

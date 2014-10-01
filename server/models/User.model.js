@@ -17,7 +17,16 @@ var userSchema = mongoose.Schema({
     display:       String
   },
   email:           String,
-  profile: {} //TODO delete
+  settings:        {
+    hitLimit:         {type: Number, default: 80},
+    hxnMinScore:      {type: Number, default: 5},
+    rdtMinScore:      {type: Number, default: 500},
+    clickAction:      {type: String, default: 'storyPanel'},
+    rightClickAction: {type: String, default: 'toggleRead'},
+    source:           {type: String, default: 'rdt'}
+  }, //the client settings object. I could better define this here
+  readList:        [], //array of sourceIds for stories that have been read
+  favorites:       [], //array of sourceIds for stories that are favourites
 });
 
 var User = mongoose.model('user', userSchema);

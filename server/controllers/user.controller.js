@@ -6,6 +6,30 @@ var path = require('path')
   , devLog = utils.devLog
 ;
 
+
+//add this id to the read list for the user
+function addToReadList(data) {
+  devLog('will add to read list:', data.userId, 'and', data.storyId);
+  var userId = data.userId
+    , storyId = data.storyId
+  ;
+  User.findById(userId, function(err, user) {
+    if (err) { return; } //TODO feed back to client
+    if (!user) { return; } //perhaps user was deleted in another session? TODO hande better
+
+    if (user.readList.indexOf(storyId) === -1) {
+      console.log('Adding', storyId, 'to the list of read things for user', userId);
+      user.readList.push(storyId);
+      user.save();
+    }
+
+  });
+}
+
+exports.markAsRead = addToReadList;
+
+
+
 //called by deserialize
 // exports.findOne = function(user, cb) {
 //   devLog('Looking up user with id:', user.providerId);

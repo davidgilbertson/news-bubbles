@@ -74,6 +74,7 @@ gulp.task('express', ['mongod'], function () {
   app.use(express.static('app'));
   app.use(express.static('.tmp'));
   process.env.DEV = true;
+  process.env.DEBUG = true;
 
   var server = require(path.join(__dirname, 'server', 'server.js'));
   server.start(app);

@@ -31,6 +31,7 @@ var path = require('path')
   , workers = require(path.join(__dirname, 'workers'))
   , bodyParser = require('body-parser')
   , cookieParser = require('cookie-parser')
+  , userController = require(path.join(__dirname, 'controllers', 'user.controller'))
 ;
 
 
@@ -42,7 +43,20 @@ exports.start = function(app) {
   prodLog('Server Starting');
 
   var http = require('http').Server(app);
-  global.io = require('socket.io')(http); //TODO put io in global?
+  // global.io = require('socket.io')(http); //TODO put io in global?
+  var io = require('socket.io')(http); //TODO put io in global?
+  global.io = io; //IO is used for global emitting
+
+  io.on('connection', function(socket) {
+    devLog('Socket IO listening. Socket IO hears you.');
+    global.socket = socket; //socket is used for listening to clients
+    // socket.emit('yeah', {msg: 'I am listening'});
+    // socket.on('markAsRead', function(data) {
+    //   console.log('markAsRead;', data);
+    // });
+
+    socket.on('markAsRead', userController.markAsRead);
+  });
 
   app.use(cookieParser());
   app.use(bodyParser());

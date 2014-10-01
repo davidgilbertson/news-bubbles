@@ -6,7 +6,6 @@ var request = require('request')
 
 //use the readability API to scrape a web page and return the content object
 module.exports = function(req, res) {
-  console.log('getting');
   var fullUrl = readabilityUrl + '?url=' + encodeURIComponent(req.params.url) + '&token=' + readabilityToken;
 
   request.get({url: fullUrl, json: true}, function (err, req, body) {

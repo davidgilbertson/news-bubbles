@@ -12,16 +12,16 @@ var rdtStory, hxnStory; //out here to test preventing memory leak
 
 setInterval(function() {
   if (rdtEmitQueue.length) {
-    // devLog('sending', rdtEmitQueue.length, 'RDT items');
+    devLog('sending', rdtEmitQueue.length, 'RDT items');
     process.nextTick(function() {
-      global.io.emit('data', {source: 'rdt', data: rdtEmitQueue});
+      io.emit('data', {source: 'rdt', data: rdtEmitQueue});
       rdtEmitQueue.length = 0;
     });
   }
   if (hxnEmitQueue.length) {
-    // devLog('sending', hxnEmitQueue.length, 'HXN items');
+    devLog('sending', hxnEmitQueue.length, 'HXN items');
     process.nextTick(function() {
-      global.io.emit('data', {source: 'hxn', data: hxnEmitQueue});
+      io.emit('data', {source: 'hxn', data: hxnEmitQueue});
       hxnEmitQueue.length = 0;
     });
   }
@@ -197,7 +197,7 @@ exports.getStories = function(req, res) {
   if (req.isAuthenticated()) {
     user = req.user;
   }
-  console.log('Getting stories, you are user:', user);
+  // console.log('Getting stories, you are user:', user);
   // if (req.isAuthenticated()) {
   //   devLog('Oh you are logged in, let me send you settings just for you');
   // } else {
@@ -209,7 +209,7 @@ exports.getStories = function(req, res) {
     , minScore = req.params.minScore || 0
   ;
 
-  prodLog('{source: ' + source + ', score: {$gte: ' + minScore + '}}, {history: false}');
+  // prodLog('{source: ' + source + ', score: {$gte: ' + minScore + '}}, {history: false}');
 
   Story
     .find({source: source, score: {$gte: minScore}}, {history: false})
