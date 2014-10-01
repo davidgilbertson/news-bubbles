@@ -51,7 +51,9 @@ function consumeRememberMeToken(token, done) {
     if (err) { return done(err); }
     if (!doc) { return done(null, false); }
     //TODO remove token.
-    return done(null, doc.userId);
+    var id = doc.userId;
+    doc.remove();
+    return done(null, id);
   });
 }
 
@@ -63,6 +65,14 @@ function saveRememberMeToken(token, userId, done) {
   newToken.save(function(err) {
     if (err) { return done(err); }
     return done(null);
+  });
+}
+
+function issueToken(user, done) {
+  var token = randomString(64);
+  saveRememberMeToken(token, user.id, function(err) {
+    if (err) { return done(err); }
+    return done(null, token);
   });
 }
 
@@ -115,13 +125,6 @@ exports.setUp = function(app) {
     }
   ));
 
-  function issueToken(user, done) {
-    var token = randomString(64);
-    saveRememberMeToken(token, user.id, function(err) {
-      if (err) { return done(err); }
-      return done(null, token);
-    });
-  }
 
   passport.use(new RememberMeStrategy(
     function(token, done) {
