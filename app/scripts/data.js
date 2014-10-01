@@ -51,6 +51,42 @@ NB.Data = (function() {
     if (captureOldest) {
       NB.oldestStory = Infinity;
     }
+
+    //User stuff
+    NB.Auth.setUser(data.user); //potentially null
+    if (data.user.settings) {
+      if (NB.Settings.getSetting('source') !== data.user.settings.source) {
+        NB.Nav.navigate(data.user.settings.source); //this handles the setting and resetting of the chart
+        return cb(false); //this prevents the page from drawing further.
+      }
+
+      NB.Settings.setAll(data.user.settings);
+    }
+    if (data.user.readList) {
+      if (localStorage.readList) {
+        var lsReadList = JSON.parse(localStorage.readList);
+        var serverReadList = data.user.readList;
+        var i, j, exists = false, newReadList = [];
+        for (i = 0; i < lsReadList.length; i++) {
+          for (j = 0; j < serverReadList.length; j++) {
+            if (lsReadList[i] === serverReadList[j]) {
+              exists = true;
+            }
+          }
+          if (!exists) {
+            newReadList.push(lsReadList[i]);
+          }
+          exists = false;
+        }
+        readList = lsReadList.concat(newReadList);
+        delete localStorage.readList;
+      } else {
+        readList = data.user.readList;
+      }
+    }
+
+
+    //Stories
     data.stories.forEach(function(s) {
       s.postDate = new Date(s.postDate);
       if (!s.isRead) { //if the story is NOT marked as read from the server, then check if it is here.
@@ -60,6 +96,8 @@ NB.Data = (function() {
         NB.oldestStory = Math.min(NB.oldestStory, s.postDate);
       }
     });
+
+
     sortBy(data.stories, 'commentCount');
     cb(data.stories);
   }
@@ -72,8 +110,8 @@ NB.Data = (function() {
       if (NB.Settings.getSetting('source') !== 'hxn') { return; } //this could occur if the page is changed before the data comes back
       if (!response.stories.length) { return; } //TODO show user a message for no data to return
 //       console.log('Got data:', response);
-      NB.Auth.setUser(response.user); //potentially null
       parseInitialData(response, true, function(parsedData) {
+        if (!parsedData) { return; }
         Data.stories = parsedData;
         NB.Chart.drawStories();
       });
@@ -86,8 +124,8 @@ NB.Data = (function() {
     $.get('/api/rdt/' + limit + '/' + minScore, function(response) {
       if (NB.Settings.getSetting('source') !== 'rdt') { return; } //this could occur if the page is changed before the data comes back
       if (!response.stories.length) { return; } //TODO show user a message for no data to return
-      NB.Auth.setUser(response.user); //potentially null
       parseInitialData(response, true, function(parsedData) {
+        if (!parsedData) { return; }
         Data.stories = parsedData;
         NB.Chart.drawStories();
       });
@@ -155,7 +193,7 @@ NB.Data = (function() {
     if (user) {
 //       NB.Data.emit('addToFavs', {userId: user._id, story: story});
       data.userId = user._id;
-      console.log('sending data:', data);
+//       console.log('sending data:', data);
       socket.emit(eventName, data);
     }
     

@@ -74,8 +74,11 @@ NB.Settings = (function() {
       .style('display', 'none');
   }
 
-  function saveSettings() {
-    NB.Data.emit('updateSettings', {settings: ko.toJS(settings)});
+  function saveSettings(silent) {
+    if (!silent) {
+      NB.Data.emit('updateSettings', {settings: ko.toJS(settings)});
+    }
+    
     //The settings ko object is bound so nothing needs to be updated there
 //     var maxHitLimit = Math.min(500, settings.hitLimit());
     var tmp = NB.Utils.constrain(1, settings.hitLimit(), 500);
@@ -122,6 +125,15 @@ NB.Settings = (function() {
     closeSettings();
   }
 
+  function setAll(settings) {
+//     console.log('gonna save settings:', settings);
+    var keys = Object.keys(settings);
+    keys.forEach(function(setting) {
+//       console.log('Setting', setting, 'to', settings[setting]);
+      Settings.setSetting(setting, settings[setting], true);
+    });
+  }
+
 
   /*  ---------------  */
   /*  --  Exports  --  */
@@ -153,13 +165,17 @@ NB.Settings = (function() {
     }
     return settings[setting]();
   };
-  Settings.setSetting = function(setting, value) {
+
+  Settings.setAll = setAll; //used when settings are loaded from user account
+
+  Settings.setSetting = function(setting, value, silent) {
+    //TODO, if this took an object, then I could use Object.keys and merge this with setAll.
     if (!settings[setting]) { //TODO test for "typeof function"
       console.log(setting + ' is not something that can be set.');
       return;
     }
     settings[setting](value);
-    saveSettings();
+    saveSettings(silent);
   };
   Settings.getColor = function(source, category) {
     if (!settings[source + 'CategoryColors']) {
