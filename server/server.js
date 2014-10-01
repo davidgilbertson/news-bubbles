@@ -49,15 +49,12 @@ exports.start = function(app) {
 
   io.on('connection', function(socket) {
     devLog('Socket IO listening. Socket IO hears you.');
-    global.socket = socket; //socket is used for listening to clients
-    // socket.emit('yeah', {msg: 'I am listening'});
-    // socket.on('markAsRead', function(data) {
-    //   console.log('markAsRead;', data);
-    // });
+    // global.socket = socket; //socket is used for listening to clients
 
     socket.on('markAsRead', userController.markAsRead);
     socket.on('addToFavs', userController.addToFavs);
     socket.on('updateSettings', userController.updateSettings);
+    socket.on('removeFromFavs', userController.removeFromFavs);
   });
 
   app.use(cookieParser());

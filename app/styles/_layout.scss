@@ -31,7 +31,8 @@
     height: 100%;
     padding: 0 10px;
     .user-item {
-      display: none; //Overridden by knockout
+      //TODO not sure how to stop FOUC
+/*       display: none; //Overridden by knockout */
       padding: 9px 0 0 4px;
     }
   }

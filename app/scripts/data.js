@@ -51,7 +51,7 @@ NB.Data = (function() {
     if (captureOldest) {
       NB.oldestStory = Infinity;
     }
-    data.forEach(function(s) {
+    data.stories.forEach(function(s) {
       s.postDate = new Date(s.postDate);
       if (!s.isRead) { //if the story is NOT marked as read from the server, then check if it is here.
         s.isRead = isRead(s.id);
@@ -60,8 +60,8 @@ NB.Data = (function() {
         NB.oldestStory = Math.min(NB.oldestStory, s.postDate);
       }
     });
-    sortBy(data, 'commentCount');
-    cb(data);
+    sortBy(data.stories, 'commentCount');
+    cb(data.stories);
   }
 
 
@@ -70,10 +70,10 @@ NB.Data = (function() {
     var limit = NB.Settings.getSetting('hitLimit');
     $.get('/api/hxn/' + limit + '/' + minScore, function(response) {
       if (NB.Settings.getSetting('source') !== 'hxn') { return; } //this could occur if the page is changed before the data comes back
-      if (!response.data.length) { return; } //TODO show user a message for no data to return
-      console.log('Got data:', response);
+      if (!response.stories.length) { return; } //TODO show user a message for no data to return
+//       console.log('Got data:', response);
       NB.Auth.setUser(response.user); //potentially null
-      parseInitialData(response.data, true, function(parsedData) {
+      parseInitialData(response, true, function(parsedData) {
         Data.stories = parsedData;
         NB.Chart.drawStories();
       });
@@ -85,9 +85,9 @@ NB.Data = (function() {
     var limit = NB.Settings.getSetting('hitLimit');
     $.get('/api/rdt/' + limit + '/' + minScore, function(response) {
       if (NB.Settings.getSetting('source') !== 'rdt') { return; } //this could occur if the page is changed before the data comes back
-      if (!response.data.length) { return; } //TODO show user a message for no data to return
+      if (!response.stories.length) { return; } //TODO show user a message for no data to return
       NB.Auth.setUser(response.user); //potentially null
-      parseInitialData(response.data, true, function(parsedData) {
+      parseInitialData(response, true, function(parsedData) {
         Data.stories = parsedData;
         NB.Chart.drawStories();
       });

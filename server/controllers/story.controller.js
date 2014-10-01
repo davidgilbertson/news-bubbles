@@ -223,7 +223,7 @@ exports.getStories = function(req, res) {
         return;
       }
       devLog('Query returned ' + docs.length + ' iems');
-      res.json({user: user, data: docs}); //TODO this could be io.emit(). faster? Weirder?
+      res.json({user: user, stories: docs}); //TODO this could be io.emit(). faster? Weirder?
       // res.json({msg: 'sent response via io'}); //TODO this could be io.emit(). faster? Weirder?
       // emitData(docs);
     });

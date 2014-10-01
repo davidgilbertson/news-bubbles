@@ -27,6 +27,8 @@ NB.Favs = (function() {
   Favs.removeFromFavs = function(story) {
 //     console.log('Removing story from favs:', story);
     var id = story.id;
+    NB.Data.emit('removeFromFavs', {storyId: story.id});
+    
     store.forEach(function(fav, i) {
       if (fav.id === id) {
         store.splice(i, 1);

@@ -5,10 +5,13 @@ var path = require('path')
   , session = require('express-session')
   // , userController = require(path.join(__dirname, 'controllers', 'user.controller'))
   , User = require(path.join(__dirname, 'models', 'User.model'))
+  , Token = require(path.join(__dirname, 'models', 'Token.model'))
   , utils = require(path.join(__dirname, 'utils'))
   , devLog = utils.devLog
   // , LocalStrategy = require('passport-local').Strategy
   , FacebookStrategy = require('passport-facebook').Strategy
+  , RememberMeStrategy = require('passport-remember-me').Strategy
+
   , FACEBOOK_APP_ID = '833772886647232'
   , FACEBOOK_APP_SECRET = '862d4c22a83572793c7214d798afe5f3'
   // , MY_URL = 'http://news-bubbles.herokuapp.com'
@@ -25,6 +28,43 @@ var signIn = function(req, res) {
   });
 };
 
+function randomString(len) {
+  function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+  var buf = []
+    , chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+    , charlen = chars.length;
+
+  for (var i = 0; i < len; ++i) {
+    buf.push(chars[getRandomInt(0, charlen - 1)]);
+  }
+
+  return buf.join('');
+}
+
+
+// This code from here:
+// https://github.com/jaredhanson/passport-remember-me/blob/master/examples/login/server.js
+function consumeRememberMeToken(token, done) {
+  Token.findOne({token: token}, function(err, doc) {
+    if (err) { return done(err); }
+    if (!doc) { return done(null, false); }
+    //TODO remove token.
+    return done(null, doc.userId);
+  });
+}
+
+function saveRememberMeToken(token, userId, done) {
+  var newToken = new Token();
+  newToken.token = token;
+  newToken.userId = userId;
+
+  newToken.save(function(err) {
+    if (err) { return done(err); }
+    return done(null);
+  });
+}
 
 exports.setUp = function(app) {
 
@@ -75,20 +115,53 @@ exports.setUp = function(app) {
     }
   ));
 
-  app.use(session({
-    secret: '567v^&5vr7',
-    cookie: {
-      maxAge: 3600000
-    }
-  }));
+  function issueToken(user, done) {
+    var token = randomString(64);
+    saveRememberMeToken(token, user.id, function(err) {
+      if (err) { return done(err); }
+      return done(null, token);
+    });
+  }
+
+  passport.use(new RememberMeStrategy(
+    function(token, done) {
+      consumeRememberMeToken(token, function(err, userId) {
+        if (err) { return done(err); }
+        if (!userId) { return done(null, false); }
+
+        User.findById(userId, function(err, user) {
+          if (err) { return done(err); }
+          if (!user) { return done(null, false); }
+          return done(null, user);
+        });
+      });
+    },
+    issueToken
+  ));
+
+  app.use(session({secret: '567v^&5vr7'}));
+  // app.use(session({
+  //   secret: '567v^&5vr7',
+  //   cookie: {
+  //     maxAge: 3600000
+  //   }
+  // }));
   app.use(passport.initialize());
   app.use(passport.session());
+  app.use(passport.authenticate('remember-me'));
 
   app.get('/auth/facebook', passport.authenticate('facebook'));
   app.get('/auth/facebook/callback',
     passport.authenticate('facebook', {
       failureRedirect: '/auth/sign-in-failure'
     }),
+    function(req, res, next) {
+      issueToken(req.user, function(err, token) {
+        if (err) { return next(err); }
+        res.cookie('remember_me', token, { path: '/', httpOnly: true, maxAge: 604800000 }); //TODO that's only a week
+        return next();
+      });
+    },
     function(req, res) {
       res.redirect('/');
     }

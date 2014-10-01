@@ -36,9 +36,16 @@ function addToFavs(data) {
   User.findById(userId, function(err, user) {
     if (err) { return; } //TODO feed back to client
     if (!user) { return; } //perhaps user was deleted in another session? TODO hande better
-
-    user.favs.push(story);
-    user.save();
+    var storyExists = false;
+    user.favs.forEach(function(fav) {
+      if (fav.id === story.id) { storyExists = true; }
+    });
+    if (storyExists) {
+      return;
+    } else {
+      user.favs.push(story);
+      user.save();
+    }
 
   });
 }
@@ -59,7 +66,26 @@ function updateSettings(data) {
 
 }
 
+function removeFromFavs(data) {
+  var userId = data.userId
+    , storyId = data.storyId
+  ;
+  User.findById(userId, function(err, user) {
+    if (err) { return; } //TODO feed back to client
+    if (!user) { return; } //perhaps user was deleted in another session? TODO hande better
+    user.favs.forEach(function(fav, i) {
+      if (fav.id === storyId) {
+        user.favs.splice(i, 1);
+        user.save();
+        return;
+      }
+    });
+  });
+
+}
+
 exports.markAsRead = addToReadList;
 exports.addToFavs = addToFavs;
 exports.updateSettings = updateSettings;
+exports.removeFromFavs = removeFromFavs;
 
