@@ -56,6 +56,8 @@ exports.start = function(app) {
     // });
 
     socket.on('markAsRead', userController.markAsRead);
+    socket.on('addToFavs', userController.addToFavs);
+    socket.on('updateSettings', userController.updateSettings);
   });
 
   app.use(cookieParser());

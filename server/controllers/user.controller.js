@@ -26,49 +26,40 @@ function addToReadList(data) {
   });
 }
 
+function addToFavs(data) {
+  //TODO for now I'm adding the entire story to the user object.
+  //Eventually just store the ID, then generate the fav list when a user navigates to fav tab.
+  devLog('will add to favs:', data.userId, 'and', data.story.name);
+  var userId = data.userId
+    , story = data.story
+  ;
+  User.findById(userId, function(err, user) {
+    if (err) { return; } //TODO feed back to client
+    if (!user) { return; } //perhaps user was deleted in another session? TODO hande better
+
+    user.favs.push(story);
+    user.save();
+
+  });
+}
+
+function updateSettings(data) {
+  var userId = data.userId
+    , settings = data.settings
+  ;
+  User.findById(userId, function(err, user) {
+    if (err) { return; } //TODO feed back to client
+    if (!user) { return; } //perhaps user was deleted in another session? TODO hande better
+
+    //TODO the settings sent from the client that aren't the schema will be ignored
+    //but still, I should be less brutal about what I save here.
+    user.settings = settings;
+    user.save();
+  });
+
+}
+
 exports.markAsRead = addToReadList;
+exports.addToFavs = addToFavs;
+exports.updateSettings = updateSettings;
 
-
-
-//called by deserialize
-// exports.findOne = function(user, cb) {
-//   devLog('Looking up user with id:', user.providerId);
-
-//   User.findOne({providerId: user.providerId, provider: user.providerId}, function(err, doc) {
-//     devLog('findOne() err:', err);
-//     devLog('findOne() usr:', doc);
-//     cb(err, doc);
-//   });
-// };
-
-//called when trying to log in, accepts a provider user
-// exports.findOrCreate = function(provider, profile, cb) {
-//   devLog('User.findOne({providerId: ' + profile.id + ', provider: ' + provider + '})');
-
-//   User.findOne({providerId: profile.id, provider: provider}, function(err, doc) {
-//     devLog('findOne found one!', doc);
-//     if (err) {
-//       return cb(err);
-//     } else if (!doc) {
-//       var newUser = new User({
-//         providerId: profile.id,
-//         provider: provider,
-//         username: profile.displayName,
-//         name: {
-//           full: profile.displayName,
-//           first: profile.givenName,
-//           last: profile.familyName
-//         }
-//       });
-
-//       if (provider === 'facebook') {
-//         newUser.facebookProfile = profile;
-//       }
-//       newUser.save(function(err) {
-//         return cb(err, newUser);
-//       });
-//     } else {
-//       return cb(null, doc);
-//     }
-//   });
-// };

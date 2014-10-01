@@ -3,11 +3,11 @@
 var path = require('path')
   , passport = require('passport')
   , session = require('express-session')
-  , userController = require(path.join(__dirname, 'controllers', 'user.controller'))
+  // , userController = require(path.join(__dirname, 'controllers', 'user.controller'))
   , User = require(path.join(__dirname, 'models', 'User.model'))
   , utils = require(path.join(__dirname, 'utils'))
   , devLog = utils.devLog
-  , LocalStrategy = require('passport-local').Strategy
+  // , LocalStrategy = require('passport-local').Strategy
   , FacebookStrategy = require('passport-facebook').Strategy
   , FACEBOOK_APP_ID = '833772886647232'
   , FACEBOOK_APP_SECRET = '862d4c22a83572793c7214d798afe5f3'
@@ -49,7 +49,6 @@ exports.setUp = function(app) {
       console.log('Seems like fb came back as it should,', profile.displayName);
       process.nextTick(function() {
 
-
         User.findOne({'facebook.id': profile.id}, function(err, doc) {
 
           if (err) {
@@ -63,34 +62,18 @@ exports.setUp = function(app) {
             newUser.name.first     = profile.name.givenName;
             newUser.name.last      = profile.name.familyName;
             newUser.name.display   = profile.displayName;
-            // newUser.profile        = profile;
 
             newUser.save(function(err) {
               return done(err, newUser);
             });
           } else {
-            devLog('findOne found one!', doc);
-
             return done(null, doc);
           }
         });
 
-
-        // userController.findOrCreate('facebook', profile, function(err, user) {
-        //   return done(err, user);
-        // });
       });
     }
   ));
-
-  passport.use(new LocalStrategy(
-    function(username, password, done) {
-      userController.findOrCreate({id: username, password: password}, function(err, user) {
-        return done(err, user);
-      });
-    }
-  ));
-
 
   app.use(session({
     secret: '567v^&5vr7',
@@ -100,16 +83,6 @@ exports.setUp = function(app) {
   }));
   app.use(passport.initialize());
   app.use(passport.session());
-
-
-  app.get('/auth/local',
-    passport.authenticate('local', {
-      failureRedirect: '/auth/sign-in-failure'
-    }),
-    function(req, res) {
-      res.redirect('/');
-    }
-  );
 
   app.get('/auth/facebook', passport.authenticate('facebook'));
   app.get('/auth/facebook/callback',

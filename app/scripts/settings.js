@@ -75,7 +75,8 @@ NB.Settings = (function() {
   }
 
   function saveSettings() {
-    //The settings object is bound so nothing needs to be updated there
+    NB.Data.emit('updateSettings', {settings: ko.toJS(settings)});
+    //The settings ko object is bound so nothing needs to be updated there
 //     var maxHitLimit = Math.min(500, settings.hitLimit());
     var tmp = NB.Utils.constrain(1, settings.hitLimit(), 500);
     settings.hitLimit(tmp);
@@ -85,6 +86,8 @@ NB.Settings = (function() {
 
     var tmp = Math.max(0, settings.hxnMinScore());
     settings.hxnMinScore(tmp);
+
+
 
 
     var localSettings = {

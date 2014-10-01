@@ -90,7 +90,8 @@ NB.Settings = (function() {
   }
 
   function saveSettings() {
-    //The settings object is bound so nothing needs to be updated there
+    NB.Data.emit('updateSettings', {settings: ko.toJS(settings)});
+    //The settings ko object is bound so nothing needs to be updated there
 //     var maxHitLimit = Math.min(500, settings.hitLimit());
     var tmp = NB.Utils.constrain(1, settings.hitLimit(), 500);
     settings.hitLimit(tmp);
@@ -100,6 +101,8 @@ NB.Settings = (function() {
 
     var tmp = Math.max(0, settings.hxnMinScore());
     settings.hxnMinScore(tmp);
+
+
 
 
     var localSettings = {
@@ -221,8 +224,9 @@ var NB = NB || {};
 
 NB.Auth = (function() {
   var Auth = {}
-    , user = null
+    , rawUser = {}
     , userModel = {
+        _id: '',
         name: {
           first: ko.observable(''),
           last: ko.observable(''),
@@ -239,30 +243,44 @@ NB.Auth = (function() {
 
 
   function init() {
-//     ko.applyBindings(userModel, document.getElementById('user-items'));
+    ko.applyBindings(userModel, document.getElementById('user-items'));
   }
 
   
   init();
 
   /*  --  EXPORTS  --  */
-  Auth.user = userModel; //TODO change to 'get userModel' and update the ko binding
   Auth.setUser = function(user) {
-    
-    if (user && user.name) {
+    rawUser = user;
+    if (user) {
+      userModel._id = user._id;
       userModel.name.first(user.name.first);
       userModel.name.last(user.name.last);
       userModel.name.display(user.name.display);
       userModel.signedIn(true);
     } else {
+      userModel._id = null;
       userModel.name.first(null);
       userModel.name.last(null);
       userModel.name.display(null);
       userModel.signedIn(false);
     }
   };
+
+  Auth.getUser = function() {
+    if (userModel.signedIn()) {
+      return userModel;
+    } else {
+      return null;
+    }
+    
+  };
+  Auth.getRawUser = function() {
+    return rawUser;
+  }
+
   Auth.signOut = function() {
-    console.log('OK, will sign out');
+    console.log('OK, will sign out (ha ha, but I am not really!');
   };
 
   return Auth;
@@ -301,7 +319,6 @@ NB.Data = (function() {
         existing.score = d.score;
       } else {
         if (d.postDate > NB.oldestStory && d.score > minScore) { //I don't want to add stories that are older than what's on the chart
-//           console.log('Adding a story:', d.name);
           Data.stories.push(d);
         }
       }
@@ -310,9 +327,7 @@ NB.Data = (function() {
 
   //parse story data
   function parseSocketIoData(data) {
-//     console.log('parsing', data.length, 'new items', data);
     data.forEach(function(d) {
-//       var jsDate = new Date(d.postDate);
       d.postDate = new Date(d.postDate);
     });
     sortBy(data, 'commentCount');
@@ -323,9 +338,11 @@ NB.Data = (function() {
     if (captureOldest) {
       NB.oldestStory = Infinity;
     }
-//     console.log('parseInitialData()');
     data.forEach(function(s) {
       s.postDate = new Date(s.postDate);
+      if (!s.isRead) { //if the story is NOT marked as read from the server, then check if it is here.
+        s.isRead = isRead(s.id);
+      }
       if (captureOldest) {
         NB.oldestStory = Math.min(NB.oldestStory, s.postDate);
       }
@@ -342,6 +359,7 @@ NB.Data = (function() {
       if (NB.Settings.getSetting('source') !== 'hxn') { return; } //this could occur if the page is changed before the data comes back
       if (!response.data.length) { return; } //TODO show user a message for no data to return
       console.log('Got data:', response);
+      NB.Auth.setUser(response.user); //potentially null
       parseInitialData(response.data, true, function(parsedData) {
         Data.stories = parsedData;
         NB.Chart.drawStories();
@@ -357,24 +375,55 @@ NB.Data = (function() {
       if (!response.data.length) { return; } //TODO show user a message for no data to return
       NB.Auth.setUser(response.user); //potentially null
       parseInitialData(response.data, true, function(parsedData) {
-//         console.log('parseInitialData complete');
         Data.stories = parsedData;
         NB.Chart.drawStories();
       });
     });
   }
 
+  function isRead(id) {
+    var objString = id.toString();
+    var isRead = false;
+    //TODO, does indexOf not do this?
+    for (var i = 0; i < readList.length; i++) {
+      if (objString === readList[i]) {
+//         console.log(readList[i] + 'is already read');
+        isRead = true;
+      }
+    }
+    return isRead;
+
+  }
+
+
+  function markAsUnread(id) {
+    id = id.toString();
+    for (var i = 0; i < readList.length; i++) {
+      if (readList[i] === id) {
+        readList.splice(i,1);
+        localStorage.readList = JSON.stringify(readList);
+        return;
+      }
+    }
+    //TODO: Data.emit('markAsUnread', {storyId: id});
+  }
+  function markAsRead(id) {
+    if (isRead(id)) { return; } //prevent duplicates
+    readList.push(id);
+    localStorage.readList = JSON.stringify(readList);
+    Data.emit('markAsRead', {storyId: id});
+  }
+
 
   function init() {
     socket = io(); //TODO only get the server to send data for reddit or hxn?
-
+    
     socket.on('data', function(msg) {
-//       console.log('socket.on(\'data\')', msg);
       if (!Data.stories.length) { return; } //TODO need to remove this if I want to use IO even for the first fetch.
 
+//       console.log('IO data:', msg);
       var src = NB.Settings.getSetting('source');
       if (msg.data.length && msg.source === src) { //e.g. if it's the reddit view and the data is reddit data
-//         console.log('got', msg.data.length, 'stories from IO');
         mergeStories(parseSocketIoData(msg.data));
         NB.Chart.drawStories();
       }
@@ -387,37 +436,25 @@ NB.Data = (function() {
   /*  --  PUBLIC  --  */
   Data.stories = [];
 
+  Data.emit = function(eventName, data) {
+    //adds the userId to the payload and sends it on its way.
+    var user = NB.Auth.getUser();
+    if (user) {
+//       NB.Data.emit('addToFavs', {userId: user._id, story: story});
+      data.userId = user._id;
+      console.log('sending data:', data);
+      socket.emit(eventName, data);
+    }
+    
+  }
+
   Data.setData = function(key, value) {
     store[key] = value;
   };
 
-  Data.markAsRead = function(id) {
-    readList.push(id);
-    localStorage.readList = JSON.stringify(readList);
-  };
+  Data.markAsRead = markAsRead;
+  Data.markAsUnread = markAsUnread;
 
-  Data.markAsUnread = function(id) {
-    id = id.toString();
-    for (var i = 0; i < readList.length; i++) {
-      if (readList[i] === id) {
-        readList.splice(i,1);
-        localStorage.readList = JSON.stringify(readList);
-        return;
-      }
-    }
-  };
-
-  Data.isRead = function(id) {
-    var objString = id.toString();
-    var isRead = false;
-    for (var i = 0; i < readList.length; i++) {
-      if (objString === readList[i]) {
-//         console.log(readList[i] + 'is already read');
-        isRead = true;
-      }
-    }
-    return isRead;
-  };
 
   Data.getData = function() {
     var source = NB.Settings.getSetting('source') || 'rdt'; //this should never be empty, but 'rdt' is there for the fun of it.
@@ -502,9 +539,10 @@ NB.Favs = (function() {
   }
 
   Favs.addToFavs = function(story) {
-//     console.log('Adding story to favs:', story);
     store.push(story);
     localStorage.favs = JSON.stringify(store);
+    
+    NB.Data.emit('addToFavs', {story: story});
   };
 
   Favs.removeFromFavs = function(story) {
@@ -685,13 +723,6 @@ NB.Chart = (function() {
     , maxiTooltipShowing = false
   ;
 
-  function markAsRead(circle, story) {
-    if (NB.Data.isRead(story.id)) { return; }
-
-    NB.Data.markAsRead(story.id);
-    circle.classed('read', true);
-  }
-
   function toggleRead(circle, story) {
     if (circle.classed('read')) {
       circle.classed('read', false);
@@ -717,12 +748,6 @@ NB.Chart = (function() {
 
     //move to back
     moveToBack(d3.event.currentTarget)
-//     var domEl = d3.event.currentTarget;
-//     if (domEl.previousSibling) {
-//       var parent = domEl.parentNode;
-//       var firstChild = parent.firstChild.nextSibling; //the first element is the overlay rectangle, the rest are circles.
-//       parent.insertBefore(domEl, firstChild);
-//     }
 
     //get the D3 flvoured dom el
     var el = d3.select(d3.event.currentTarget);
@@ -740,7 +765,8 @@ NB.Chart = (function() {
     var setting = NB.Settings.getSetting('clickAction');
 
     if (setting === 'storyPanel') {
-      markAsRead(el, d);
+      NB.Data.markAsRead(d.id);
+      el.classed('read', true);
       NB.Layout.showStoryPanel();
       NB.StoryPanel.render(d);
     }
@@ -885,7 +911,8 @@ NB.Chart = (function() {
         return NB.Settings.getColor(d.source, d.category);
       })
       .classed('story-circle', true)
-      .classed('read', function(d) { return NB.Data.isRead(d.id); })
+      //TODO: don't check each loop for is read, do it once on load
+      .classed('read', function(d) { return d.isRead; })
       .on('click', bubbleClicked)
       .on('mouseover', bubbleMouseover)
       .on('mouseout', bubbleMouseout)

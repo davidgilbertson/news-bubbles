@@ -18,9 +18,10 @@ NB.Favs = (function() {
   }
 
   Favs.addToFavs = function(story) {
-//     console.log('Adding story to favs:', story);
     store.push(story);
     localStorage.favs = JSON.stringify(store);
+    
+    NB.Data.emit('addToFavs', {story: story});
   };
 
   Favs.removeFromFavs = function(story) {

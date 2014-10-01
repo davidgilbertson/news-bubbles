@@ -72,6 +72,7 @@ NB.Data = (function() {
       if (NB.Settings.getSetting('source') !== 'hxn') { return; } //this could occur if the page is changed before the data comes back
       if (!response.data.length) { return; } //TODO show user a message for no data to return
       console.log('Got data:', response);
+      NB.Auth.setUser(response.user); //potentially null
       parseInitialData(response.data, true, function(parsedData) {
         Data.stories = parsedData;
         NB.Chart.drawStories();
@@ -117,24 +118,18 @@ NB.Data = (function() {
         return;
       }
     }
+    //TODO: Data.emit('markAsUnread', {storyId: id});
   }
   function markAsRead(id) {
     if (isRead(id)) { return; } //prevent duplicates
     readList.push(id);
     localStorage.readList = JSON.stringify(readList);
-
-    var user = NB.Auth.getUser();
-    if (user) { //TODO uncomment for testing
-      socket.emit('markAsRead', {userId: user._id, storyId: id});
-    }
-
+    Data.emit('markAsRead', {storyId: id});
   }
 
 
   function init() {
     socket = io(); //TODO only get the server to send data for reddit or hxn?
-    
-    Data.socket = socket;
     
     socket.on('data', function(msg) {
       if (!Data.stories.length) { return; } //TODO need to remove this if I want to use IO even for the first fetch.
@@ -153,6 +148,18 @@ NB.Data = (function() {
 
   /*  --  PUBLIC  --  */
   Data.stories = [];
+
+  Data.emit = function(eventName, data) {
+    //adds the userId to the payload and sends it on its way.
+    var user = NB.Auth.getUser();
+    if (user) {
+//       NB.Data.emit('addToFavs', {userId: user._id, story: story});
+      data.userId = user._id;
+      console.log('sending data:', data);
+      socket.emit(eventName, data);
+    }
+    
+  }
 
   Data.setData = function(key, value) {
     store[key] = value;

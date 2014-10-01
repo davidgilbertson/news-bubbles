@@ -26,7 +26,7 @@ var userSchema = mongoose.Schema({
     source:           {type: String, default: 'rdt'}
   }, //the client settings object. I could better define this here
   readList:        [], //array of sourceIds for stories that have been read
-  favorites:       [], //array of sourceIds for stories that are favourites
+  favs:            [], //array of sourceIds for stories that are favourites
 });
 
 var User = mongoose.model('user', userSchema);
