@@ -11,6 +11,7 @@ NB.Comments = (function() {
     result = result.replace(/href="(\/r\/.*?)"/g, 'href="http://www.reddit.com$1"');
     result = result.replace(/href="(\/u\/.*?)"/g, 'href="http://www.reddit.com$1"');
     result = result.replace(/(<a [^>]*?)(>)/g, '$1 target="_blank"$2');
+    result = result.replace(/(<a.*?href=)(".*?(?:jpg|png|gif)")(.*?)(<\/a>)/, '$1$2$3<img src=$2>$4');
     return result;
   }
 
