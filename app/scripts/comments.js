@@ -45,6 +45,8 @@ NB.Comments = (function() {
         var $child = $('<li class="comment-list-item">');
         if (commentObj.kind === 'more') {
           //TODO, maybe really handle 'more'
+        } else if (commentObj.data.body === '[deleted]') {
+          //Do nothing. Looks like there isn't a flag for this
         } else {
           author = commentObj.data.author;
           timeAgo = moment(commentObj.data.created_utc * 1000).fromNow();
@@ -105,7 +107,7 @@ NB.Comments = (function() {
       var timeAgo = moment(comment.created_at_i * 1000).fromNow();
       var points = comment.points + ' points';
 
-      $child.append('<div class="comment-list-item-text body">' + comment.comment_text + '</div>');
+      $child.append('<div class="comment-list-item-text body">' + comment.comment_text.replace(/\\n/, '<br>') + '</div>');
       $child.append('<p class="comment-list-item-text meta"> ' + author + ' | ' + timeAgo + ' | ' + points + '</p>');
 
       $result.append($child);
