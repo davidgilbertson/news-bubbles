@@ -7,6 +7,20 @@ NB.Auth = (function() {
     , authModal = d3.select('#auth-modal')
   ;
 
+  // Remove the ugly Facebook appended hash
+  // <https://github.com/jaredhanson/passport-facebook/issues/12>
+  // source for this code: https://github.com/jaredhanson/passport-facebook/issues/12#issuecomment-5913711
+  function removeFacebookAppendedHash() {
+    if (!window.location.hash || window.location.hash !== '#_=_') {
+      return;
+    } else if (window.history && window.history.replaceState) {
+      return window.history.replaceState('', document.title, window.location.pathname);
+    } else {
+      window.location.hash = '';
+    }
+      
+    
+  }
 
   function close() {
     authModal
@@ -26,7 +40,7 @@ NB.Auth = (function() {
       .transition().duration(500)
       .style('opacity', 1);
   }
-  
+
   var userModel = {
     _id: '',
     name: {
@@ -64,6 +78,7 @@ NB.Auth = (function() {
       userModel.name.display(user.name.display);
       userModel.signedIn(true);
       userModel.headerText('Account');
+      removeFacebookAppendedHash(); //TODO test for FB?
     } else {
       userModel._id = null;
       userModel.name.first(null);
