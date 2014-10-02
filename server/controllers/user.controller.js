@@ -8,7 +8,7 @@ var path = require('path')
 
 
 //add this id to the read list for the user
-function addToReadList(data) {
+function markAsRead(data) {
   devLog('will add to read list:', data.userId, 'and', data.storyId);
   var userId = data.userId
     , storyId = data.storyId
@@ -21,6 +21,27 @@ function addToReadList(data) {
       console.log('Adding', storyId, 'to the list of read things for user', userId);
       user.readList.push(storyId);
       user.save();
+    }
+
+  });
+}
+//add this id to the read list for the user
+function markAsUnread(data) {
+  devLog('will remove from read list:', data.userId, 'and', data.storyId);
+  var userId = data.userId
+    , storyId = data.storyId
+  ;
+  User.findById(userId, function(err, user) {
+    if (err) { return; } //TODO feed back to client
+    if (!user) { return; } //perhaps user was deleted in another session? TODO hande better
+
+    var pos = user.readList.indexOf(storyId);
+    if (pos > -1) {
+      devLog('Marking this story as not read:', user.readList[pos]);
+      user.readList.splice(pos, 1);
+      user.save();
+    } else {
+      devLog('No story with id', storyId, 'is in the read list. That is odd.');
     }
 
   });
@@ -84,7 +105,8 @@ function removeFromFavs(data) {
 
 }
 
-exports.markAsRead = addToReadList;
+exports.markAsRead = markAsRead;
+exports.markAsUnread = markAsUnread;
 exports.addToFavs = addToFavs;
 exports.updateSettings = updateSettings;
 exports.removeFromFavs = removeFromFavs;

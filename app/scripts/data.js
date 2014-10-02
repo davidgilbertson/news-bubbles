@@ -53,37 +53,44 @@ NB.Data = (function() {
     }
 
     //User stuff
-    NB.Auth.setUser(data.user); //potentially null
-    if (data.user.settings) {
-      if (NB.Settings.getSetting('source') !== data.user.settings.source) {
-        NB.Nav.navigate(data.user.settings.source); //this handles the setting and resetting of the chart
-        return cb(false); //this prevents the page from drawing further.
+    if (data.user) {
+      NB.Auth.setUser(data.user);
+
+      if (data.user.settings) {
+        if (NB.Settings.getSetting('source') !== data.user.settings.source) {
+          NB.Nav.navigate(data.user.settings.source); //this handles the setting and resetting of the chart
+          return cb(false); //this prevents the page from drawing further.
+        }
+
+        NB.Settings.setAll(data.user.settings);
       }
 
-      NB.Settings.setAll(data.user.settings);
-    }
-    if (data.user.readList) {
-      if (localStorage.readList) {
-        var lsReadList = JSON.parse(localStorage.readList);
-        var serverReadList = data.user.readList;
-        var i, j, exists = false, newReadList = [];
-        for (i = 0; i < lsReadList.length; i++) {
-          for (j = 0; j < serverReadList.length; j++) {
-            if (lsReadList[i] === serverReadList[j]) {
-              exists = true;
+      if (data.user.readList) {
+        if (localStorage.readList) {
+          var lsReadList = JSON.parse(localStorage.readList);
+          var serverReadList = data.user.readList;
+          var i, j, exists = false, newReadList = [];
+          for (i = 0; i < lsReadList.length; i++) {
+            for (j = 0; j < serverReadList.length; j++) {
+              if (lsReadList[i] === serverReadList[j]) {
+                exists = true;
+              }
             }
+            if (!exists) {
+              newReadList.push(lsReadList[i]);
+              //If the item was in local storage but not on the server, send it to the server
+              Data.emit('markAsRead', {storyId: lsReadList[i]});
+            }
+            exists = false;
           }
-          if (!exists) {
-            newReadList.push(lsReadList[i]);
-          }
-          exists = false;
+          readList = lsReadList.concat(newReadList);
+          delete localStorage.readList;
+        } else {
+          readList = data.user.readList;
         }
-        readList = lsReadList.concat(newReadList);
-        delete localStorage.readList;
-      } else {
-        readList = data.user.readList;
       }
     }
+
 
 
     //Stories
@@ -149,6 +156,7 @@ NB.Data = (function() {
 
   function markAsUnread(id) {
     id = id.toString();
+    Data.emit('markAsUnread', {storyId: id});
     for (var i = 0; i < readList.length; i++) {
       if (readList[i] === id) {
         readList.splice(i,1);
@@ -156,7 +164,6 @@ NB.Data = (function() {
         return;
       }
     }
-    //TODO: Data.emit('markAsUnread', {storyId: id});
   }
   function markAsRead(id) {
     if (isRead(id)) { return; } //prevent duplicates
@@ -191,9 +198,8 @@ NB.Data = (function() {
     //adds the userId to the payload and sends it on its way.
     var user = NB.Auth.getUser();
     if (user) {
-//       NB.Data.emit('addToFavs', {userId: user._id, story: story});
       data.userId = user._id;
-//       console.log('sending data:', data);
+      console.log('Emitting: ', eventName, 'with data:', data);
       socket.emit(eventName, data);
     }
     
