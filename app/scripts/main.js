@@ -31,7 +31,7 @@ NB.main = (function() {
     document.body.classList.remove('no-touch');
     NB.hasTouch = true;
     document.body.removeEventListener('touchstart', onFirstTouch);
-  }
+  };
   document.body.addEventListener('touchstart', onFirstTouch);
 
 

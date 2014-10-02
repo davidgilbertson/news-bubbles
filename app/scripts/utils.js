@@ -9,7 +9,7 @@ NB.Utils = (function() {
     val = Math.max(low, val);
     val = Math.min(val, high);
     return val;
-  }
-  
+  };
+
   return Utils;
 })();

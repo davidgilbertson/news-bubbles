@@ -18,8 +18,8 @@ NB.Auth = (function() {
     } else {
       window.location.hash = '';
     }
-      
-    
+
+
   }
 
   function close() {
@@ -57,7 +57,7 @@ NB.Auth = (function() {
     open: open,
     close: close,
     save: save
-  }
+  };
 
 
   function init() {
@@ -65,7 +65,7 @@ NB.Auth = (function() {
     ko.applyBindings(userModel, document.getElementById('auth-modal'));
   }
 
-  
+
   init();
 
   /*  --  EXPORTS  --  */
@@ -95,11 +95,11 @@ NB.Auth = (function() {
     } else {
       return null;
     }
-    
+
   };
   Auth.getRawUser = function() {
     return rawUser;
-  }
+  };
 
   Auth.signOut = function() {
     console.log('OK, will sign out (ha ha, but I am not really!');

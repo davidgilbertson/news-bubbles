@@ -59,7 +59,7 @@ NB.StoryModel = (function() {
 
     var color = NB.Settings.getColor(story.source, category);
 
-    
+
     if (story.source === 'rdt') {
       domain = story.rdt.domain;
       //From 24 sep 2014 the source and author URLs are in the database.
@@ -114,16 +114,16 @@ NB.StoryModel = (function() {
       .timeString(timeFormatter(story.postDate))
       .dateString(dateFormatter(story.postDate))
       .isFav(isFav);
-      
+
 
     if (tooltipOrPanel === 'panel') {
         storyObj.content(story.content);
     }
   };
 
-  StoryModel.favStory = function(story) {
-    toggleFav(story);
-  };
+  // StoryModel.favStory = function(story) {
+  //   toggleFav(story);
+  // };
 
   StoryModel.clear = function() {
     StoryModel.panelStory
@@ -141,7 +141,7 @@ NB.StoryModel = (function() {
       .dateString('')
       .content('')
       .isFav('');
-      
+
   };
 
   init();

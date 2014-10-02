@@ -78,16 +78,16 @@ NB.Settings = (function() {
     if (!silent) {
       NB.Data.emit('updateSettings', {settings: ko.toJS(settings)});
     }
-    
+
     //The settings ko object is bound so nothing needs to be updated there
 //     var maxHitLimit = Math.min(500, settings.hitLimit());
     var tmp = NB.Utils.constrain(1, settings.hitLimit(), 500);
     settings.hitLimit(tmp);
 
-    var tmp = Math.max(0, settings.rdtMinScore());
+    tmp = Math.max(0, settings.rdtMinScore());
     settings.rdtMinScore(tmp);
 
-    var tmp = Math.max(0, settings.hxnMinScore());
+    tmp = Math.max(0, settings.hxnMinScore());
     settings.hxnMinScore(tmp);
 
 

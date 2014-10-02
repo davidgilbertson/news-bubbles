@@ -53,7 +53,7 @@ NB.StoryPanel = (function() {
         } else {
           console.log('The story has already changed, dumping the comments');
         }
-        
+
       });
     }
 
@@ -194,8 +194,7 @@ NB.StoryPanel = (function() {
 
   StoryPanel.clear = function() {
     NB.StoryModel.clear();
-
-  }
+  };
 
 
   return StoryPanel;

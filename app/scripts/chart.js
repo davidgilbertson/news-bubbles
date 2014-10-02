@@ -39,7 +39,7 @@ NB.Chart = (function() {
     }
   }
 
-  function moveToBack(domEl) {
+  function moveToBack() {
     var domEl = d3.event.currentTarget;
     if (domEl.previousSibling) {
       var parent = domEl.parentNode;
@@ -53,7 +53,7 @@ NB.Chart = (function() {
   function bubbleClicked(d) {
 
     //move to back
-    moveToBack(d3.event.currentTarget)
+    moveToBack();
 
     //get the D3 flvoured dom el
     var el = d3.select(d3.event.currentTarget);
@@ -155,7 +155,7 @@ NB.Chart = (function() {
     var tipWidth = tooltipDims.width;
     var tipHeight = tooltipDims.height;
 
-    var thisDims = this.getBoundingClientRect(); //TODO replace 'this' with whatever the element is
+    var thisDims = d3.event.currentTarget.getBoundingClientRect();
 
     var left = thisDims.left - ((tipWidth - thisDims.width) / 2);
     left = Math.max(left, margins.left);
@@ -179,7 +179,7 @@ NB.Chart = (function() {
     var setting = NB.Settings.getSetting('rightClickAction');
     if (setting === 'nothing') { return; }
     d3.event.preventDefault();
-    moveToBack(d3.event.currentTarget)
+    moveToBack();
 
     var el = d3.select(d3.event.currentTarget);
 

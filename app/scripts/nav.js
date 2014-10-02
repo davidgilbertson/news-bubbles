@@ -14,7 +14,7 @@ NB.Nav = (function() {
 
   Nav.navModel = {
     currentSource: ko.observable(currentSource)
-  }
+  };
 
   Nav.navigate = function(newSource) {
     NB.Layout.hideStoryPanel();
@@ -26,13 +26,13 @@ NB.Nav = (function() {
     NB.Chart.reset();
     NB.Data.getData();
 
-    //TODO: less dumb way to do this?    
+    //TODO: less dumb way to do this?
     var body = d3.select('body');
     body.classed('rdt', newSource === 'rdt');
     body.classed('hxn', newSource === 'hxn');
     body.classed('fav', newSource === 'fav');
   };
-  
+
   init();
   return Nav;
 })();

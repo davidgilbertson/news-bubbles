@@ -141,15 +141,15 @@ NB.Data = (function() {
 
   function isRead(id) {
     var objString = id.toString();
-    var isRead = false;
+    var isThisRead = false;
     //TODO, does indexOf not do this?
     for (var i = 0; i < readList.length; i++) {
       if (objString === readList[i]) {
 //         console.log(readList[i] + 'is already read');
-        isRead = true;
+        isThisRead = true;
       }
     }
-    return isRead;
+    return isThisRead;
 
   }
 
@@ -175,7 +175,7 @@ NB.Data = (function() {
 
   function init() {
     socket = io(); //TODO only get the server to send data for reddit or hxn?
-    
+
     socket.on('data', function(msg) {
       if (!Data.stories.length) { return; } //TODO need to remove this if I want to use IO even for the first fetch.
 
@@ -202,8 +202,8 @@ NB.Data = (function() {
 //       console.log('Emitting: ', eventName, 'with data:', data);
       socket.emit(eventName, data);
     }
-    
-  }
+
+  };
 
   Data.setData = function(key, value) {
     store[key] = value;
@@ -252,7 +252,7 @@ NB.Data = (function() {
         if (!data.images) { return; }
 
         for (i = 0; i < data.images.length; i++) {
-          img = data.images[i]
+          img = data.images[i];
 
           html += '<figure>';
           html += '<img src="' + img.link + '">';
@@ -269,7 +269,7 @@ NB.Data = (function() {
       process(response.data);
     });
 
-  }
+  };
 
 
   init();
