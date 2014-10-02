@@ -129,7 +129,8 @@ NB.Chart = (function() {
         toggleRead(el, d);
       });
       d3.select('#tooltip-open-reading-pane').on('click', function() { //D3 will remove any existing listener
-        markAsRead(el, d);
+        NB.Data.markAsRead(d.id);
+        el.classed('read', true);
         NB.Layout.showStoryPanel();
         NB.StoryPanel.render(d);
       });

@@ -4,25 +4,51 @@ var NB = NB || {};
 NB.Auth = (function() {
   var Auth = {}
     , rawUser = {}
-    , userModel = {
-        _id: '',
-        name: {
-          first: ko.observable(''),
-          last: ko.observable(''),
-          display: ko.observable('')
-        },
-        signOut: function() {
-          $.get('/auth/sign-out');
-          Auth.setUser(null);
-        },
-        signedIn: ko.observable(false) //TODO: Hmmm, implied?
-      }
+    , authModal = d3.select('#auth-modal')
   ;
 
+
+  function close() {
+    authModal
+      .transition().duration(500)
+      .style('opacity', 0)
+      .transition()
+      .style('display', 'none');
+  }
+
+  function save() {
+    close();
+  }
+
+  function open() {
+    authModal
+      .style('display', 'block')
+      .transition().duration(500)
+      .style('opacity', 1);
+  }
+  
+  var userModel = {
+    _id: '',
+    name: {
+      first: ko.observable(''),
+      last: ko.observable(''),
+      display: ko.observable('')
+    },
+    signedIn: ko.observable(false),
+    headerText: ko.observable('Sign in'),
+//     signOut: function() {
+//       $.get('/auth/sign-out');
+//       Auth.setUser(null);
+//     },
+    open: open,
+    close: close,
+    save: save
+  }
 
 
   function init() {
     ko.applyBindings(userModel, document.getElementById('user-items'));
+    ko.applyBindings(userModel, document.getElementById('auth-modal'));
   }
 
   
@@ -37,12 +63,14 @@ NB.Auth = (function() {
       userModel.name.last(user.name.last);
       userModel.name.display(user.name.display);
       userModel.signedIn(true);
+      userModel.headerText('Account');
     } else {
       userModel._id = null;
       userModel.name.first(null);
       userModel.name.last(null);
       userModel.name.display(null);
       userModel.signedIn(false);
+      userModel.headerText('Sign in');
     }
   };
 

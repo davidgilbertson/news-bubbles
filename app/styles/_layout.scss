@@ -28,7 +28,6 @@
   .header-float {
     float: right;
     height: 100%;
-    color: white;
   }
   .user-items {
     height: 100%;
@@ -37,6 +36,7 @@
       //TODO not sure how to stop FOUC
 /*       display: none; //Overridden by knockout */
       padding: 9px 0 0 4px;
+      color: white;
       &.name {
         display: inline;
         @media (max-width: 600px) {

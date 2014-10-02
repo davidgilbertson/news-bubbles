@@ -57,7 +57,7 @@ NB.Settings = (function() {
       ])
     };
 
-    settingsEl = d3.select('#settings-wrapper');
+    settingsEl = d3.select('#settings-modal');
 
     ko.applyBindings(settings, settingsEl.node(0));
 

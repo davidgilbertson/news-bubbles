@@ -27,7 +27,7 @@
     <meta name="msapplication-TileImage" content="/mstile-144x144.png">
 
   </head>
-  <body>
+  <body class="no-touch">
     <!--[if lt IE 10]>
     <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
     <![endif]-->
@@ -44,9 +44,10 @@
         </svg>
       </div>
       <div id="user-items" class="user-items header-float">
-        <a href="/auth/facebook" class="user-item header-float" data-bind="visible: signedIn() === false">Login with Facebook</a>
-        <a class="user-item header-float" href="/auth/sign-out" data-bind="visible: signedIn, click: signOut"> (sign out)</a>
-        <span class="user-item header-float name" data-bind="visible: signedIn"><span>Hey </span><span data-bind="text: name.first"></span></span>
+        <a href class="user-item header-float" data-bind="click: open, text: headerText"></a>
+        <!-- <a href="/auth/facebook" class="user-item header-float" data-bind="visible: signedIn() === false">Login with Facebook</a> -->
+        <!-- <a class="user-item header-float" href="/auth/sign-out" data-bind="visible: signedIn, click: signOut"> (sign out)</a> -->
+        <!-- <span class="user-item header-float name" data-bind="visible: signedIn"><span>Hey </span><span data-bind="text: name.first"></span></span> -->
       </div>
       <div id="news-sources" class="news-sources header-float">
         <button id="news-source-rdt"
@@ -136,39 +137,66 @@
     </div>
 
 
+    <!-- This modal is bound to the KO auth model -->
+    <div id="auth-modal" class="modal-wrapper auth">
+      <div class="panel">
+        <div id="cancel-auth-btn" class="close-x" data-bind="click: close">×</div>
+        <div>
+          <h1>YOUR ACCOUNT</h1>
+          <hr>
+        </div>
+        <div class="body">
+          <div class="row">
+            <p>Sign in to sync your Bubble Reader favourites, settings, and stories marked as read across devices. We will not post on your behalf or store any interesting data about you.</p>
+            <p>We're adding more social providers every day so shut up and be patient.</p>
+            <hr>
+            <a href="/auth/facebook" class="user-item header-float" data-bind="visible: signedIn() === false">Sign in with Facebook</a>
+            <div data-bind="visible: signedIn">
+              <p><span>You're signed in to Facebook as </span><span data-bind="text: name.display"></span></p>
+              <a href="/auth/sign-out">Disconnect</a>
 
-    <div id="settings-wrapper" class="settings-wrapper">
-      <div class="settings-panel">
-        <div class="close-x settings-panel-close-x" id="cancel-settings-btn">×</div>
-        <div class="settings-panel-header">
+            </div>
+          </div>
+
+        </div>
+        <!-- <div id="save-auth-btn" class="save-btn" data-bind="click: save">SAVE & CLOSE</div> -->
+      </div>
+    </div>
+
+
+    <!-- This modal is bound to the KO settings model -->
+    <div id="settings-modal" class="modal-wrapper settings">
+      <div class="panel">
+        <div class="close-x" id="cancel-settings-btn">×</div>
+        <div>
           <h1>SETTINGS</h1>
           <hr>
         </div>
-        <div class="settings-panel-body">
-          <div class="settings-panel-body-row">
+        <div class="body">
+          <div class="row">
             <h2>WHEN I CLICK A BUBBLE</h2>
-            <div class="settings-panel-option">
+            <div class="option">
               <label>
                 <input type="radio" name="settings-click-bubble-option" value="storyPanel" data-bind="checked: clickAction">
                 Open the story panel
               </label>
             </div>
-            <div class="settings-panel-option">
+            <div class="option">
               <label>
                 <input type="radio" name="settings-click-bubble-option" value="storyTooltip" data-bind="checked: clickAction">
                 Show the story details as a tooltip
               </label>
             </div>
           </div>
-          <div class="settings-panel-body-row">
+          <div class="row">
             <h2>WHEN I RIGHT CLICK A BUBBLE</h2>
-            <div class="settings-panel-option">
+            <div class="option">
               <label>
                 <input type="radio" name="settings-right-click-bubble-option" value="toggleRead" data-bind="checked: rightClickAction">
                 Mark the story as read/unread
               </label>
             </div>
-            <div class="settings-panel-option">
+            <div class="option">
               <label>
                 <input type="radio" name="settings-right-click-bubble-option" value="nothing" data-bind="checked: rightClickAction">
                 Do nothing
@@ -176,9 +204,9 @@
             </div>
           </div>
 
-          <div class="settings-panel-body-row">
+          <div class="row">
             <h2>LIMITS</h2>
-            <div class="settings-panel-option">
+            <div class="option">
               <p>
                 <label>
                   Show <input class="inline-input" type="number" min="0" max="500" data-bind="value: hitLimit">
@@ -200,30 +228,30 @@
             </div>
           </div>
 
-          <div class="settings-panel-body-row">
+          <div class="row">
             <h2>HACKER NEWS COLORS</h2>
-            <div class="settings-panel-option">
-              <ul class="settings-panel-option-color-list" data-bind="foreach: hxnCategoryColors">
+            <div class="option">
+              <ul class="color-list" data-bind="foreach: hxnCategoryColors">
                 <li>
-                  <span class="settings-panel-option-color-list-dot" data-bind="style: {background: color}"></span>
-                  <span class="settings-panel-option-color-list-text" data-bind="text: category"></span>
+                  <span class="dot" data-bind="style: {background: color}"></span>
+                  <span class="text" data-bind="text: category"></span>
                 </li>
               </ul>
             </div>
           </div>
-          <div class="settings-panel-body-row">
+          <div class="row">
             <h2>REDDIT COLORS</h2>
-            <div class="settings-panel-option">
-              <ul class="settings-panel-option-color-list" data-bind="foreach: rdtCategoryColors">
+            <div class="option">
+              <ul class="color-list" data-bind="foreach: rdtCategoryColors">
                 <li>
-                  <span class="settings-panel-option-color-list-dot" data-bind="style: {background: color}"></span>
-                  <span class="settings-panel-option-color-list-text" data-bind="text: category"></span>
+                  <span class="dot" data-bind="style: {background: color}"></span>
+                  <span class="text" data-bind="text: category"></span>
                 </li>
               </ul>
             </div>
           </div>
         </div>
-        <div class="settings-save-btn"  id="save-settings-btn">SAVE & CLOSE</div>
+        <div class="save-btn"  id="save-settings-btn">SAVE & CLOSE</div>
       </div>
     </div>
 

@@ -1,0 +1,80 @@
+/* For fun, trying a different nesting strategy here */
+/* Lower classes have short names, but nothing is ever not nested */
+.modal-wrapper {
+  display: none;
+  opacity: 0;
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  @include shadow;
+  z-index: 2;
+
+  .panel {
+    position: relative;
+    width: 500px;
+    max-width: 100%;
+    height: 1050px;
+    max-height: 90%;
+    margin: 0 auto;
+    top: 5%;
+    background: white;
+    padding: 20px;
+    overflow-y: auto;
+
+    .close-x {
+      $size: 40px;
+      transition: 300ms;
+      position: absolute;
+      width: $size;
+      height: $size;
+      top: 0;
+      right: 0;
+      font-size: $size;
+      line-height: $size - 4;
+      text-align: center;
+      background: $primary-color;
+      color: white;
+      cursor: pointer;
+      &:hover {
+        background: darken($primary-color, 10%);
+      }
+    }
+    .save-btn {
+      transition: 300ms;
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      width: 200px;
+      background: $belizeHole;
+      padding: 10px 15px;
+      color: white;
+      text-align: center;
+      cursor: pointer;
+      &:hover {
+        background: darken($belizeHole, 10%);
+      }
+    }
+    .body {
+      position: absolute;
+      top: 106px;
+      bottom: 80px;
+      left: 0;
+      right: 0;
+      padding: 20px;
+      overflow-y: auto;
+
+      .row {
+        margin: 30px 0 20px 0;
+
+        h2 {
+          font-size: 18px;
+          margin: 15px 0 7px 0;
+        }
+
+      }
+    }
+
+  }
+}
