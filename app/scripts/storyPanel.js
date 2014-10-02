@@ -3,6 +3,7 @@ var NB = NB || {};
 
 NB.StoryPanel = (function() {
   var StoryPanel = {};
+  var currentStoryId;
 
 
   function getReadability(story, cb) {
@@ -31,14 +32,8 @@ NB.StoryPanel = (function() {
 
   function renderRdt(story) {
     var dom = story.rdt.domain.toLowerCase();
+    currentStoryId = story.id; //To check when comments come back
     story.content = '';
-
-    function done(thenAppendComments) {
-      NB.StoryModel.setCurrentStory('panel', story);
-      if (thenAppendComments) {
-        appendComments();
-      }
-    }
 
     //get comments and append. NB done() is not needed.
     function appendComments() {
@@ -50,8 +45,23 @@ NB.StoryPanel = (function() {
           '</p>'
         ].join('');
         story.content += commentTree.html();
-        NB.StoryModel.setCurrentStory('panel', story);
+
+        //Because a user can click one story, then another before the first story comments are loaded
+        //Check that the expected story is still the active one.
+        if (story.id === currentStoryId) {
+          NB.StoryModel.setCurrentStory('panel', story);
+        } else {
+          console.log('The story has already changed, dumping the comments');
+        }
+        
       });
+    }
+
+    function done(thenAppendComments) {
+      NB.StoryModel.setCurrentStory('panel', story);
+      if (thenAppendComments) {
+        appendComments();
+      }
     }
 
 
