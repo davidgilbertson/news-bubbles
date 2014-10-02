@@ -12,14 +12,14 @@ var rdtStory, hxnStory; //out here to test preventing memory leak
 
 setInterval(function() {
   if (rdtEmitQueue.length) {
-    devLog('sending', rdtEmitQueue.length, 'RDT items');
+    // devLog('sending', rdtEmitQueue.length, 'RDT items');
     process.nextTick(function() {
       io.emit('data', {source: 'rdt', data: rdtEmitQueue});
       rdtEmitQueue.length = 0;
     });
   }
   if (hxnEmitQueue.length) {
-    devLog('sending', hxnEmitQueue.length, 'HXN items');
+    // devLog('sending', hxnEmitQueue.length, 'HXN items');
     process.nextTick(function() {
       io.emit('data', {source: 'hxn', data: hxnEmitQueue});
       hxnEmitQueue.length = 0;

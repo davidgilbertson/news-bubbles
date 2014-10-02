@@ -3,12 +3,10 @@
 var path = require('path')
   , passport = require('passport')
   , session = require('express-session')
-  // , userController = require(path.join(__dirname, 'controllers', 'user.controller'))
   , User = require(path.join(__dirname, 'models', 'User.model'))
   , Token = require(path.join(__dirname, 'models', 'Token.model'))
   , utils = require(path.join(__dirname, 'utils'))
   , devLog = utils.devLog
-  // , LocalStrategy = require('passport-local').Strategy
   , FacebookStrategy = require('passport-facebook').Strategy
   , RememberMeStrategy = require('passport-remember-me').Strategy
 
@@ -18,40 +16,15 @@ var path = require('path')
   , MY_URL = 'http://local.news-bubbles.herokuapp.com'
   ;
 
-
-var signIn = function(req, res) {
-  var strategy = req.params.strategy || 'local';
-  console.log('Signing in with strategy:', strategy);
-  passport.authenticate(strategy, {
-    failureRedirect: '/sign-in-failure',
-    successRedirect: '/sign-in-success'
-  });
-};
-
-function randomString(len) {
-  function getRandomInt(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-  }
-  var buf = []
-    , chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-    , charlen = chars.length;
-
-  for (var i = 0; i < len; ++i) {
-    buf.push(chars[getRandomInt(0, charlen - 1)]);
-  }
-
-  return buf.join('');
-}
-
-
 // This code from here:
 // https://github.com/jaredhanson/passport-remember-me/blob/master/examples/login/server.js
 function consumeRememberMeToken(token, done) {
   Token.findOne({token: token}, function(err, doc) {
+    // devLog('Looking for token', token);
     if (err) { return done(err); }
     if (!doc) { return done(null, false); }
-    //TODO remove token.
     var id = doc.userId;
+    devLog('Found token for user', id);
     doc.remove();
     return done(null, id);
   });
@@ -69,7 +42,10 @@ function saveRememberMeToken(token, userId, done) {
 }
 
 function issueToken(user, done) {
-  var token = randomString(64);
+  if (!user) {
+    devLog('issueToken() running with no user!');
+  }
+  var token = utils.randomString(64);
   saveRememberMeToken(token, user.id, function(err) {
     if (err) { return done(err); }
     return done(null, token);
@@ -79,12 +55,10 @@ function issueToken(user, done) {
 exports.setUp = function(app) {
 
   passport.serializeUser(function(user, done) {
-    console.log('serializing user');
     done(null, user.id);
   });
 
   passport.deserializeUser(function(id, done) {
-    console.log('deserializing user');
     User.findById(id, function(err, user) {
       done(err, user);
     });
@@ -96,7 +70,6 @@ exports.setUp = function(app) {
       callbackURL: MY_URL + '/auth/facebook/callback'
     },
     function(accessToken, refreshToken, profile, done) {
-      console.log('Seems like fb came back as it should,', profile.displayName);
       process.nextTick(function() {
 
         User.findOne({'facebook.id': profile.id}, function(err, doc) {
@@ -104,7 +77,7 @@ exports.setUp = function(app) {
           if (err) {
             return done(err);
           } else if (!doc) {
-            console.log('findOne did not find one, create a new user');
+            devLog('findOne did not find one, create a new user');
 
             var newUser            = new User();
             newUser.facebook.id    = profile.id;
@@ -128,6 +101,7 @@ exports.setUp = function(app) {
 
   passport.use(new RememberMeStrategy(
     function(token, done) {
+      // devLog('Begin RememberMeStrategy');
       consumeRememberMeToken(token, function(err, userId) {
         if (err) { return done(err); }
         if (!userId) { return done(null, false); }
@@ -139,16 +113,10 @@ exports.setUp = function(app) {
         });
       });
     },
-    issueToken
+    issueToken //TODO what is this?
   ));
 
   app.use(session({secret: '567v^&5vr7'}));
-  // app.use(session({
-  //   secret: '567v^&5vr7',
-  //   cookie: {
-  //     maxAge: 3600000
-  //   }
-  // }));
   app.use(passport.initialize());
   app.use(passport.session());
   app.use(passport.authenticate('remember-me'));
@@ -177,12 +145,28 @@ exports.setUp = function(app) {
   app.get('/auth/sign-in-failure', function(req, res) {
     res.send('Boooo!'); //TODO handle properly
   });
-  app.get('/auth/sign-out', function(req, res) {
-    devLog('Signing out user', req.user.name.display);
-    req.logout();
-    res.redirect('/');
-  });
+  app.get('/auth/sign-out',
+    function(req, res, next) {
+      if (req.user) {
+        devLog('Signing out user', req.user.name.display);
+        Token.remove({userId: req.user.id}).exec(function(err, docs) {
+          if (err) {
+            devLog('Could not remove token for user', req.user.name.display);
+            next();
+          } else {
+            devLog('removed token for', req.user.name.display);
+            next();
+          }
+        });
+      } else {
+        next();
+      }
+    },
+    function(req, res) {
+      res.clearCookie('remember_me');
+      req.logout();
+      res.redirect('/');
+    }
+  );
 
 };
-
-exports.signIn = signIn;

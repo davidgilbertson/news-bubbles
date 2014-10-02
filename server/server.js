@@ -52,6 +52,7 @@ exports.start = function(app) {
     // global.socket = socket; //socket is used for listening to clients
 
     socket.on('markAsRead', userController.markAsRead);
+    socket.on('markAsUnread', userController.markAsUnread);
     socket.on('addToFavs', userController.addToFavs);
     socket.on('updateSettings', userController.updateSettings);
     socket.on('removeFromFavs', userController.removeFromFavs);
