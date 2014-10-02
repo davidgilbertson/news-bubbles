@@ -139,31 +139,30 @@ NB.Chart = (function() {
     if (setting === 'openTab') {
       //TODO I'm not sure I can do this, maybe the text should be 'open page' or 'navigate to URL'
     }
-
-
-
-
-
     tooltip.style('visibility', 'hidden');
-
 
   }
 
   function bubbleMouseover(d) {
     if (maxiTooltipShowing) { return; }
-    var extra = ' - ' + d.category;
-    tooltip.text(d.name + extra);
-    var tipWidth = parseInt(tooltip.style('width'));
-    var tipHeight = parseInt(tooltip.style('height'));
+    if (NB.hasTouch) { return; }
+//     var extra = ' - ' + d.category;
+//     tooltip.text(d.name + extra);
+    tooltip.html(d.name + '<br>' + d.category);
+
+    var tooltipDims = tooltip.node(0).getBoundingClientRect(); //using this because it allows for scaling if one day...
+    var tipWidth = tooltipDims.width;
+    var tipHeight = tooltipDims.height;
+
     var thisDims = this.getBoundingClientRect(); //TODO replace 'this' with whatever the element is
 
     var left = thisDims.left - ((tipWidth - thisDims.width) / 2);
     left = Math.max(left, margins.left);
     left = Math.min(left, (w - margins.right - tipWidth));
 
-    var top = thisDims.top - tipHeight;
+    var top = thisDims.top - tipHeight - 10;
     if (top < 100) {
-      top = thisDims.top + thisDims.height;
+      top = thisDims.top + thisDims.height + 10;
     }
 
     tooltip
@@ -207,8 +206,9 @@ NB.Chart = (function() {
       .attr('r', function(d) {
         return z(d.commentCount);
       })
+      //start them just off the bottom right of the page
+      //TODO, if this is just an update, start with the actual x value
       .attr('cx', function() { return x(maxDate) + 100; })
-//       .attr('cy', function() { return y(0); })
       .attr('cy', function() { return y(minScore) + 100; })
       .attr('fill', function(d) {
         return NB.Settings.getColor(d.source, d.category);
@@ -217,7 +217,6 @@ NB.Chart = (function() {
         return NB.Settings.getColor(d.source, d.category);
       })
       .classed('story-circle', true)
-      //TODO: don't check each loop for is read, do it once on load
       .classed('read', function(d) { return d.isRead; })
       .on('click', bubbleClicked)
       .on('mouseover', bubbleMouseover)
@@ -240,14 +239,9 @@ NB.Chart = (function() {
     points
       .transition()
       .ease('cubic-out')
-      .delay(function(d, i) {
-//         console.log('delaying by', i * delay);
-        return i * delay;
-      })
+      .delay(function(d, i) { return i * delay; })
       .duration(duration)
-      .attr('r', function(d) {
-        return z(d.commentCount); //z may change because maxCircle changes on resize
-      })
+      .attr('r', function(d) { return z(d.commentCount); })
       .attr('cx', function(d) { return x(d.postDate); })
       .attr('cy', function(d) { return y(d.score); });
 

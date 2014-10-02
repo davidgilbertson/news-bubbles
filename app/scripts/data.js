@@ -199,7 +199,7 @@ NB.Data = (function() {
     var user = NB.Auth.getUser();
     if (user) {
       data.userId = user._id;
-      console.log('Emitting: ', eventName, 'with data:', data);
+//       console.log('Emitting: ', eventName, 'with data:', data);
       socket.emit(eventName, data);
     }
     

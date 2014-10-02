@@ -13,5 +13,5 @@ if (!!document.location.host.match(/localhost/)) {
   NB.IS_LOCALHOST = false;
 }
 
-NB.hasTouch = true;
+NB.hasTouch = false;
 NB.oldestStory = Infinity;
