@@ -5,7 +5,7 @@
 
 var path = require('path')
   , request = require('request')
-  , storyController = require(path.join(__dirname, 'storyController'))
+  , storyController = require(path.join(__dirname, 'controllers', 'story.controller'))
   , utils = require(path.join(__dirname, 'utils'))
   , devLog = utils.devLog
   , prodLog = utils.prodLog
@@ -70,18 +70,19 @@ function buildUrl(props) {
 
 
 //Force get the last 1000 stories over 1 point. Handy if the server goes down or something.
-exports.forceFetch = function() {
+exports.forceFetch = function(req, res) {
   var now = new Date().getTime() / 1000;
   var url = buildUrl({minDate: 0, maxDate: now, minPoints: 1});
 
   goGet(url, function(data) {
     saveStories(data);
+    res.send('Forced hacker news crawl');
   });
 };
 
 
 exports.startCrawler = function() {
-  prodLog('Starting Hacker News crawler');
+  prodLog('Starting Hacker News crawler!');
   // io.emit('data update', {data: 'yes, there will totally be data here'});
 
   //Get stories from last 30 mins

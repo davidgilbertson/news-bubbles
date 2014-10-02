@@ -32,7 +32,6 @@ NB.Data = (function() {
         existing.score = d.score;
       } else {
         if (d.postDate > NB.oldestStory && d.score > minScore) { //I don't want to add stories that are older than what's on the chart
-//           console.log('Adding a story:', d.name);
           Data.stories.push(d);
         }
       }
@@ -41,9 +40,7 @@ NB.Data = (function() {
 
   //parse story data
   function parseSocketIoData(data) {
-//     console.log('parsing', data.length, 'new items', data);
     data.forEach(function(d) {
-//       var jsDate = new Date(d.postDate);
       d.postDate = new Date(d.postDate);
     });
     sortBy(data, 'commentCount');
@@ -54,26 +51,75 @@ NB.Data = (function() {
     if (captureOldest) {
       NB.oldestStory = Infinity;
     }
-//     console.log('parseInitialData()');
-    data.forEach(function(s) {
+
+    //User stuff
+    if (data.user) {
+      NB.Auth.setUser(data.user);
+
+      if (data.user.settings) {
+        if (NB.Settings.getSetting('source') !== data.user.settings.source) {
+          NB.Nav.navigate(data.user.settings.source); //this handles the setting and resetting of the chart
+          return cb(false); //this prevents the page from drawing further.
+        }
+
+        NB.Settings.setAll(data.user.settings);
+      }
+
+      if (data.user.readList) {
+        if (localStorage.readList) {
+          var lsReadList = JSON.parse(localStorage.readList);
+          var serverReadList = data.user.readList;
+          var i, j, exists = false, newReadList = [];
+          for (i = 0; i < lsReadList.length; i++) {
+            for (j = 0; j < serverReadList.length; j++) {
+              if (lsReadList[i] === serverReadList[j]) {
+                exists = true;
+              }
+            }
+            if (!exists) {
+              newReadList.push(lsReadList[i]);
+              //If the item was in local storage but not on the server, send it to the server
+              Data.emit('markAsRead', {storyId: lsReadList[i]});
+            }
+            exists = false;
+          }
+          readList = lsReadList.concat(newReadList);
+          delete localStorage.readList;
+        } else {
+          readList = data.user.readList;
+        }
+      }
+    }
+
+
+
+    //Stories
+    data.stories.forEach(function(s) {
       s.postDate = new Date(s.postDate);
+      if (!s.isRead) { //if the story is NOT marked as read from the server, then check if it is here.
+        s.isRead = isRead(s.id);
+      }
       if (captureOldest) {
         NB.oldestStory = Math.min(NB.oldestStory, s.postDate);
       }
     });
-    sortBy(data, 'commentCount');
-    cb(data);
+
+
+    sortBy(data.stories, 'commentCount');
+    cb(data.stories);
   }
 
 
   //TODO should I let the server just io emit the data?
   function getHxnData(minScore) {
     var limit = NB.Settings.getSetting('hitLimit');
-    $.get('/api/hxn/' + limit + '/' + minScore, function(data) {
+    $.get('/api/hxn/' + limit + '/' + minScore, function(response) {
       if (NB.Settings.getSetting('source') !== 'hxn') { return; } //this could occur if the page is changed before the data comes back
-      if (!data.length) { return; } //TODO show user a message for no data to return
-      parseInitialData(data, true, function(data) {
-        Data.stories = data;
+      if (!response.stories.length) { return; } //TODO show user a message for no data to return
+//       console.log('Got data:', response);
+      parseInitialData(response, true, function(parsedData) {
+        if (!parsedData) { return; }
+        Data.stories = parsedData;
         NB.Chart.drawStories();
       });
     });
@@ -82,29 +128,60 @@ NB.Data = (function() {
 
   function getRdtData(minScore) {
     var limit = NB.Settings.getSetting('hitLimit');
-    $.get('/api/rdt/' + limit + '/' + minScore, function(data) {
+    $.get('/api/rdt/' + limit + '/' + minScore, function(response) {
       if (NB.Settings.getSetting('source') !== 'rdt') { return; } //this could occur if the page is changed before the data comes back
-      if (!data.length) { return; } //TODO show user a message for no data to return
-
-      parseInitialData(data, true, function(data) {
-//         console.log('parseInitialData complete');
-        Data.stories = data;
+      if (!response.stories.length) { return; } //TODO show user a message for no data to return
+      parseInitialData(response, true, function(parsedData) {
+        if (!parsedData) { return; }
+        Data.stories = parsedData;
         NB.Chart.drawStories();
       });
     });
   }
 
+  function isRead(id) {
+    var objString = id.toString();
+    var isRead = false;
+    //TODO, does indexOf not do this?
+    for (var i = 0; i < readList.length; i++) {
+      if (objString === readList[i]) {
+//         console.log(readList[i] + 'is already read');
+        isRead = true;
+      }
+    }
+    return isRead;
+
+  }
+
+
+  function markAsUnread(id) {
+    id = id.toString();
+    Data.emit('markAsUnread', {storyId: id});
+    for (var i = 0; i < readList.length; i++) {
+      if (readList[i] === id) {
+        readList.splice(i,1);
+        localStorage.readList = JSON.stringify(readList);
+        return;
+      }
+    }
+  }
+  function markAsRead(id) {
+    if (isRead(id)) { return; } //prevent duplicates
+    readList.push(id);
+    localStorage.readList = JSON.stringify(readList);
+    Data.emit('markAsRead', {storyId: id});
+  }
+
 
   function init() {
     socket = io(); //TODO only get the server to send data for reddit or hxn?
-
+    
     socket.on('data', function(msg) {
-//       console.log('socket.on(\'data\')', msg);
       if (!Data.stories.length) { return; } //TODO need to remove this if I want to use IO even for the first fetch.
 
+//       console.log('IO data:', msg);
       var src = NB.Settings.getSetting('source');
       if (msg.data.length && msg.source === src) { //e.g. if it's the reddit view and the data is reddit data
-//         console.log('got', msg.data.length, 'stories from IO');
         mergeStories(parseSocketIoData(msg.data));
         NB.Chart.drawStories();
       }
@@ -117,37 +194,24 @@ NB.Data = (function() {
   /*  --  PUBLIC  --  */
   Data.stories = [];
 
+  Data.emit = function(eventName, data) {
+    //adds the userId to the payload and sends it on its way.
+    var user = NB.Auth.getUser();
+    if (user) {
+      data.userId = user._id;
+//       console.log('Emitting: ', eventName, 'with data:', data);
+      socket.emit(eventName, data);
+    }
+    
+  }
+
   Data.setData = function(key, value) {
     store[key] = value;
   };
 
-  Data.markAsRead = function(id) {
-    readList.push(id);
-    localStorage.readList = JSON.stringify(readList);
-  };
+  Data.markAsRead = markAsRead;
+  Data.markAsUnread = markAsUnread;
 
-  Data.markAsUnread = function(id) {
-    id = id.toString();
-    for (var i = 0; i < readList.length; i++) {
-      if (readList[i] === id) {
-        readList.splice(i,1);
-        localStorage.readList = JSON.stringify(readList);
-        return;
-      }
-    }
-  };
-
-  Data.isRead = function(id) {
-    var objString = id.toString();
-    var isRead = false;
-    for (var i = 0; i < readList.length; i++) {
-      if (objString === readList[i]) {
-//         console.log(readList[i] + 'is already read');
-        isRead = true;
-      }
-    }
-    return isRead;
-  };
 
   Data.getData = function() {
     var source = NB.Settings.getSetting('source') || 'rdt'; //this should never be empty, but 'rdt' is there for the fun of it.

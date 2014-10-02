@@ -89,8 +89,12 @@ NB.Settings = (function() {
       .style('display', 'none');
   }
 
-  function saveSettings() {
-    //The settings object is bound so nothing needs to be updated there
+  function saveSettings(silent) {
+    if (!silent) {
+      NB.Data.emit('updateSettings', {settings: ko.toJS(settings)});
+    }
+    
+    //The settings ko object is bound so nothing needs to be updated there
 //     var maxHitLimit = Math.min(500, settings.hitLimit());
     var tmp = NB.Utils.constrain(1, settings.hitLimit(), 500);
     settings.hitLimit(tmp);
@@ -100,6 +104,8 @@ NB.Settings = (function() {
 
     var tmp = Math.max(0, settings.hxnMinScore());
     settings.hxnMinScore(tmp);
+
+
 
 
     var localSettings = {
@@ -134,6 +140,15 @@ NB.Settings = (function() {
     closeSettings();
   }
 
+  function setAll(settings) {
+//     console.log('gonna save settings:', settings);
+    var keys = Object.keys(settings);
+    keys.forEach(function(setting) {
+//       console.log('Setting', setting, 'to', settings[setting]);
+      Settings.setSetting(setting, settings[setting], true);
+    });
+  }
+
 
   /*  ---------------  */
   /*  --  Exports  --  */
@@ -165,13 +180,17 @@ NB.Settings = (function() {
     }
     return settings[setting]();
   };
-  Settings.setSetting = function(setting, value) {
+
+  Settings.setAll = setAll; //used when settings are loaded from user account
+
+  Settings.setSetting = function(setting, value, silent) {
+    //TODO, if this took an object, then I could use Object.keys and merge this with setAll.
     if (!settings[setting]) { //TODO test for "typeof function"
       console.log(setting + ' is not something that can be set.');
       return;
     }
     settings[setting](value);
-    saveSettings();
+    saveSettings(silent);
   };
   Settings.getColor = function(source, category) {
     if (!settings[source + 'CategoryColors']) {
@@ -213,9 +232,75 @@ if (!!document.location.host.match(/localhost/)) {
   NB.IS_LOCALHOST = false;
 }
 
-NB.hasTouch = true;
+NB.hasTouch = false;
 NB.oldestStory = Infinity;
 
+'use strict';
+var NB = NB || {};
+
+NB.Auth = (function() {
+  var Auth = {}
+    , rawUser = {}
+    , userModel = {
+        _id: '',
+        name: {
+          first: ko.observable(''),
+          last: ko.observable(''),
+          display: ko.observable('')
+        },
+        signOut: function() {
+          $.get('/auth/sign-out');
+          Auth.setUser(null);
+        },
+        signedIn: ko.observable(false) //TODO: Hmmm, implied?
+      }
+  ;
+
+
+
+  function init() {
+    ko.applyBindings(userModel, document.getElementById('user-items'));
+  }
+
+  
+  init();
+
+  /*  --  EXPORTS  --  */
+  Auth.setUser = function(user) {
+    rawUser = user;
+    if (user) {
+      userModel._id = user._id;
+      userModel.name.first(user.name.first);
+      userModel.name.last(user.name.last);
+      userModel.name.display(user.name.display);
+      userModel.signedIn(true);
+    } else {
+      userModel._id = null;
+      userModel.name.first(null);
+      userModel.name.last(null);
+      userModel.name.display(null);
+      userModel.signedIn(false);
+    }
+  };
+
+  Auth.getUser = function() {
+    if (userModel.signedIn()) {
+      return userModel;
+    } else {
+      return null;
+    }
+    
+  };
+  Auth.getRawUser = function() {
+    return rawUser;
+  }
+
+  Auth.signOut = function() {
+    console.log('OK, will sign out (ha ha, but I am not really!');
+  };
+
+  return Auth;
+})();
 'use strict';
 var NB = NB || {};
 
@@ -250,7 +335,6 @@ NB.Data = (function() {
         existing.score = d.score;
       } else {
         if (d.postDate > NB.oldestStory && d.score > minScore) { //I don't want to add stories that are older than what's on the chart
-//           console.log('Adding a story:', d.name);
           Data.stories.push(d);
         }
       }
@@ -259,9 +343,7 @@ NB.Data = (function() {
 
   //parse story data
   function parseSocketIoData(data) {
-//     console.log('parsing', data.length, 'new items', data);
     data.forEach(function(d) {
-//       var jsDate = new Date(d.postDate);
       d.postDate = new Date(d.postDate);
     });
     sortBy(data, 'commentCount');
@@ -272,26 +354,75 @@ NB.Data = (function() {
     if (captureOldest) {
       NB.oldestStory = Infinity;
     }
-//     console.log('parseInitialData()');
-    data.forEach(function(s) {
+
+    //User stuff
+    if (data.user) {
+      NB.Auth.setUser(data.user);
+
+      if (data.user.settings) {
+        if (NB.Settings.getSetting('source') !== data.user.settings.source) {
+          NB.Nav.navigate(data.user.settings.source); //this handles the setting and resetting of the chart
+          return cb(false); //this prevents the page from drawing further.
+        }
+
+        NB.Settings.setAll(data.user.settings);
+      }
+
+      if (data.user.readList) {
+        if (localStorage.readList) {
+          var lsReadList = JSON.parse(localStorage.readList);
+          var serverReadList = data.user.readList;
+          var i, j, exists = false, newReadList = [];
+          for (i = 0; i < lsReadList.length; i++) {
+            for (j = 0; j < serverReadList.length; j++) {
+              if (lsReadList[i] === serverReadList[j]) {
+                exists = true;
+              }
+            }
+            if (!exists) {
+              newReadList.push(lsReadList[i]);
+              //If the item was in local storage but not on the server, send it to the server
+              Data.emit('markAsRead', {storyId: lsReadList[i]});
+            }
+            exists = false;
+          }
+          readList = lsReadList.concat(newReadList);
+          delete localStorage.readList;
+        } else {
+          readList = data.user.readList;
+        }
+      }
+    }
+
+
+
+    //Stories
+    data.stories.forEach(function(s) {
       s.postDate = new Date(s.postDate);
+      if (!s.isRead) { //if the story is NOT marked as read from the server, then check if it is here.
+        s.isRead = isRead(s.id);
+      }
       if (captureOldest) {
         NB.oldestStory = Math.min(NB.oldestStory, s.postDate);
       }
     });
-    sortBy(data, 'commentCount');
-    cb(data);
+
+
+    sortBy(data.stories, 'commentCount');
+    cb(data.stories);
   }
 
 
   //TODO should I let the server just io emit the data?
   function getHxnData(minScore) {
     var limit = NB.Settings.getSetting('hitLimit');
-    $.get('/api/hxn/' + limit + '/' + minScore, function(data) {
+    $.get('/api/hxn/' + limit + '/' + minScore, function(response) {
       if (NB.Settings.getSetting('source') !== 'hxn') { return; } //this could occur if the page is changed before the data comes back
-      if (!data.length) { return; } //TODO show user a message for no data to return
-      parseInitialData(data, true, function(data) {
-        Data.stories = data;
+      if (!response.stories.length) { return; } //TODO show user a message for no data to return
+//       console.log('Got data:', response);
+      parseInitialData(response, true, function(parsedData) {
+        if (!parsedData) { return; }
+        Data.stories = parsedData;
         NB.Chart.drawStories();
       });
     });
@@ -300,29 +431,60 @@ NB.Data = (function() {
 
   function getRdtData(minScore) {
     var limit = NB.Settings.getSetting('hitLimit');
-    $.get('/api/rdt/' + limit + '/' + minScore, function(data) {
+    $.get('/api/rdt/' + limit + '/' + minScore, function(response) {
       if (NB.Settings.getSetting('source') !== 'rdt') { return; } //this could occur if the page is changed before the data comes back
-      if (!data.length) { return; } //TODO show user a message for no data to return
-
-      parseInitialData(data, true, function(data) {
-//         console.log('parseInitialData complete');
-        Data.stories = data;
+      if (!response.stories.length) { return; } //TODO show user a message for no data to return
+      parseInitialData(response, true, function(parsedData) {
+        if (!parsedData) { return; }
+        Data.stories = parsedData;
         NB.Chart.drawStories();
       });
     });
   }
 
+  function isRead(id) {
+    var objString = id.toString();
+    var isRead = false;
+    //TODO, does indexOf not do this?
+    for (var i = 0; i < readList.length; i++) {
+      if (objString === readList[i]) {
+//         console.log(readList[i] + 'is already read');
+        isRead = true;
+      }
+    }
+    return isRead;
+
+  }
+
+
+  function markAsUnread(id) {
+    id = id.toString();
+    Data.emit('markAsUnread', {storyId: id});
+    for (var i = 0; i < readList.length; i++) {
+      if (readList[i] === id) {
+        readList.splice(i,1);
+        localStorage.readList = JSON.stringify(readList);
+        return;
+      }
+    }
+  }
+  function markAsRead(id) {
+    if (isRead(id)) { return; } //prevent duplicates
+    readList.push(id);
+    localStorage.readList = JSON.stringify(readList);
+    Data.emit('markAsRead', {storyId: id});
+  }
+
 
   function init() {
     socket = io(); //TODO only get the server to send data for reddit or hxn?
-
+    
     socket.on('data', function(msg) {
-//       console.log('socket.on(\'data\')', msg);
       if (!Data.stories.length) { return; } //TODO need to remove this if I want to use IO even for the first fetch.
 
+//       console.log('IO data:', msg);
       var src = NB.Settings.getSetting('source');
       if (msg.data.length && msg.source === src) { //e.g. if it's the reddit view and the data is reddit data
-//         console.log('got', msg.data.length, 'stories from IO');
         mergeStories(parseSocketIoData(msg.data));
         NB.Chart.drawStories();
       }
@@ -335,37 +497,24 @@ NB.Data = (function() {
   /*  --  PUBLIC  --  */
   Data.stories = [];
 
+  Data.emit = function(eventName, data) {
+    //adds the userId to the payload and sends it on its way.
+    var user = NB.Auth.getUser();
+    if (user) {
+      data.userId = user._id;
+//       console.log('Emitting: ', eventName, 'with data:', data);
+      socket.emit(eventName, data);
+    }
+    
+  }
+
   Data.setData = function(key, value) {
     store[key] = value;
   };
 
-  Data.markAsRead = function(id) {
-    readList.push(id);
-    localStorage.readList = JSON.stringify(readList);
-  };
+  Data.markAsRead = markAsRead;
+  Data.markAsUnread = markAsUnread;
 
-  Data.markAsUnread = function(id) {
-    id = id.toString();
-    for (var i = 0; i < readList.length; i++) {
-      if (readList[i] === id) {
-        readList.splice(i,1);
-        localStorage.readList = JSON.stringify(readList);
-        return;
-      }
-    }
-  };
-
-  Data.isRead = function(id) {
-    var objString = id.toString();
-    var isRead = false;
-    for (var i = 0; i < readList.length; i++) {
-      if (objString === readList[i]) {
-//         console.log(readList[i] + 'is already read');
-        isRead = true;
-      }
-    }
-    return isRead;
-  };
 
   Data.getData = function() {
     var source = NB.Settings.getSetting('source') || 'rdt'; //this should never be empty, but 'rdt' is there for the fun of it.
@@ -450,14 +599,17 @@ NB.Favs = (function() {
   }
 
   Favs.addToFavs = function(story) {
-//     console.log('Adding story to favs:', story);
     store.push(story);
     localStorage.favs = JSON.stringify(store);
+    
+    NB.Data.emit('addToFavs', {story: story});
   };
 
   Favs.removeFromFavs = function(story) {
 //     console.log('Removing story from favs:', story);
     var id = story.id;
+    NB.Data.emit('removeFromFavs', {storyId: story.id});
+    
     store.forEach(function(fav, i) {
       if (fav.id === id) {
         store.splice(i, 1);
@@ -633,13 +785,6 @@ NB.Chart = (function() {
     , maxiTooltipShowing = false
   ;
 
-  function markAsRead(circle, story) {
-    if (NB.Data.isRead(story.id)) { return; }
-
-    NB.Data.markAsRead(story.id);
-    circle.classed('read', true);
-  }
-
   function toggleRead(circle, story) {
     if (circle.classed('read')) {
       circle.classed('read', false);
@@ -665,12 +810,6 @@ NB.Chart = (function() {
 
     //move to back
     moveToBack(d3.event.currentTarget)
-//     var domEl = d3.event.currentTarget;
-//     if (domEl.previousSibling) {
-//       var parent = domEl.parentNode;
-//       var firstChild = parent.firstChild.nextSibling; //the first element is the overlay rectangle, the rest are circles.
-//       parent.insertBefore(domEl, firstChild);
-//     }
 
     //get the D3 flvoured dom el
     var el = d3.select(d3.event.currentTarget);
@@ -688,7 +827,8 @@ NB.Chart = (function() {
     var setting = NB.Settings.getSetting('clickAction');
 
     if (setting === 'storyPanel') {
-      markAsRead(el, d);
+      NB.Data.markAsRead(d.id);
+      el.classed('read', true);
       NB.Layout.showStoryPanel();
       NB.StoryPanel.render(d);
     }
@@ -755,31 +895,30 @@ NB.Chart = (function() {
     if (setting === 'openTab') {
       //TODO I'm not sure I can do this, maybe the text should be 'open page' or 'navigate to URL'
     }
-
-
-
-
-
     tooltip.style('visibility', 'hidden');
-
 
   }
 
   function bubbleMouseover(d) {
     if (maxiTooltipShowing) { return; }
-    var extra = ' - ' + d.category;
-    tooltip.text(d.name + extra);
-    var tipWidth = parseInt(tooltip.style('width'));
-    var tipHeight = parseInt(tooltip.style('height'));
+    if (NB.hasTouch) { return; }
+//     var extra = ' - ' + d.category;
+//     tooltip.text(d.name + extra);
+    tooltip.html(d.name + '<br>' + d.category);
+
+    var tooltipDims = tooltip.node(0).getBoundingClientRect(); //using this because it allows for scaling if one day...
+    var tipWidth = tooltipDims.width;
+    var tipHeight = tooltipDims.height;
+
     var thisDims = this.getBoundingClientRect(); //TODO replace 'this' with whatever the element is
 
     var left = thisDims.left - ((tipWidth - thisDims.width) / 2);
     left = Math.max(left, margins.left);
     left = Math.min(left, (w - margins.right - tipWidth));
 
-    var top = thisDims.top - tipHeight;
+    var top = thisDims.top - tipHeight - 10;
     if (top < 100) {
-      top = thisDims.top + thisDims.height;
+      top = thisDims.top + thisDims.height + 10;
     }
 
     tooltip
@@ -823,8 +962,9 @@ NB.Chart = (function() {
       .attr('r', function(d) {
         return z(d.commentCount);
       })
+      //start them just off the bottom right of the page
+      //TODO, if this is just an update, start with the actual x value
       .attr('cx', function() { return x(maxDate) + 100; })
-//       .attr('cy', function() { return y(0); })
       .attr('cy', function() { return y(minScore) + 100; })
       .attr('fill', function(d) {
         return NB.Settings.getColor(d.source, d.category);
@@ -833,7 +973,7 @@ NB.Chart = (function() {
         return NB.Settings.getColor(d.source, d.category);
       })
       .classed('story-circle', true)
-      .classed('read', function(d) { return NB.Data.isRead(d.id); })
+      .classed('read', function(d) { return d.isRead; })
       .on('click', bubbleClicked)
       .on('mouseover', bubbleMouseover)
       .on('mouseout', bubbleMouseout)
@@ -855,14 +995,9 @@ NB.Chart = (function() {
     points
       .transition()
       .ease('cubic-out')
-      .delay(function(d, i) {
-//         console.log('delaying by', i * delay);
-        return i * delay;
-      })
+      .delay(function(d, i) { return i * delay; })
       .duration(duration)
-      .attr('r', function(d) {
-        return z(d.commentCount); //z may change because maxCircle changes on resize
-      })
+      .attr('r', function(d) { return z(d.commentCount); })
       .attr('cx', function(d) { return x(d.postDate); })
       .attr('cy', function(d) { return y(d.score); });
 
@@ -1193,10 +1328,22 @@ NB.Comments = (function() {
 
   function parseHtml(str) {
     var result = $('<textarea>').html(str).text();
-    //yeah I could do (r|u) or something but I'm not going to
+    //subreddit link
     result = result.replace(/href="(\/r\/.*?)"/g, 'href="http://www.reddit.com$1"');
+
+    //user link
     result = result.replace(/href="(\/u\/.*?)"/g, 'href="http://www.reddit.com$1"');
+
+    //make all links open in new window
     result = result.replace(/(<a [^>]*?)(>)/g, '$1 target="_blank"$2');
+
+    //any link ending in jpg, turn into inline img
+    result = result.replace(/(<a.*?href=)(".*?(?:jpg|png|gif)")(.*?)(<\/a>)/, '$1$2$3<img src=$2>$4');
+
+    //turn any imgur link without jpg into jpg (TODO: this will break for imgur links with extensions)
+    //Rather, test above for existence of URL. Then repending on the URL, replace differently
+    //Copy the logic from storyPanel.js
+//     result = result.replace(/(<a.*?href=")(.*?imgur\.com\/.*?)(")(.*?)(<\/a>)/, '$1$2$3$4<img src="$2.jpg">$5');
     return result;
   }
 
@@ -1714,12 +1861,21 @@ NB.main = (function() {
 
   ko.applyBindings(NB.StoryModel.tooltipStory, document.getElementById('story-tooltip'));
   ko.applyBindings(NB.StoryModel.panelStory, document.getElementById('story-panel'));
-  ko.applyBindings(NB.Nav.navModel, document.getElementById('header-wrapper'));
+  ko.applyBindings(NB.Nav.navModel, document.getElementById('news-sources'));
 
-  if (!('ontouchstart' in window) && !(window.DocumentTouch && document instanceof DocumentTouch)) {
-    d3.select('body').classed('no-touch', true);
-    NB.hasTouch = false;
+
+  //Two approaches to touch detection
+//   if (!('ontouchstart' in window) && !(window.DocumentTouch && document instanceof DocumentTouch)) {
+//     d3.select('body').classed('no-touch', true);
+//     NB.hasTouch = false;
+//   }
+
+  var onFirstTouch = function() {
+    document.body.classList.remove('no-touch');
+    NB.hasTouch = true;
+    document.body.removeEventListener('touchstart', onFirstTouch);
   }
+  document.body.addEventListener('touchstart', onFirstTouch);
 
 
 

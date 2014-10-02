@@ -19,15 +19,19 @@ if (process.env.DEV) {
 }
 
 var path = require('path')
-  , port = process.env.PORT || 9000
+  , port = process.env.PORT || 80
   , conn = process.env.MONGOLAB_URL || 'mongodb://localhost/news_bubbles'
   , mongoose = require('mongoose')
   , hxnCrawler = require(path.join(__dirname, 'hxnCrawler'))
   , rdtCrawler = require(path.join(__dirname, 'rdtCrawler'))
+  , auth = require(path.join(__dirname, 'auth'))
   , utils = require(path.join(__dirname, 'utils'))
   , devLog = utils.devLog
   , prodLog = utils.prodLog
   , workers = require(path.join(__dirname, 'workers'))
+  , bodyParser = require('body-parser')
+  , cookieParser = require('cookie-parser')
+  , userController = require(path.join(__dirname, 'controllers', 'user.controller'))
 ;
 
 
@@ -39,12 +43,25 @@ exports.start = function(app) {
   prodLog('Server Starting');
 
   var http = require('http').Server(app);
-  global.io = require('socket.io')(http); //TODO put io in global?
+  // global.io = require('socket.io')(http); //TODO put io in global?
+  var io = require('socket.io')(http); //TODO put io in global?
+  global.io = io; //IO is used for global emitting
 
-  // global.io = io; //TODO just set the require straight on the global?
+  io.on('connection', function(socket) {
+    devLog('Socket IO listening. Socket IO hears you.');
+    // global.socket = socket; //socket is used for listening to clients
 
-  workers.startCleanupWorker();
-  workers.startMemoryStatsReporter();
+    socket.on('markAsRead', userController.markAsRead);
+    socket.on('markAsUnread', userController.markAsUnread);
+    socket.on('addToFavs', userController.addToFavs);
+    socket.on('updateSettings', userController.updateSettings);
+    socket.on('removeFromFavs', userController.removeFromFavs);
+  });
+
+  app.use(cookieParser());
+  app.use(bodyParser());
+
+  auth.setUp(app);
 
   require(path.join(__dirname, 'routes.js'))(app);
 
@@ -52,8 +69,10 @@ exports.start = function(app) {
     prodLog('Database connection opened.');
     hxnCrawler.startCrawler();
     rdtCrawler.startCrawler();
-    http.listen(port);
+    workers.startCleanupWorker();
+    // workers.startMemoryStatsReporter();
 
+    http.listen(port);
   });
 
   db.on('error', function(err) {

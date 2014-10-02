@@ -1,42 +1,26 @@
 'use strict';
 var path = require('path')
   , readabilityApi = require(path.join(__dirname, 'readability'))
-  , storyController = require(path.join(__dirname, 'storyController'))
+  , storyController = require(path.join(__dirname, 'controllers', 'story.controller'))
   , hxnCrawler = require(path.join(__dirname, 'hxnCrawler'))
   , rdtCrawler = require(path.join(__dirname, 'rdtCrawler'))
+  , User = require(path.join(__dirname, 'models', 'User.model')).User
+  , devLog = require(path.join(__dirname, 'utils')).devLog
+
+  // , auth = require(path.join(__dirname, 'auth'))
 ;
 
 module.exports = function(app) {
 
-  app.get('/readability/:url', function(req, res) {
-    readabilityApi(req.params.url, function(data) {
-      res.json(data);
-    });
-  });
+  app.get('/readability/:url', readabilityApi);
 
   app.get('/api/:source/:limit/:minScore', storyController.getStories);
 
-  // app.get('/api/:source/:limit/:minScore', function(req, res) {
-  //   storyController.getRecentStoriesByCount(req.params.source, req.params.limit, req.params.minScore, function(data) {
-  //     res.json(data);
-  //   });
-  // });
+  app.get('/crawlers/forceHxnFetch', hxnCrawler.forceFetch);
 
-  app.get('/crawlers/forceHxnFetch', function(req, res) {
-    hxnCrawler.forceFetch();
-    res.send('Forced hacker news crawl');
-  });
+  app.get('/crawlers/forceRdtFetch/:list/:limit', rdtCrawler.forceFetch);
 
-  app.get('/crawlers/forceRdtFetch/:list/:limit', function(req, res) {
-    rdtCrawler.forceFetch(req.params.limit, req.params.list);
-    res.send('Forced reddit crawl');
-  });
-
-  // app.get('/dbOps/massRename', function(req, res) {
-  //   storyController.renameAllIds(function(response) {
-  //     res.json(response);
-  //   });
-  // });
-
+  //more routes are in auth.js
+  //socket.io 'routes' (listeners) are in server.js
 
 };

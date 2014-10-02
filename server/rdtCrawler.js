@@ -2,7 +2,7 @@
 
 var path = require('path')
   , request = require('request')
-  , storyController = require(path.join(__dirname, 'storyController'))
+  , storyController = require(path.join(__dirname, 'controllers', 'story.controller'))
   , utils = require(path.join(__dirname, 'utils'))
   , devLog = utils.devLog
   , prodLog = utils.prodLog
@@ -194,18 +194,20 @@ function startCrawler() {
 exports.startCrawler = startCrawler;
 
 
-exports.forceFetch = function(limit, list) {
-  var loops = limit / 100
+exports.forceFetch = function(req, res) {
+  var loops = req.params.limit / 100
     , count = 0
     , lastKnownAfter
     , url = '';
 
   function go() {
-    url = buildUrl({after: lastKnownAfter, list: list});
+    url = buildUrl({after: lastKnownAfter, list: req.params.list});
     // devLog('Getting data with the URL:', url);
 
     devLog('tick', count);
     goGet(url, function(response) {
+      res.send('Forced reddit crawl');
+
       if (response.data && response.data.children) {
         saveStories(response.data.children);
         lastKnownAfter = response.data.after;

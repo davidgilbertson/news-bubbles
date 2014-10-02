@@ -43,7 +43,12 @@
           </g>
         </svg>
       </div>
-      <div class="news-sources">
+      <div id="user-items" class="user-items header-float">
+        <a href="/auth/facebook" class="user-item header-float" data-bind="visible: signedIn() === false">Login with Facebook</a>
+        <a class="user-item header-float" href="/auth/sign-out" data-bind="visible: signedIn, click: signOut"> (sign out)</a>
+        <span class="user-item header-float name" data-bind="visible: signedIn"><span>Hey </span><span data-bind="text: name.first"></span></span>
+      </div>
+      <div id="news-sources" class="news-sources header-float">
         <button id="news-source-rdt"
           class="news-sources-source"
           data-bind="css: {active: currentSource() === 'rdt'}, click: NB.Nav.navigate.bind($data, 'rdt')">REDDIT</button>
@@ -240,6 +245,7 @@
       <script src="scripts/utils.js"></script>
       <script src="scripts/settings.js"></script>
       <script src="scripts/init.js"></script>
+      <script src="scripts/auth.js"></script>
       <script src="scripts/data.js"></script>
       <script src="scripts/favs.js"></script>
       <script src="scripts/layout.js"></script>

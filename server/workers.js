@@ -1,6 +1,6 @@
 'use strict';
 var path = require('path')
-  , models = require(path.join(__dirname, 'models'))
+  , models = require(path.join(__dirname, 'models', 'Story.model'))
   , Story = models.Story
   , utils = require(path.join(__dirname, 'utils'))
   , devLog = utils.devLog
@@ -16,25 +16,27 @@ function startCleanupWorker() {
     var oneDayAgo = new Date(now - (1 * 24 * 60 * 60 * 1000));
     var twoDaysAgo = new Date(now - (2 * 24 * 60 * 60 * 1000));
     var fourDaysAgo = new Date(now - (4 * 24 * 60 * 60 * 1000));
+    //TODO tweak each of these to keep the db at a reasonable size
+    //2, 4, 8 isn't enough (I don't think, worth revisiting), the DB grow to 500MB in a week
     Story.remove(
       {
         $or: [
           {
             $and: [
-              {postDate: {$lt: oneDayAgo}}, //TODO tweak each of these to keep the db at a reasonable size
-              {score:    {$lt: 2}}
-            ]
-          },
-          {
-            $and: [
-              {postDate: {$lt: twoDaysAgo}},
+              {postDate: {$lt: oneDayAgo}},
               {score:    {$lt: 4}}
             ]
           },
           {
             $and: [
-              {postDate: {$lt: fourDaysAgo}},
+              {postDate: {$lt: twoDaysAgo}},
               {score:    {$lt: 8}}
+            ]
+          },
+          {
+            $and: [
+              {postDate: {$lt: fourDaysAgo}},
+              {score:    {$lt: 16}}
             ]
           }
         ]
@@ -42,9 +44,10 @@ function startCleanupWorker() {
     );
   }
 
+  cull();
   setInterval(function() {
     cull();
-  }, 1 * 24 * 60 * 60 * 1000); //Daily
+  }, 60 * 60 * 1000); //Hourly
 
 }
 

@@ -1,8 +1,8 @@
 'use strict';
 var path = require('path')
-  , models = require(path.join(__dirname, 'models'))
-  , Story = models.Story
-  , utils = require(path.join(__dirname, 'utils'))
+  , Story = require(path.join(__dirname, '..', 'models', 'Story.model')).Story
+  // , Story = models.Story
+  , utils = require(path.join(__dirname, '..', 'utils'))
   , devLog = utils.devLog
   , prodLog = utils.prodLog
   , rdtEmitQueue = []
@@ -12,16 +12,16 @@ var rdtStory, hxnStory; //out here to test preventing memory leak
 
 setInterval(function() {
   if (rdtEmitQueue.length) {
-    devLog('sending', rdtEmitQueue.length, 'RDT items');
+    // devLog('sending', rdtEmitQueue.length, 'RDT items');
     process.nextTick(function() {
-      global.io.emit('data', {source: 'rdt', data: rdtEmitQueue});
+      io.emit('data', {source: 'rdt', data: rdtEmitQueue});
       rdtEmitQueue.length = 0;
     });
   }
   if (hxnEmitQueue.length) {
-    devLog('sending', hxnEmitQueue.length, 'HXN items');
+    // devLog('sending', hxnEmitQueue.length, 'HXN items');
     process.nextTick(function() {
-      global.io.emit('data', {source: 'hxn', data: hxnEmitQueue});
+      io.emit('data', {source: 'hxn', data: hxnEmitQueue});
       hxnEmitQueue.length = 0;
     });
   }
@@ -192,11 +192,24 @@ exports.upsertHxnStory = function(obj, suppressResults) {
 
 
 exports.getStories = function(req, res) {
+  console.log('Authenticated? ', req.isAuthenticated());
+  var user = null;
+  if (req.isAuthenticated()) {
+    user = req.user;
+  }
+  // console.log('Getting stories, you are user:', user);
+  // if (req.isAuthenticated()) {
+  //   devLog('Oh you are logged in, let me send you settings just for you');
+  // } else {
+  //   devLog('You are not logged in, you are not getting any settings.');
+  // }
 
   var source = req.params.source
     , limit = req.params.limit
     , minScore = req.params.minScore || 0
   ;
+
+  // prodLog('{source: ' + source + ', score: {$gte: ' + minScore + '}}, {history: false}');
 
   Story
     .find({source: source, score: {$gte: minScore}}, {history: false})
@@ -209,35 +222,9 @@ exports.getStories = function(req, res) {
         devLog('Error finding stories:', err);
         return;
       }
-      // devLog('Query returned ' + docs.length + ' iems');
-      res.json(docs); //TODO this could be io.emit(). faster? Weirder?
+      devLog('Query returned ' + docs.length + ' iems');
+      res.json({user: user, stories: docs}); //TODO this could be io.emit(). faster? Weirder?
       // res.json({msg: 'sent response via io'}); //TODO this could be io.emit(). faster? Weirder?
       // emitData(docs);
     });
 };
-
-
-
-
-// exports.renameAllIds = function(cb) {
-//   console.log('renameAllIds() ...');
-//   var startTime = new Date().getTime();
-
-//   Story
-//     .find({}, {history: false})
-//     .exec(function(err, docs) {
-//       var story, oldId, newId, count = 0;
-//       for (var i = 0; i < docs.length; i++) {
-//         story = docs[i];
-//         oldId = story.id;
-//         newId = oldId.replace('hn-', 'hxn-').replace('rd-', 'rdt-');
-//         if (oldId !== newId) {
-//           count++;
-//           story.id = newId;
-//           story.save();
-//         }
-//       }
-//       console.log('Query finished in ' + (new Date().getTime() - startTime) + 'ms');
-//       cb({success: 'cahnged ' + count});
-//     });
-// };
