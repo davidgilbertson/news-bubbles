@@ -12,9 +12,12 @@ var path = require('path')
 
   , FACEBOOK_APP_ID = '833772886647232'
   , FACEBOOK_APP_SECRET = '862d4c22a83572793c7214d798afe5f3'
-  // , MY_URL = 'http://news-bubbles.herokuapp.com'
-  , MY_URL = 'http://local.news-bubbles.herokuapp.com'
+  , MY_URL = 'http://news-bubbles.herokuapp.com'
   ;
+
+  if (process.env.DEV) {
+    MY_URL = 'http://local.news-bubbles.herokuapp.com';
+  }
 
 // This code from here:
 // https://github.com/jaredhanson/passport-remember-me/blob/master/examples/login/server.js

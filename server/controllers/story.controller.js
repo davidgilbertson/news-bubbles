@@ -192,24 +192,15 @@ exports.upsertHxnStory = function(obj, suppressResults) {
 
 
 exports.getStories = function(req, res) {
-  console.log('Authenticated? ', req.isAuthenticated());
   var user = null;
   if (req.isAuthenticated()) {
     user = req.user;
   }
-  // console.log('Getting stories, you are user:', user);
-  // if (req.isAuthenticated()) {
-  //   devLog('Oh you are logged in, let me send you settings just for you');
-  // } else {
-  //   devLog('You are not logged in, you are not getting any settings.');
-  // }
 
   var source = req.params.source
     , limit = req.params.limit
     , minScore = req.params.minScore || 0
   ;
-
-  // prodLog('{source: ' + source + ', score: {$gte: ' + minScore + '}}, {history: false}');
 
   Story
     .find({source: source, score: {$gte: minScore}}, {history: false})
@@ -224,7 +215,5 @@ exports.getStories = function(req, res) {
       }
       devLog('Query returned ' + docs.length + ' iems');
       res.json({user: user, stories: docs}); //TODO this could be io.emit(). faster? Weirder?
-      // res.json({msg: 'sent response via io'}); //TODO this could be io.emit(). faster? Weirder?
-      // emitData(docs);
     });
 };

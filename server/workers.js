@@ -11,7 +11,7 @@ function startCleanupWorker() {
 
   function cull() {
     var now = new Date();
-    prodLog('  --  Running a cull now  --  ', now);
+    // prodLog('  --  Running a cull now  --  ', now);
 
     var oneDayAgo = new Date(now - (1 * 24 * 60 * 60 * 1000));
     var twoDaysAgo = new Date(now - (2 * 24 * 60 * 60 * 1000));
@@ -44,10 +44,10 @@ function startCleanupWorker() {
     );
   }
 
-  cull();
+  // cull();
   setInterval(function() {
     cull();
-  }, 60 * 60 * 1000); //Hourly
+  }, 6 * 60 * 60 * 1000); //six hourly
 
 }
 

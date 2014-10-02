@@ -48,7 +48,7 @@ exports.start = function(app) {
   global.io = io; //IO is used for global emitting
 
   io.on('connection', function(socket) {
-    devLog('Socket IO listening. Socket IO hears you.');
+    // devLog('Socket IO listening. Socket IO hears you.');
     // global.socket = socket; //socket is used for listening to clients
 
     socket.on('markAsRead', userController.markAsRead);
@@ -66,7 +66,7 @@ exports.start = function(app) {
   require(path.join(__dirname, 'routes.js'))(app);
 
   db.on('open', function() {
-    prodLog('Database connection opened.');
+    // devLog('Database connection opened.');
     hxnCrawler.startCrawler();
     rdtCrawler.startCrawler();
     workers.startCleanupWorker();
