@@ -6,7 +6,7 @@
     <meta name="description" content="A visual display for news stories.">
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 
-    <link rel="stylesheet" href="styles/main-fba9c508.css">
+    <link rel="stylesheet" href="styles/main-e8b70e4b.css">
 
     <link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
     <link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
@@ -44,7 +44,7 @@
       <div id="user-items" class="user-items header-float">
         <a href="/auth/facebook" class="user-item header-float" data-bind="visible: signedIn() === false">Login with Facebook</a>
         <a class="user-item header-float" href="/auth/sign-out" data-bind="visible: signedIn, click: signOut"> (sign out)</a>
-        <span class="user-item header-float" data-bind="visible: signedIn, text: name.first"></span>
+        <span class="user-item header-float name" data-bind="visible: signedIn"><span>Hey </span><span data-bind="text: name.first"></span></span>
       </div>
       <div id="news-sources" class="news-sources header-float">
         <button id="news-source-rdt"
@@ -232,7 +232,7 @@
     <script src="/socket.io/socket.io.js"></script>
 
 
-    <script src="scripts/main-a1cc7ccb.js"></script>
+    <script src="scripts/main-ec8f0565.js"></script>
 
   </body>
 </html>

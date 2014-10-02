@@ -7,11 +7,22 @@ NB.Comments = (function() {
 
   function parseHtml(str) {
     var result = $('<textarea>').html(str).text();
-    //yeah I could do (r|u) or something but I'm not going to
+    //subreddit link
     result = result.replace(/href="(\/r\/.*?)"/g, 'href="http://www.reddit.com$1"');
+
+    //user link
     result = result.replace(/href="(\/u\/.*?)"/g, 'href="http://www.reddit.com$1"');
+
+    //make all links open in new window
     result = result.replace(/(<a [^>]*?)(>)/g, '$1 target="_blank"$2');
+
+    //any link ending in jpg, turn into inline img
     result = result.replace(/(<a.*?href=)(".*?(?:jpg|png|gif)")(.*?)(<\/a>)/, '$1$2$3<img src=$2>$4');
+
+    //turn any imgur link without jpg into jpg (TODO: this will break for imgur links with extensions)
+    //Rather, test above for existence of URL. Then repending on the URL, replace differently
+    //Copy the logic from storyPanel.js
+//     result = result.replace(/(<a.*?href=")(.*?imgur\.com\/.*?)(")(.*?)(<\/a>)/, '$1$2$3$4<img src="$2.jpg">$5');
     return result;
   }
 

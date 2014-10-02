@@ -89,8 +89,11 @@ NB.Settings = (function() {
       .style('display', 'none');
   }
 
-  function saveSettings() {
-    NB.Data.emit('updateSettings', {settings: ko.toJS(settings)});
+  function saveSettings(silent) {
+    if (!silent) {
+      NB.Data.emit('updateSettings', {settings: ko.toJS(settings)});
+    }
+    
     //The settings ko object is bound so nothing needs to be updated there
 //     var maxHitLimit = Math.min(500, settings.hitLimit());
     var tmp = NB.Utils.constrain(1, settings.hitLimit(), 500);
@@ -137,6 +140,15 @@ NB.Settings = (function() {
     closeSettings();
   }
 
+  function setAll(settings) {
+//     console.log('gonna save settings:', settings);
+    var keys = Object.keys(settings);
+    keys.forEach(function(setting) {
+//       console.log('Setting', setting, 'to', settings[setting]);
+      Settings.setSetting(setting, settings[setting], true);
+    });
+  }
+
 
   /*  ---------------  */
   /*  --  Exports  --  */
@@ -168,13 +180,17 @@ NB.Settings = (function() {
     }
     return settings[setting]();
   };
-  Settings.setSetting = function(setting, value) {
+
+  Settings.setAll = setAll; //used when settings are loaded from user account
+
+  Settings.setSetting = function(setting, value, silent) {
+    //TODO, if this took an object, then I could use Object.keys and merge this with setAll.
     if (!settings[setting]) { //TODO test for "typeof function"
       console.log(setting + ' is not something that can be set.');
       return;
     }
     settings[setting](value);
-    saveSettings();
+    saveSettings(silent);
   };
   Settings.getColor = function(source, category) {
     if (!settings[source + 'CategoryColors']) {
@@ -216,7 +232,7 @@ if (!!document.location.host.match(/localhost/)) {
   NB.IS_LOCALHOST = false;
 }
 
-NB.hasTouch = true;
+NB.hasTouch = false;
 NB.oldestStory = Infinity;
 
 'use strict';
@@ -338,6 +354,49 @@ NB.Data = (function() {
     if (captureOldest) {
       NB.oldestStory = Infinity;
     }
+
+    //User stuff
+    if (data.user) {
+      NB.Auth.setUser(data.user);
+
+      if (data.user.settings) {
+        if (NB.Settings.getSetting('source') !== data.user.settings.source) {
+          NB.Nav.navigate(data.user.settings.source); //this handles the setting and resetting of the chart
+          return cb(false); //this prevents the page from drawing further.
+        }
+
+        NB.Settings.setAll(data.user.settings);
+      }
+
+      if (data.user.readList) {
+        if (localStorage.readList) {
+          var lsReadList = JSON.parse(localStorage.readList);
+          var serverReadList = data.user.readList;
+          var i, j, exists = false, newReadList = [];
+          for (i = 0; i < lsReadList.length; i++) {
+            for (j = 0; j < serverReadList.length; j++) {
+              if (lsReadList[i] === serverReadList[j]) {
+                exists = true;
+              }
+            }
+            if (!exists) {
+              newReadList.push(lsReadList[i]);
+              //If the item was in local storage but not on the server, send it to the server
+              Data.emit('markAsRead', {storyId: lsReadList[i]});
+            }
+            exists = false;
+          }
+          readList = lsReadList.concat(newReadList);
+          delete localStorage.readList;
+        } else {
+          readList = data.user.readList;
+        }
+      }
+    }
+
+
+
+    //Stories
     data.stories.forEach(function(s) {
       s.postDate = new Date(s.postDate);
       if (!s.isRead) { //if the story is NOT marked as read from the server, then check if it is here.
@@ -347,6 +406,8 @@ NB.Data = (function() {
         NB.oldestStory = Math.min(NB.oldestStory, s.postDate);
       }
     });
+
+
     sortBy(data.stories, 'commentCount');
     cb(data.stories);
   }
@@ -359,8 +420,8 @@ NB.Data = (function() {
       if (NB.Settings.getSetting('source') !== 'hxn') { return; } //this could occur if the page is changed before the data comes back
       if (!response.stories.length) { return; } //TODO show user a message for no data to return
 //       console.log('Got data:', response);
-      NB.Auth.setUser(response.user); //potentially null
       parseInitialData(response, true, function(parsedData) {
+        if (!parsedData) { return; }
         Data.stories = parsedData;
         NB.Chart.drawStories();
       });
@@ -373,8 +434,8 @@ NB.Data = (function() {
     $.get('/api/rdt/' + limit + '/' + minScore, function(response) {
       if (NB.Settings.getSetting('source') !== 'rdt') { return; } //this could occur if the page is changed before the data comes back
       if (!response.stories.length) { return; } //TODO show user a message for no data to return
-      NB.Auth.setUser(response.user); //potentially null
       parseInitialData(response, true, function(parsedData) {
+        if (!parsedData) { return; }
         Data.stories = parsedData;
         NB.Chart.drawStories();
       });
@@ -398,6 +459,7 @@ NB.Data = (function() {
 
   function markAsUnread(id) {
     id = id.toString();
+    Data.emit('markAsUnread', {storyId: id});
     for (var i = 0; i < readList.length; i++) {
       if (readList[i] === id) {
         readList.splice(i,1);
@@ -405,7 +467,6 @@ NB.Data = (function() {
         return;
       }
     }
-    //TODO: Data.emit('markAsUnread', {storyId: id});
   }
   function markAsRead(id) {
     if (isRead(id)) { return; } //prevent duplicates
@@ -440,9 +501,8 @@ NB.Data = (function() {
     //adds the userId to the payload and sends it on its way.
     var user = NB.Auth.getUser();
     if (user) {
-//       NB.Data.emit('addToFavs', {userId: user._id, story: story});
       data.userId = user._id;
-      console.log('sending data:', data);
+//       console.log('Emitting: ', eventName, 'with data:', data);
       socket.emit(eventName, data);
     }
     
@@ -835,31 +895,30 @@ NB.Chart = (function() {
     if (setting === 'openTab') {
       //TODO I'm not sure I can do this, maybe the text should be 'open page' or 'navigate to URL'
     }
-
-
-
-
-
     tooltip.style('visibility', 'hidden');
-
 
   }
 
   function bubbleMouseover(d) {
     if (maxiTooltipShowing) { return; }
-    var extra = ' - ' + d.category;
-    tooltip.text(d.name + extra);
-    var tipWidth = parseInt(tooltip.style('width'));
-    var tipHeight = parseInt(tooltip.style('height'));
+    if (NB.hasTouch) { return; }
+//     var extra = ' - ' + d.category;
+//     tooltip.text(d.name + extra);
+    tooltip.html(d.name + '<br>' + d.category);
+
+    var tooltipDims = tooltip.node(0).getBoundingClientRect(); //using this because it allows for scaling if one day...
+    var tipWidth = tooltipDims.width;
+    var tipHeight = tooltipDims.height;
+
     var thisDims = this.getBoundingClientRect(); //TODO replace 'this' with whatever the element is
 
     var left = thisDims.left - ((tipWidth - thisDims.width) / 2);
     left = Math.max(left, margins.left);
     left = Math.min(left, (w - margins.right - tipWidth));
 
-    var top = thisDims.top - tipHeight;
+    var top = thisDims.top - tipHeight - 10;
     if (top < 100) {
-      top = thisDims.top + thisDims.height;
+      top = thisDims.top + thisDims.height + 10;
     }
 
     tooltip
@@ -903,8 +962,9 @@ NB.Chart = (function() {
       .attr('r', function(d) {
         return z(d.commentCount);
       })
+      //start them just off the bottom right of the page
+      //TODO, if this is just an update, start with the actual x value
       .attr('cx', function() { return x(maxDate) + 100; })
-//       .attr('cy', function() { return y(0); })
       .attr('cy', function() { return y(minScore) + 100; })
       .attr('fill', function(d) {
         return NB.Settings.getColor(d.source, d.category);
@@ -913,7 +973,6 @@ NB.Chart = (function() {
         return NB.Settings.getColor(d.source, d.category);
       })
       .classed('story-circle', true)
-      //TODO: don't check each loop for is read, do it once on load
       .classed('read', function(d) { return d.isRead; })
       .on('click', bubbleClicked)
       .on('mouseover', bubbleMouseover)
@@ -936,14 +995,9 @@ NB.Chart = (function() {
     points
       .transition()
       .ease('cubic-out')
-      .delay(function(d, i) {
-//         console.log('delaying by', i * delay);
-        return i * delay;
-      })
+      .delay(function(d, i) { return i * delay; })
       .duration(duration)
-      .attr('r', function(d) {
-        return z(d.commentCount); //z may change because maxCircle changes on resize
-      })
+      .attr('r', function(d) { return z(d.commentCount); })
       .attr('cx', function(d) { return x(d.postDate); })
       .attr('cy', function(d) { return y(d.score); });
 
@@ -1274,10 +1328,22 @@ NB.Comments = (function() {
 
   function parseHtml(str) {
     var result = $('<textarea>').html(str).text();
-    //yeah I could do (r|u) or something but I'm not going to
+    //subreddit link
     result = result.replace(/href="(\/r\/.*?)"/g, 'href="http://www.reddit.com$1"');
+
+    //user link
     result = result.replace(/href="(\/u\/.*?)"/g, 'href="http://www.reddit.com$1"');
+
+    //make all links open in new window
     result = result.replace(/(<a [^>]*?)(>)/g, '$1 target="_blank"$2');
+
+    //any link ending in jpg, turn into inline img
+    result = result.replace(/(<a.*?href=)(".*?(?:jpg|png|gif)")(.*?)(<\/a>)/, '$1$2$3<img src=$2>$4');
+
+    //turn any imgur link without jpg into jpg (TODO: this will break for imgur links with extensions)
+    //Rather, test above for existence of URL. Then repending on the URL, replace differently
+    //Copy the logic from storyPanel.js
+//     result = result.replace(/(<a.*?href=")(.*?imgur\.com\/.*?)(")(.*?)(<\/a>)/, '$1$2$3$4<img src="$2.jpg">$5');
     return result;
   }
 
@@ -1797,10 +1863,19 @@ NB.main = (function() {
   ko.applyBindings(NB.StoryModel.panelStory, document.getElementById('story-panel'));
   ko.applyBindings(NB.Nav.navModel, document.getElementById('news-sources'));
 
-  if (!('ontouchstart' in window) && !(window.DocumentTouch && document instanceof DocumentTouch)) {
-    d3.select('body').classed('no-touch', true);
-    NB.hasTouch = false;
+
+  //Two approaches to touch detection
+//   if (!('ontouchstart' in window) && !(window.DocumentTouch && document instanceof DocumentTouch)) {
+//     d3.select('body').classed('no-touch', true);
+//     NB.hasTouch = false;
+//   }
+
+  var onFirstTouch = function() {
+    document.body.classList.remove('no-touch');
+    NB.hasTouch = true;
+    document.body.removeEventListener('touchstart', onFirstTouch);
   }
+  document.body.addEventListener('touchstart', onFirstTouch);
 
 
 
