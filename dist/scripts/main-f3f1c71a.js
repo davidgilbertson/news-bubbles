@@ -9,8 +9,8 @@ NB.Utils = (function() {
     val = Math.max(low, val);
     val = Math.min(val, high);
     return val;
-  }
-  
+  };
+
   return Utils;
 })();
 'use strict';
@@ -93,16 +93,16 @@ NB.Settings = (function() {
     if (!silent) {
       NB.Data.emit('updateSettings', {settings: ko.toJS(settings)});
     }
-    
+
     //The settings ko object is bound so nothing needs to be updated there
 //     var maxHitLimit = Math.min(500, settings.hitLimit());
     var tmp = NB.Utils.constrain(1, settings.hitLimit(), 500);
     settings.hitLimit(tmp);
 
-    var tmp = Math.max(0, settings.rdtMinScore());
+    tmp = Math.max(0, settings.rdtMinScore());
     settings.rdtMinScore(tmp);
 
-    var tmp = Math.max(0, settings.hxnMinScore());
+    tmp = Math.max(0, settings.hxnMinScore());
     settings.hxnMinScore(tmp);
 
 
@@ -255,8 +255,8 @@ NB.Auth = (function() {
     } else {
       window.location.hash = '';
     }
-      
-    
+
+
   }
 
   function close() {
@@ -294,7 +294,7 @@ NB.Auth = (function() {
     open: open,
     close: close,
     save: save
-  }
+  };
 
 
   function init() {
@@ -302,7 +302,7 @@ NB.Auth = (function() {
     ko.applyBindings(userModel, document.getElementById('auth-modal'));
   }
 
-  
+
   init();
 
   /*  --  EXPORTS  --  */
@@ -332,11 +332,11 @@ NB.Auth = (function() {
     } else {
       return null;
     }
-    
+
   };
   Auth.getRawUser = function() {
     return rawUser;
-  }
+  };
 
   Auth.signOut = function() {
     console.log('OK, will sign out (ha ha, but I am not really!');
@@ -487,15 +487,15 @@ NB.Data = (function() {
 
   function isRead(id) {
     var objString = id.toString();
-    var isRead = false;
+    var isThisRead = false;
     //TODO, does indexOf not do this?
     for (var i = 0; i < readList.length; i++) {
       if (objString === readList[i]) {
 //         console.log(readList[i] + 'is already read');
-        isRead = true;
+        isThisRead = true;
       }
     }
-    return isRead;
+    return isThisRead;
 
   }
 
@@ -521,7 +521,7 @@ NB.Data = (function() {
 
   function init() {
     socket = io(); //TODO only get the server to send data for reddit or hxn?
-    
+
     socket.on('data', function(msg) {
       if (!Data.stories.length) { return; } //TODO need to remove this if I want to use IO even for the first fetch.
 
@@ -548,8 +548,8 @@ NB.Data = (function() {
 //       console.log('Emitting: ', eventName, 'with data:', data);
       socket.emit(eventName, data);
     }
-    
-  }
+
+  };
 
   Data.setData = function(key, value) {
     store[key] = value;
@@ -598,7 +598,7 @@ NB.Data = (function() {
         if (!data.images) { return; }
 
         for (i = 0; i < data.images.length; i++) {
-          img = data.images[i]
+          img = data.images[i];
 
           html += '<figure>';
           html += '<img src="' + img.link + '">';
@@ -615,7 +615,7 @@ NB.Data = (function() {
       process(response.data);
     });
 
-  }
+  };
 
 
   init();
@@ -838,7 +838,7 @@ NB.Chart = (function() {
     }
   }
 
-  function moveToBack(domEl) {
+  function moveToBack() {
     var domEl = d3.event.currentTarget;
     if (domEl.previousSibling) {
       var parent = domEl.parentNode;
@@ -852,7 +852,7 @@ NB.Chart = (function() {
   function bubbleClicked(d) {
 
     //move to back
-    moveToBack(d3.event.currentTarget)
+    moveToBack();
 
     //get the D3 flvoured dom el
     var el = d3.select(d3.event.currentTarget);
@@ -954,7 +954,7 @@ NB.Chart = (function() {
     var tipWidth = tooltipDims.width;
     var tipHeight = tooltipDims.height;
 
-    var thisDims = this.getBoundingClientRect(); //TODO replace 'this' with whatever the element is
+    var thisDims = d3.event.currentTarget.getBoundingClientRect();
 
     var left = thisDims.left - ((tipWidth - thisDims.width) / 2);
     left = Math.max(left, margins.left);
@@ -978,7 +978,7 @@ NB.Chart = (function() {
     var setting = NB.Settings.getSetting('rightClickAction');
     if (setting === 'nothing') { return; }
     d3.event.preventDefault();
-    moveToBack(d3.event.currentTarget)
+    moveToBack();
 
     var el = d3.select(d3.event.currentTarget);
 
@@ -1382,7 +1382,7 @@ NB.Comments = (function() {
     result = result.replace(/(<a [^>]*?)(>)/g, '$1 target="_blank"$2');
 
     //any link ending in jpg, turn into inline img
-    result = result.replace(/(<a.*?href=)(".*?(?:jpg|png|gif)")(.*?)(<\/a>)/, '$1$2$3<img src=$2>$4');
+    result = result.replace(/(<a.*?href=)(".*?(?:jpg|png|gif)")(.*?)(<\/a>)/g, '$1$2$3<img src=$2>$4');
 
     //turn any imgur link without jpg into jpg (TODO: this will break for imgur links with extensions)
     //Rather, test above for existence of URL. Then repending on the URL, replace differently
@@ -1563,7 +1563,7 @@ NB.StoryPanel = (function() {
         } else {
           console.log('The story has already changed, dumping the comments');
         }
-        
+
       });
     }
 
@@ -1704,8 +1704,7 @@ NB.StoryPanel = (function() {
 
   StoryPanel.clear = function() {
     NB.StoryModel.clear();
-
-  }
+  };
 
 
   return StoryPanel;
@@ -1771,7 +1770,7 @@ NB.StoryModel = (function() {
 
     var color = NB.Settings.getColor(story.source, category);
 
-    
+
     if (story.source === 'rdt') {
       domain = story.rdt.domain;
       //From 24 sep 2014 the source and author URLs are in the database.
@@ -1826,16 +1825,16 @@ NB.StoryModel = (function() {
       .timeString(timeFormatter(story.postDate))
       .dateString(dateFormatter(story.postDate))
       .isFav(isFav);
-      
+
 
     if (tooltipOrPanel === 'panel') {
         storyObj.content(story.content);
     }
   };
 
-  StoryModel.favStory = function(story) {
-    toggleFav(story);
-  };
+  // StoryModel.favStory = function(story) {
+  //   toggleFav(story);
+  // };
 
   StoryModel.clear = function() {
     StoryModel.panelStory
@@ -1853,7 +1852,7 @@ NB.StoryModel = (function() {
       .dateString('')
       .content('')
       .isFav('');
-      
+
   };
 
   init();
@@ -1875,7 +1874,7 @@ NB.Nav = (function() {
 
   Nav.navModel = {
     currentSource: ko.observable(currentSource)
-  }
+  };
 
   Nav.navigate = function(newSource) {
     NB.Layout.hideStoryPanel();
@@ -1887,13 +1886,13 @@ NB.Nav = (function() {
     NB.Chart.reset();
     NB.Data.getData();
 
-    //TODO: less dumb way to do this?    
+    //TODO: less dumb way to do this?
     var body = d3.select('body');
     body.classed('rdt', newSource === 'rdt');
     body.classed('hxn', newSource === 'hxn');
     body.classed('fav', newSource === 'fav');
   };
-  
+
   init();
   return Nav;
 })();
@@ -1930,7 +1929,7 @@ NB.main = (function() {
     document.body.classList.remove('no-touch');
     NB.hasTouch = true;
     document.body.removeEventListener('touchstart', onFirstTouch);
-  }
+  };
   document.body.addEventListener('touchstart', onFirstTouch);
 
 
