@@ -17,7 +17,7 @@ NB.Comments = (function() {
     result = result.replace(/(<a [^>]*?)(>)/g, '$1 target="_blank"$2');
 
     //any link ending in jpg, turn into inline img
-    result = result.replace(/(<a.*?href=)(".*?(?:jpg|png|gif)")(.*?)(<\/a>)/, '$1$2$3<img src=$2>$4');
+    result = result.replace(/(<a.*?href=)(".*?(?:jpg|png|gif)")(.*?)(<\/a>)/g, '$1$2$3<img src=$2>$4');
 
     //turn any imgur link without jpg into jpg (TODO: this will break for imgur links with extensions)
     //Rather, test above for existence of URL. Then repending on the URL, replace differently
