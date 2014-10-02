@@ -12,7 +12,10 @@
     color: white;
     font-weight: normal;
     letter-spacing: 1px;
-    @media (max-width: 500px) {
+    @media (max-width: 760px) {
+      display: none;
+    }
+/*     @media (max-width: 500px) {
       letter-spacing: 0;
       font-size: 18px;
       padding: 12px 5px;
@@ -20,7 +23,7 @@
     @media (max-width: 350px) {
       font-size: 15px;
       padding: 12px 3px;
-    }
+    } */
   }
   .header-float {
     float: right;
@@ -29,11 +32,17 @@
   }
   .user-items {
     height: 100%;
-    padding: 0 10px;
+    padding: 0 0 0 10px;
     .user-item {
       //TODO not sure how to stop FOUC
 /*       display: none; //Overridden by knockout */
       padding: 9px 0 0 4px;
+      &.name {
+        display: inline;
+        @media (max-width: 600px) {
+          display: none;
+        }
+      }
     }
   }
   .news-sources {
@@ -66,6 +75,9 @@
     cursor: pointer;
     path {
       fill: white;
+    }
+    @media (max-width: 800px) {
+      width: 60px;
     }
   }
   &-btn { //TODO what is this?
