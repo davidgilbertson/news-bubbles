@@ -72,7 +72,7 @@ NB.Settings = (function() {
       ])
     };
 
-    settingsEl = d3.select('#settings-wrapper');
+    settingsEl = d3.select('#settings-modal');
 
     ko.applyBindings(settings, settingsEl.node(0));
 
@@ -241,25 +241,65 @@ var NB = NB || {};
 NB.Auth = (function() {
   var Auth = {}
     , rawUser = {}
-    , userModel = {
-        _id: '',
-        name: {
-          first: ko.observable(''),
-          last: ko.observable(''),
-          display: ko.observable('')
-        },
-        signOut: function() {
-          $.get('/auth/sign-out');
-          Auth.setUser(null);
-        },
-        signedIn: ko.observable(false) //TODO: Hmmm, implied?
-      }
+    , authModal = d3.select('#auth-modal')
   ;
 
+  // Remove the ugly Facebook appended hash
+  // <https://github.com/jaredhanson/passport-facebook/issues/12>
+  // source for this code: https://github.com/jaredhanson/passport-facebook/issues/12#issuecomment-5913711
+  function removeFacebookAppendedHash() {
+    if (!window.location.hash || window.location.hash !== '#_=_') {
+      return;
+    } else if (window.history && window.history.replaceState) {
+      return window.history.replaceState('', document.title, window.location.pathname);
+    } else {
+      window.location.hash = '';
+    }
+      
+    
+  }
+
+  function close() {
+    authModal
+      .transition().duration(500)
+      .style('opacity', 0)
+      .transition()
+      .style('display', 'none');
+  }
+
+  function save() {
+    close();
+  }
+
+  function open() {
+    authModal
+      .style('display', 'block')
+      .transition().duration(500)
+      .style('opacity', 1);
+  }
+
+  var userModel = {
+    _id: '',
+    name: {
+      first: ko.observable(''),
+      last: ko.observable(''),
+      display: ko.observable('')
+    },
+    signedIn: ko.observable(false),
+    headerText: ko.observable('Sign in'),
+//     signOut: function() {
+//       $.get('/auth/sign-out');
+//       Auth.setUser(null);
+//     },
+    open: open,
+    close: close,
+    save: save
+  }
 
 
   function init() {
     ko.applyBindings(userModel, document.getElementById('user-items'));
+    ko.applyBindings(userModel, document.getElementById('auth-modal'));
   }
 
   
@@ -274,12 +314,15 @@ NB.Auth = (function() {
       userModel.name.last(user.name.last);
       userModel.name.display(user.name.display);
       userModel.signedIn(true);
+      userModel.headerText('Account');
+      removeFacebookAppendedHash(); //TODO test for FB?
     } else {
       userModel._id = null;
       userModel.name.first(null);
       userModel.name.last(null);
       userModel.name.display(null);
       userModel.signedIn(false);
+      userModel.headerText('Sign in');
     }
   };
 
@@ -885,7 +928,8 @@ NB.Chart = (function() {
         toggleRead(el, d);
       });
       d3.select('#tooltip-open-reading-pane').on('click', function() { //D3 will remove any existing listener
-        markAsRead(el, d);
+        NB.Data.markAsRead(d.id);
+        el.classed('read', true);
         NB.Layout.showStoryPanel();
         NB.StoryPanel.render(d);
       });
@@ -1366,6 +1410,8 @@ NB.Comments = (function() {
         var $child = $('<li class="comment-list-item">');
         if (commentObj.kind === 'more') {
           //TODO, maybe really handle 'more'
+        } else if (commentObj.data.body === '[deleted]') {
+          //Do nothing. Looks like there isn't a flag for this
         } else {
           author = commentObj.data.author;
           timeAgo = moment(commentObj.data.created_utc * 1000).fromNow();
@@ -1426,7 +1472,7 @@ NB.Comments = (function() {
       var timeAgo = moment(comment.created_at_i * 1000).fromNow();
       var points = comment.points + ' points';
 
-      $child.append('<div class="comment-list-item-text body">' + comment.comment_text + '</div>');
+      $child.append('<div class="comment-list-item-text body">' + comment.comment_text.replace(/\\n/, '<br>') + '</div>');
       $child.append('<p class="comment-list-item-text meta"> ' + author + ' | ' + timeAgo + ' | ' + points + '</p>');
 
       $result.append($child);
@@ -1467,6 +1513,7 @@ var NB = NB || {};
 
 NB.StoryPanel = (function() {
   var StoryPanel = {};
+  var currentStoryId;
 
 
   function getReadability(story, cb) {
@@ -1495,14 +1542,8 @@ NB.StoryPanel = (function() {
 
   function renderRdt(story) {
     var dom = story.rdt.domain.toLowerCase();
+    currentStoryId = story.id; //To check when comments come back
     story.content = '';
-
-    function done(thenAppendComments) {
-      NB.StoryModel.setCurrentStory('panel', story);
-      if (thenAppendComments) {
-        appendComments();
-      }
-    }
 
     //get comments and append. NB done() is not needed.
     function appendComments() {
@@ -1514,8 +1555,23 @@ NB.StoryPanel = (function() {
           '</p>'
         ].join('');
         story.content += commentTree.html();
-        NB.StoryModel.setCurrentStory('panel', story);
+
+        //Because a user can click one story, then another before the first story comments are loaded
+        //Check that the expected story is still the active one.
+        if (story.id === currentStoryId) {
+          NB.StoryModel.setCurrentStory('panel', story);
+        } else {
+          console.log('The story has already changed, dumping the comments');
+        }
+        
       });
+    }
+
+    function done(thenAppendComments) {
+      NB.StoryModel.setCurrentStory('panel', story);
+      if (thenAppendComments) {
+        appendComments();
+      }
     }
 
 
