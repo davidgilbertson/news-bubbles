@@ -116,7 +116,17 @@ exports.setUp = function(app) {
     issueToken //TODO what is this?
   ));
 
-  app.use(session({secret: '567v^&5vr7'}));
+  // app.use(session({secret: '567v^&5vr7'}));
+
+
+  app.use(session({
+    secret: '567v^&5vr7',
+    resave: true,
+    saveUninitialized: true
+  }));
+
+
+
   app.use(passport.initialize());
   app.use(passport.session());
   app.use(passport.authenticate('remember-me'));

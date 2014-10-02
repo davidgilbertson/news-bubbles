@@ -59,7 +59,7 @@ exports.start = function(app) {
   });
 
   app.use(cookieParser());
-  app.use(bodyParser());
+  app.use(bodyParser.json());
 
   auth.setUp(app);
 
