@@ -12,6 +12,7 @@
     "passport": "^0.2.1",
     "passport-facebook": "^1.0.3",
     "passport-local": "^1.0.0",
+    "passport-reddit": "^0.2.4",
     "passport-remember-me": "0.0.1",
     "request": "^2.40.0",
     "socket.io": "^1.0.6",
