@@ -149,7 +149,7 @@ NB.Chart = (function() {
     if (NB.hasTouch) { return; }
 //     var extra = ' - ' + d.category;
 //     tooltip.text(d.name + extra);
-    tooltip.html(d.name + '<br>' + d.category);
+    tooltip.html(d.name + '<br>~ ' + d.category + ' ~');
 
     var tooltipDims = tooltip.node(0).getBoundingClientRect(); //using this because it allows for scaling if one day...
     var tipWidth = tooltipDims.width;
