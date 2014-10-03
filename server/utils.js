@@ -2,7 +2,7 @@
 
 //devLog will print to console in DEV only.
 exports.devLog = function() {
-  if (!process.env.DEV) { return; }
+  if (!process.env.DEV && !process.env.DEBUG) { return; }
   var args = arguments;
 
   function go() {

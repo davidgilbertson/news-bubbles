@@ -9,7 +9,7 @@ var path = require('path')
 
 //add this id to the read list for the user
 function markAsRead(data) {
-  devLog('will add to read list:', data.userId, 'and', data.storyId);
+  // devLog('will add to read list:', data.userId, 'and', data.storyId);
   var userId = data.userId
     , storyId = data.storyId
   ;
@@ -18,7 +18,7 @@ function markAsRead(data) {
     if (!user) { return; } //perhaps user was deleted in another session? TODO hande better
 
     if (user.readList.indexOf(storyId) === -1) {
-      console.log('Adding', storyId, 'to the list of read things for user', userId);
+      // console.log('Adding', storyId, 'to the list of read things for user', userId);
       user.readList.push(storyId);
       user.save();
     }
@@ -27,7 +27,7 @@ function markAsRead(data) {
 }
 //add this id to the read list for the user
 function markAsUnread(data) {
-  devLog('will remove from read list:', data.userId, 'and', data.storyId);
+  // devLog('will remove from read list:', data.userId, 'and', data.storyId);
   var userId = data.userId
     , storyId = data.storyId
   ;
@@ -37,7 +37,7 @@ function markAsUnread(data) {
 
     var pos = user.readList.indexOf(storyId);
     if (pos > -1) {
-      devLog('Marking this story as not read:', user.readList[pos]);
+      // devLog('Marking this story as not read:', user.readList[pos]);
       user.readList.splice(pos, 1);
       user.save();
     } else {
@@ -50,7 +50,7 @@ function markAsUnread(data) {
 function addToFavs(data) {
   //TODO for now I'm adding the entire story to the user object.
   //Eventually just store the ID, then generate the fav list when a user navigates to fav tab.
-  devLog('will add to favs:', data.userId, 'and', data.story.name);
+  // devLog('will add to favs:', data.userId, 'and', data.story.name);
   var userId = data.userId
     , story = data.story
   ;
