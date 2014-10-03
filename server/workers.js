@@ -47,7 +47,7 @@ function startCleanupWorker() {
   // cull();
   setInterval(function() {
     cull();
-  }, 6 * 60 * 60 * 1000); //six hourly
+  }, 1 * 60 * 60 * 1000); //hourly
 
 }
 

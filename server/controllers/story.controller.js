@@ -71,7 +71,7 @@ function saveNewRdtStory(newStory) {
   process.nextTick(function() {
     rdtStory.save(function(err) {
       if (err) {
-        devLog('Error saving new story:', err);
+        prodLog('Error saving new story:', err);
       }
     });
   });
@@ -98,7 +98,11 @@ function updateRdtStory(existingStory, newStory) {
   }
   if (hasChanged) {
     process.nextTick(function() {
-      existingStory.save(); //TODO: batch these up?
+      existingStory.save(function(err) {
+        if (err) {
+          prodLog('Error updating story:', err);
+        }
+      }); //TODO: batch these up?
     });
     rdtEmitQueue.push(existingStory.toObject());
     hasChanged = false;
@@ -162,7 +166,11 @@ function saveNewHxnStory(newStory, suppressResults) {
     }
   });
   process.nextTick(function() {
-    hxnStory.save();
+    hxnStory.save(function(err) {
+      if (err) {
+        prodLog('Error saving new story:', err);
+      }
+    });
   });
 
   if (!suppressResults) { //results are suppressed for the really old crawlers, the updates don't need to be sent to the client.
@@ -176,7 +184,11 @@ function updateHxnStory(existingStory, newStory) {
     existingStory.commentCount = newStory.num_comments;
     existingStory.score = newStory.points;
     process.nextTick(function() {
-      existingStory.save();
+      existingStory.save(function(err) {
+        if (err) {
+          prodLog('Error updating story:', err);
+        }
+      });
     });
     hxnEmitQueue.push(existingStory.toObject());
   }
