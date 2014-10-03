@@ -17,12 +17,12 @@ NB.Comments = (function() {
     result = result.replace(/(<a [^>]*?)(>)/g, '$1 target="_blank"$2');
 
     //any link ending in jpg, turn into inline img
-    result = result.replace(/(<a.*?href=)(".*?(?:jpg|png|gif)")(.*?)(<\/a>)/g, '$1$2$3<img src=$2>$4');
+    //todo this should exclude the domains iruntheinternet.com and fanpop.com
+    result = result.replace(/(<a [^>]*?href=)("[^>]*?(?:jpg|png|gif)")(.*?)(<\/a>)/g, '$1$2$3<img src=$2>$4');
 
-    //turn any imgur link without jpg into jpg (TODO: this will break for imgur links with extensions)
-    //Rather, test above for existence of URL. Then repending on the URL, replace differently
-    //Copy the logic from storyPanel.js
-//     result = result.replace(/(<a.*?href=")(.*?imgur\.com\/.*?)(")(.*?)(<\/a>)/, '$1$2$3$4<img src="$2.jpg">$5');
+    //turn any imgur link without jpg into jpg
+    result = result.replace(/(<a [^>]*?href=")(http:\/\/imgur\.com\/[^./]*?)(".*?)(<\/a>)/g, '$1$2$3<img src="$2.jpg">$4');
+
     return result;
   }
 
