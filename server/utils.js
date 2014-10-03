@@ -44,3 +44,31 @@ exports.randomString = function(len) {
 
   return buf.join('');
 };
+
+
+//Proudly butchered from the underscore source
+//http://underscorejs.org/docs/underscore.html#section-137
+
+exports.unescape = function(str) {
+  var unEscapeMap = {
+    '&amp;': '&',
+    '&lt;': '<',
+    '&gt;': '>',
+    '&quot;': '"',
+    '&#x27;': "'",
+    '&#x60;': '`'
+  };
+
+  var escaper = function(match) {
+    return unEscapeMap[match];
+  };
+
+  var keysAsString = Object.keys(unEscapeMap).join('|');
+  var source = '(?:' + keysAsString + ')';
+  var testRegexp = RegExp(source);
+  var replaceRegexp = RegExp(source, 'g');
+
+  str = str == null ? '' : '' + str;
+  return testRegexp.test(str) ? str.replace(replaceRegexp, escaper) : str;
+
+};

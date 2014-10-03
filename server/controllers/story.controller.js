@@ -45,7 +45,7 @@ function saveNewRdtStory(newStory) {
     id: 'rdt-' + newStory.name,
     source: 'rdt',
     sourceId: newStory.name,
-    name: newStory.title,
+    name: utils.unescape(newStory.title),
     desc: null,
     postDate: newStory.created_utc * 1000,
     postDateSeconds: newStory.created_utc,
