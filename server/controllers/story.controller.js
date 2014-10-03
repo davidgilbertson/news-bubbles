@@ -69,7 +69,13 @@ function saveNewRdtStory(newStory) {
     }
   });
   process.nextTick(function() {
-    rdtStory.save();
+    rdtStory.save(function(err) {
+      if (err) {
+        prodLog('Error saving new story:', err);
+      } else {
+        prodLog('New story saved');
+      }
+    });
   });
 
   rdtEmitQueue.push(rdtStory.toObject());

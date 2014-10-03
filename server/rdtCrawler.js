@@ -29,7 +29,7 @@ function goGet(url, cb) {
   var options = {
     url: url,
     json: true,
-    'User-Agent': 'news-bubbles.herokuapp.com/0.3.6 by davidgilbertson'
+    'User-Agent': 'news-bubbles.herokuapp.com/0.3.8 by /u/bubble_boi'
   };
 
   request.get(options, function(err, req, data) {
