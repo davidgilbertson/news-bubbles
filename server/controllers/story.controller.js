@@ -71,9 +71,7 @@ function saveNewRdtStory(newStory) {
   process.nextTick(function() {
     rdtStory.save(function(err) {
       if (err) {
-        prodLog('Error saving new story:', err);
-      } else {
-        prodLog('New story saved');
+        devLog('Error saving new story:', err);
       }
     });
   });
@@ -90,11 +88,11 @@ function updateRdtStory(existingStory, newStory) {
   var scoreDiff = Math.abs(existingStory.score - newStory.score);
   var scoreDiffPer = scoreDiff / existingStory.score;
 
-  if (commentDiffPer > 0.0) {
+  if (commentDiffPer > 0.1) {
     existingStory.commentCount = newStory.num_comments;
     hasChanged = true;
   }
-  if (scoreDiffPer > 0.0) {
+  if (scoreDiffPer > 0.05) {
     existingStory.score = newStory.score;
     hasChanged = true;
   }
