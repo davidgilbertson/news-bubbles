@@ -150,12 +150,15 @@
             <p>Sign in to sync your Bubble Reader favourites, settings, and stories marked as read across devices. We will not post on your behalf or store any interesting data about you.</p>
             <p>We're adding more social providers every day so shut up and be patient.</p>
             <hr>
+            <p>If you sign in with Reddit, you will also be able to vote and, one day, comment.</p>
+            <!-- TODO: these should be checking WHICH auth provider is used -->
+            <a href="/auth/reddit" class="user-item header-float" data-bind="visible: signedIn() === false">Sign in to Reddit</a>
+            <hr>
             <a href="/auth/facebook" class="user-item header-float" data-bind="visible: signedIn() === false">Sign in with Facebook</a>
             <div data-bind="visible: signedIn">
-              <p><span>You're signed in to Facebook as </span><span data-bind="text: name.display"></span></p>
-              <a href="/auth/sign-out">Disconnect</a>
-
+              <p><span>You're signed in to Facebook as </span><span data-bind="text: displayName"></span></p>
             </div>
+            <a data-bind="visible: signedIn" href="/auth/sign-out">Disconnect all accounts from Bubble Reader.</a>
           </div>
 
         </div>

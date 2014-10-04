@@ -48,12 +48,9 @@ NB.Auth = (function() {
       last: ko.observable(''),
       display: ko.observable('')
     },
+    displayName: ko.observable(''),
     signedIn: ko.observable(false),
     headerText: ko.observable('Sign in'),
-//     signOut: function() {
-//       $.get('/auth/sign-out');
-//       Auth.setUser(null);
-//     },
     open: open,
     close: close,
     save: save
@@ -71,19 +68,21 @@ NB.Auth = (function() {
   /*  --  EXPORTS  --  */
   Auth.setUser = function(user) {
     rawUser = user;
+    var displayName = user.displayName || user.name.display;
     if (user) {
       userModel._id = user._id;
-      userModel.name.first(user.name.first);
-      userModel.name.last(user.name.last);
-      userModel.name.display(user.name.display);
+//       userModel.name.first(user.name.first);
+//       userModel.name.last(user.name.last);
+      userModel.displayName(displayName);
       userModel.signedIn(true);
-      userModel.headerText('Account');
+      userModel.headerText(displayName);
       removeFacebookAppendedHash(); //TODO test for FB?
     } else {
       userModel._id = null;
-      userModel.name.first(null);
-      userModel.name.last(null);
-      userModel.name.display(null);
+//       userModel.name.first(null);
+//       userModel.name.last(null);
+//       userModel.name.display(null);
+      userModel.displayName(null);
       userModel.signedIn(false);
       userModel.headerText('Sign in');
     }

@@ -9,14 +9,21 @@ var path = require('path')
   , devLog = utils.devLog
   , FacebookStrategy = require('passport-facebook').Strategy
   , RememberMeStrategy = require('passport-remember-me').Strategy
+  , RedditStrategy = require('passport-reddit').Strategy
+
+  , BASE_URL = 'http://news-bubbles.herokuapp.com'
 
   , FACEBOOK_APP_ID = '833772886647232'
   , FACEBOOK_APP_SECRET = '862d4c22a83572793c7214d798afe5f3'
-  , MY_URL = 'http://news-bubbles.herokuapp.com'
+
+  , REDDIT_CLIENT_KEY = '1_v-tNQj16e7Sg'
+  , REDDIT_CLIENT_SECRET = '_yzoDtfgvzMlrFK56mLFlPt6oY4'
   ;
 
   if (process.env.DEV) {
-    MY_URL = 'http://local.news-bubbles.herokuapp.com';
+    BASE_URL = 'http://local.news-bubbles.herokuapp.com';
+    REDDIT_CLIENT_KEY = '4tPkcfJiC76--w';
+    REDDIT_CLIENT_SECRET = 'hWWKy8NNYeiP8ZFXadhS204t4a4';
   }
 
 // This code from here:
@@ -70,7 +77,7 @@ exports.setUp = function(app) {
   passport.use(new FacebookStrategy({
       clientID: FACEBOOK_APP_ID,
       clientSecret: FACEBOOK_APP_SECRET,
-      callbackURL: MY_URL + '/auth/facebook/callback'
+      callbackURL: BASE_URL + '/auth/facebook/callback'
     },
     function(accessToken, refreshToken, profile, done) {
       process.nextTick(function() {
@@ -88,6 +95,7 @@ exports.setUp = function(app) {
             newUser.name.first     = profile.name.givenName;
             newUser.name.last      = profile.name.familyName;
             newUser.name.display   = profile.displayName;
+            newUser.displayName   = profile.displayName; //TODO redo this name structure
 
             newUser.save(function(err) {
               return done(err, newUser);
@@ -101,6 +109,46 @@ exports.setUp = function(app) {
     }
   ));
 
+  passport.use(new RedditStrategy({
+      clientID: REDDIT_CLIENT_KEY,
+      clientSecret: REDDIT_CLIENT_SECRET,
+      callbackURL: BASE_URL + '/auth/reddit/callback'
+    },
+    function(accessToken, refreshToken, profile, done) {
+      console.log('AUTH: got response from reddit with this profile:', profile);
+      process.nextTick(function() {
+
+        User.findOne({'reddit.id': profile.id}, function(err, doc) {
+
+          if (err) {
+            devLog('AUTH: DB error looking up user');
+            return done(err);
+          } else if (!doc) {
+            devLog('AUTH: did not find user, creating a new one');
+
+            var newUser            = new User();
+            newUser.reddit.id      = profile.id;
+            newUser.reddit.token   = accessToken;
+            // newUser.name.first     = profile.name.givenName;
+            // newUser.name.last      = profile.name.familyName;
+            newUser.name.display   = profile.displayName; //TODO remove this from server, db, client and don't forget prod
+            newUser.displayName   = profile.name;
+
+            newUser.save(function(err) {
+              return done(err, newUser);
+            });
+          } else {
+            devLog('AUTH: user already exists, continuing');
+            return done(null, doc);
+          }
+        });
+
+      });
+      // User.findOrCreate({ redditId: profile.id }, function (err, user) {
+      //   return done(err, user);
+      // });
+    }
+  ));
 
   passport.use(new RememberMeStrategy(
     function(token, done) {
@@ -119,8 +167,6 @@ exports.setUp = function(app) {
     issueToken //TODO what is this?
   ));
 
-  // app.use(session({secret: '567v^&5vr7'}));
-
   app.use(session({
     secret: '567v^&5vr7',
     resave: true,
@@ -138,8 +184,10 @@ exports.setUp = function(app) {
     }),
     function(req, res, next) {
       issueToken(req.user, function(err, token) {
+        //TODO: DRY this out
         if (err) { return next(err); }
-        res.cookie('remember_me', token, { path: '/', httpOnly: true, maxAge: 604800000 }); //TODO that's only a week
+        var maxAge = 1000 * 60 * 60 * 24 * 365;
+        res.cookie('remember_me', token, { path: '/', httpOnly: true, maxAge: maxAge });
         return next();
       });
     },
@@ -148,10 +196,57 @@ exports.setUp = function(app) {
     }
   );
 
-
-  app.get('/auth/sign-in-success', function(req, res) {
-    res.send('success!');
+  app.get('/auth/reddit', function(req, res, next){
+    devLog('AUTH: Got request to sign in to reddit');
+    req.session.state = utils.randomString(6);
+    passport.authenticate('reddit', {
+      state: req.session.state,
+      duration: 'permanent',
+      scope: 'identity,vote'
+    })(req, res, next);
   });
+
+  app.get('/auth/reddit/callback', function(req, res, next){
+    // devLog('AUTH: Got callback from reddit. req:', req);
+    devLog('AUTH: Got callback from reddit. req.query.state:', req.query.state);
+    devLog('AUTH: Got callback from reddit. req.session.state:', req.session.state);
+    // Check for origin via state token
+    if (req.query.state === req.session.state){
+      devLog('AUTH: states match, going to do passport authenticate');
+      passport.authenticate('reddit', {
+        successRedirect: '/',
+        failureRedirect: '/auth/sign-in-failure'
+      })(req, res, next);
+    }
+    else {
+      next( new Error(403) );
+    }
+  });
+
+  // app.get('/auth/reddit/callback',
+  //   passport.authenticate('reddit', {
+  //     failureRedirect: '/auth/sign-in-failure'
+  //   }),
+  //   function(req, res, next) {
+  //     devLog('AUTH: Got callback from reddit');
+  //     issueToken(req.user, function(err, token) {
+  //       //TODO: DRY this out
+  //       if (err) { return next(err); }
+  //       var maxAge = 1000 * 60 * 60 * 24 * 365;
+  //       res.cookie('remember_me', token, { path: '/', httpOnly: true, maxAge: maxAge });
+  //       devLog('AUTH: Set remember_me cookie');
+  //       return next();
+  //     });
+  //   },
+  //   function(req, res) {
+  //     devLog('AUTH: redirecting');
+  //     res.redirect('/');
+  //   }
+  // );
+
+  // app.get('/auth/sign-in-success', function(req, res) {
+  //   res.send('success!');
+  // });
   app.get('/auth/sign-in-failure', function(req, res) {
     res.send('Boooo!'); //TODO handle properly
   });

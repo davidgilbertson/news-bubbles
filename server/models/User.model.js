@@ -10,12 +10,17 @@ var userSchema = mongoose.Schema({
     id:            String,
     token:         String,
   },
+  reddit: {
+    id:            String,
+    token:         String,
+  },
   name: {
     first:         String,
     middle:        String,
     last:          String,
     display:       String
   },
+  displayName:     String,
   email:           String,
   settings:        {
     hitLimit:         {type: Number, default: 80},
