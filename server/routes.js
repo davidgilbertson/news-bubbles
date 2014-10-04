@@ -6,11 +6,24 @@ var path = require('path')
   , rdtCrawler = require(path.join(__dirname, 'rdtCrawler'))
   , User = require(path.join(__dirname, 'models', 'User.model')).User
   , devLog = require(path.join(__dirname, 'utils')).devLog
+  , request = require('request')
+  , userController = require(path.join(__dirname, 'controllers', 'user.controller'))
 
   // , auth = require(path.join(__dirname, 'auth'))
 ;
 
 module.exports = function(app) {
+
+  //more routes are in auth.js
+  //socket.io 'routes' (listeners) are in server.js
+
+  io.on('connection', function(socket) {
+    socket.on('markAsRead', userController.markAsRead);
+    socket.on('markAsUnread', userController.markAsUnread);
+    socket.on('addToFavs', userController.addToFavs);
+    socket.on('updateSettings', userController.updateSettings);
+    socket.on('removeFromFavs', userController.removeFromFavs);
+  });
 
   app.get('/readability/:url', readabilityApi);
 

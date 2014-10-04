@@ -47,6 +47,41 @@ NB.Data = (function() {
     return data;
   }
 
+//   function mergeUserData(data) {
+//     //mergin four arrays into one
+//     var lsReadArray = JSON.parse(localStorage.readList) || []
+//       , lsFavArray = JSON.parse(localStorage.favs) || []
+//       , mainStoryArray = data.stories || []
+//       , userStoryArray = data.user || []
+//       , result = []
+//       , i
+//       , j
+//       , k
+//       , l
+//       , mainStory
+//       , userStory
+//     ;
+
+//     mainStoryLoop:
+//     for (i = 0; i < mainStoryArray.length; i++) {
+//       mainStory = mainStoryArray[i];
+
+//       userStoryLoop:
+//       for (j = 0; j < userStoryArray.length; j++) {
+//         userStory = userStoryArray[j];
+//         if (userStory._id === mainStory._id) {
+//           console.log(userStory.name)
+//         }
+//       }
+//     }
+
+//     delete localStorage.readList;
+//     delete localStorage.favs;
+
+//     return result;
+
+//   }
+
   function parseInitialData(data, captureOldest, cb) {
     if (captureOldest) {
       NB.oldestStory = Infinity;
@@ -55,6 +90,8 @@ NB.Data = (function() {
     //User stuff
     if (data.user) {
       NB.Auth.setUser(data.user);
+
+//       mergeUserStoryData(data);
 
       if (data.user.settings) {
         if (NB.Settings.getSetting('source') !== data.user.settings.source) {
@@ -89,6 +126,7 @@ NB.Data = (function() {
           readList = data.user.readList;
         }
       }
+
     }
 
 
@@ -168,8 +206,12 @@ NB.Data = (function() {
   function markAsRead(id) {
     if (isRead(id)) { return; } //prevent duplicates
     readList.push(id);
-    localStorage.readList = JSON.stringify(readList);
-    Data.emit('markAsRead', {storyId: id});
+
+    if (NB.Auth.getUser()) {
+      Data.emit('markAsRead', {storyId: id});
+    } else {
+      localStorage.readList = JSON.stringify(readList);
+    }
   }
 
 
@@ -199,10 +241,8 @@ NB.Data = (function() {
     var user = NB.Auth.getUser();
     if (user) {
       data.userId = user._id;
-//       console.log('Emitting: ', eventName, 'with data:', data);
       socket.emit(eventName, data);
     }
-
   };
 
   Data.setData = function(key, value) {

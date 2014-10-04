@@ -26,11 +26,11 @@ NB.Favs = (function() {
 
   Favs.removeFromFavs = function(story) {
 //     console.log('Removing story from favs:', story);
-    var id = story.id;
-    NB.Data.emit('removeFromFavs', {storyId: story.id});
+    var id = story._id;
+    NB.Data.emit('removeFromFavs', {storyId: story._id});
     
     store.forEach(function(fav, i) {
-      if (fav.id === id) {
+      if (fav._id === id) {
         store.splice(i, 1);
         localStorage.favs = JSON.stringify(store);
         return;
@@ -40,11 +40,11 @@ NB.Favs = (function() {
 
   Favs.isFav = function(story) {
     if (!store.length) { return false; }
-    var id = story.id;
+    var id = story._id;
     var hasMatch = false;
 
     store.forEach(function(fav) {
-      if (fav.id === id) { hasMatch = true; }
+      if (fav._id === id) { hasMatch = true; }
     });
 
     return hasMatch;

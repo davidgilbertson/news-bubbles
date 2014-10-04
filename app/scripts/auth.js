@@ -104,5 +104,14 @@ NB.Auth = (function() {
     console.log('OK, will sign out (ha ha, but I am not really!');
   };
 
+
+
+  Auth.getMe = function() {
+    $.post('/api/reddit/me', function(res) {
+      console.log(res);
+    })
+  };
+
+
   return Auth;
 })();

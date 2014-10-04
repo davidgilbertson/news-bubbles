@@ -47,19 +47,9 @@ exports.start = function(app) {
   var io = require('socket.io')(http); //TODO put io in global?
   global.io = io; //IO is used for global emitting
 
-  io.on('connection', function(socket) {
-    // devLog('Socket IO listening. Socket IO hears you.');
-    // global.socket = socket; //socket is used for listening to clients
-
-    socket.on('markAsRead', userController.markAsRead);
-    socket.on('markAsUnread', userController.markAsUnread);
-    socket.on('addToFavs', userController.addToFavs);
-    socket.on('updateSettings', userController.updateSettings);
-    socket.on('removeFromFavs', userController.removeFromFavs);
-  });
-
   app.use(cookieParser());
   app.use(bodyParser.json());
+  app.use(bodyParser.urlencoded());
 
   auth.setUp(app);
 

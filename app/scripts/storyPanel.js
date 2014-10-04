@@ -32,7 +32,7 @@ NB.StoryPanel = (function() {
 
   function renderRdt(story) {
     var dom = story.rdt.domain.toLowerCase();
-    currentStoryId = story.id; //To check when comments come back
+    currentStoryId = story.sourceId; //To check when comments come back
     story.content = '';
 
     //get comments and append. NB done() is not needed.
@@ -48,7 +48,7 @@ NB.StoryPanel = (function() {
 
         //Because a user can click one story, then another before the first story comments are loaded
         //Check that the expected story is still the active one.
-        if (story.id === currentStoryId) {
+        if (story.sourceId === currentStoryId) {
           NB.StoryModel.setCurrentStory('panel', story);
         } else {
           console.log('The story has already changed, dumping the comments');
@@ -173,11 +173,33 @@ NB.StoryPanel = (function() {
   }
 
 
+  function vote(upOrDown) {
+    var url = '/api/reddit/vote'
+      , dir = 0;
+    if (upOrDown === 'down') {
+      dir = -1;
+    }
+    if (upOrDown === 'up') {
+      dir = 1;
+    }
+    var data = {
+      dir: dir,
+      id: 't3_' + '2i9655'
+    }
+
+    console.log('gonna post with data', data);
+
+//     $.post(url, data, function(response) {
+//       console.log(response);
+//     });
+
+  };
 
 
   /*  --  PUBLIC  --  */
 
   StoryPanel.render = function(story) {
+    console.log('Redering for story id:', story._id);
     NB.StoryModel.setCurrentStory('panel', story); //to get a quick change in the panel.
 
     //The story panel element is passed into these funciton because if it goes to readability it's an async call
@@ -195,6 +217,8 @@ NB.StoryPanel = (function() {
   StoryPanel.clear = function() {
     NB.StoryModel.clear();
   };
+
+  StoryPanel.vote = vote;
 
 
   return StoryPanel;

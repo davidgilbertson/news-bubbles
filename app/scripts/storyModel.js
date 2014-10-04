@@ -39,7 +39,8 @@ NB.StoryModel = (function() {
       timeString: ko.observable(),
       dateString: ko.observable(),
       content: ko.observable(''),
-      isFav: ko.observable(false)
+      isFav: ko.observable(false),
+      userVote: ko.observable('')
     };
   }
 
@@ -58,6 +59,8 @@ NB.StoryModel = (function() {
     var isFav = NB.Favs.isFav(story);
 
     var color = NB.Settings.getColor(story.source, category);
+
+    var userVote = 'up'; // -1 = down; 1 = up; 0 = neither
 
 
     if (story.source === 'rdt') {
@@ -113,7 +116,8 @@ NB.StoryModel = (function() {
       .score(Math.round(story.score))
       .timeString(timeFormatter(story.postDate))
       .dateString(dateFormatter(story.postDate))
-      .isFav(isFav);
+      .isFav(isFav)
+      .userVote(userVote);
 
 
     if (tooltipOrPanel === 'panel') {
