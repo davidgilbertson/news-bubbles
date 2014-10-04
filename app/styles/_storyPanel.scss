@@ -142,21 +142,48 @@
   }
 }
 
+//Everything in the top section of the panel
 .story-title {
-  svg {
-    width: 18px;
-    height: 18px;
-      cursor: pointer;
-    .fav-star {
-      transition: 100ms;
-      fill: $primary-color;
-      fill-opacity: 0;
-      stroke: $primary-color;
-      stroke-weight: 1px;
+  .line-art {
+    transition: 300ms;
+    fill: $primary-color;
+    fill-opacity: 0;
+    stroke: $primary-color;
+    stroke-weight: 1px;
+    cursor: pointer;
+
+    &:hover {
+      fill-opacity: 0.5;
     }
   }
-  .active .fav-star {
+  .active .line-art {
     fill-opacity: 1;    
+  }
+  .fav-star-wrapper {
+    width: 18px;
+    height: 18px;
+  }
+  .vote-button-wrapper {
+    position: absolute;
+    padding: 5px 0 0 5px;
+    left: 0;
+    width: 30px;
+    svg {
+      width: 24px;
+      height: 58px;
+    }
+    &.up .vote-button.up {
+      fill-opacity: 1;
+    }
+    &.down .vote-button.down {
+      fill-opacity: 1;
+    }
+  }
+  .meta-data {
+    position: absolute;
+    left: 40px;
+/*     border: 1px solid pink; */
+
   }
   h1 {
     font-size: 24px;
@@ -169,6 +196,9 @@
     }
   }
   .sub-title {
+    position: relative;
+    height: 65px;
+
     .category-dot {
       display: inline-block;
       position: relative;

@@ -30,6 +30,17 @@ figure {
   margin: 0;
 }
 
+#test-modal {
+  position: fixed;
+  width: 500px;
+  height: 500px;
+  left: 100px;
+  top: 100px;
+  background: white;
+  z-index: 1;
+  padding: 5px;
+}
+
 //Logic for setting font faces like so:
 //http://www.smashingmagazine.com/2013/02/14/setting-weights-and-styles-at-font-face-declaration/
 @font-face {
