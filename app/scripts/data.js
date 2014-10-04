@@ -25,7 +25,7 @@ NB.Data = (function() {
 
     delta.forEach(function(d) {
       var existing = Data.stories.filter(function(existingStory) {
-        return existingStory.id === d.id;
+        return existingStory._id === d._id;
       })[0];
       if (existing) {
         existing.commentCount = d.commentCount;
@@ -97,7 +97,7 @@ NB.Data = (function() {
     data.stories.forEach(function(s) {
       s.postDate = new Date(s.postDate);
       if (!s.isRead) { //if the story is NOT marked as read from the server, then check if it is here.
-        s.isRead = isRead(s.id);
+        s.isRead = isRead(s._id);
       }
       if (captureOldest) {
         NB.oldestStory = Math.min(NB.oldestStory, s.postDate);

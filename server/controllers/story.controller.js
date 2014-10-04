@@ -42,7 +42,7 @@ function saveNewRdtStory(newStory) {
   category = category.replace('i.imgur.com', 'imgur.com').replace(/^self\./, '');
 
   rdtStory = new Story({
-    id: 'rdt-' + newStory.name,
+    // id: 'rdt-' + newStory.name,
     source: 'rdt',
     sourceId: newStory.name,
     name: utils.unescape(newStory.title),
@@ -111,9 +111,11 @@ function updateRdtStory(existingStory, newStory) {
 
 exports.upsertRdtStory = function(obj) {
   obj = obj.data;
-  var id = 'rdt-' + obj.name;
+  // var id = 'rdt-' + obj.name;
 
-  Story.findOne({id: id}, function(err, doc) {
+  // Story.findOne({id: id}, function(err, doc) {
+    //TODO I should do an index for this source+sourceId
+  Story.findOne({source: 'rdt', sourceId: obj.name}, function(err, doc) {
     if (doc) {
       updateRdtStory(doc, obj);
     } else {
@@ -145,7 +147,7 @@ function saveNewHxnStory(newStory, suppressResults) {
   }
 
   hxnStory = new Story({
-    id: 'hxn-' + newStory.objectID,
+    // id: 'hxn-' + newStory.objectID,
     source: 'hxn',
     sourceId: newStory.objectID,
     name: newStory.title,
@@ -196,8 +198,9 @@ function updateHxnStory(existingStory, newStory) {
 }
 
 exports.upsertHxnStory = function(obj, suppressResults) {
-  var id = 'hxn-' + obj.objectID;
-  Story.findOne({id: id}, function(err, doc) {
+  // var id = 'hxn-' + obj.objectID;
+  // Story.findOne({id: id}, function(err, doc) {
+  Story.findOne({source: 'hxn', sourceId: obj.objectID}, function(err, doc) {
     if (doc) {
       updateHxnStory(doc, obj);
     } else {

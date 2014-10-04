@@ -32,10 +32,10 @@ NB.Chart = (function() {
   function toggleRead(circle, story) {
     if (circle.classed('read')) {
       circle.classed('read', false);
-      NB.Data.markAsUnread(story.id);
+      NB.Data.markAsUnread(story._id);
     } else {
       circle.classed('read', true);
-      NB.Data.markAsRead(story.id);
+      NB.Data.markAsRead(story._id);
     }
   }
 
@@ -57,7 +57,7 @@ NB.Chart = (function() {
 
     //get the D3 flvoured dom el
     var el = d3.select(d3.event.currentTarget);
-    //TODO if clicked story is already showing, return. (lastID === d.id)
+    //TODO if clicked story is already showing, return. (lastID === d._id)
 
     //Make the last selected item read and no longer selected
     d3.select('.selected')
@@ -71,7 +71,7 @@ NB.Chart = (function() {
     var setting = NB.Settings.getSetting('clickAction');
 
     if (setting === 'storyPanel') {
-      NB.Data.markAsRead(d.id);
+      NB.Data.markAsRead(d._id);
       el.classed('read', true);
       NB.Layout.showStoryPanel();
       NB.StoryPanel.render(d);
@@ -195,7 +195,7 @@ NB.Chart = (function() {
     //NB data may be only a few new or changed stories
     var points = plotArea.selectAll('circle')
       .data(NB.Data.stories, function(d) {
-        return d.id;
+        return d._id;
       });
 
     points
