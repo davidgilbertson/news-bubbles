@@ -126,13 +126,13 @@ exports.setUp = function(app) {
           } else if (!doc) {
             devLog('AUTH: did not find user, creating a new one');
 
-            var newUser            = new User();
-            newUser.reddit.id      = profile.id;
-            newUser.reddit.token   = accessToken;
-            // newUser.name.first     = profile.name.givenName;
-            // newUser.name.last      = profile.name.familyName;
-            newUser.name.display   = profile.displayName; //TODO remove this from server, db, client and don't forget prod
-            newUser.displayName   = profile.name;
+            var newUser                 = new User();
+            newUser.reddit.id           = profile.id;
+            newUser.reddit.token        = accessToken;
+            newUser.reddit.refreshToken = refreshToken;
+            newUser.name.display        = profile.displayName; //TODO remove this from server, db, client and don't forget prod
+            newUser.displayName         = profile.name;
+            newUser.profile             = profile; //TODO only for testing
 
             newUser.save(function(err) {
               return done(err, newUser);
@@ -196,53 +196,78 @@ exports.setUp = function(app) {
     }
   );
 
+
+
+
+
+
+
+
+
+
   app.get('/auth/reddit', function(req, res, next){
     devLog('AUTH: Got request to sign in to reddit');
     req.session.state = utils.randomString(6);
     passport.authenticate('reddit', {
       state: req.session.state,
       duration: 'permanent',
-      scope: 'identity,vote'
+      scope: 'read,identity,vote'
     })(req, res, next);
   });
 
-  app.get('/auth/reddit/callback', function(req, res, next){
-    // devLog('AUTH: Got callback from reddit. req:', req);
-    devLog('AUTH: Got callback from reddit. req.query.state:', req.query.state);
-    devLog('AUTH: Got callback from reddit. req.session.state:', req.session.state);
-    // Check for origin via state token
-    if (req.query.state === req.session.state){
-      devLog('AUTH: states match, going to do passport authenticate');
-      passport.authenticate('reddit', {
-        successRedirect: '/',
-        failureRedirect: '/auth/sign-in-failure'
-      })(req, res, next);
-    }
-    else {
-      next( new Error(403) );
-    }
-  });
-
-  // app.get('/auth/reddit/callback',
-  //   passport.authenticate('reddit', {
-  //     failureRedirect: '/auth/sign-in-failure'
-  //   }),
-  //   function(req, res, next) {
-  //     devLog('AUTH: Got callback from reddit');
-  //     issueToken(req.user, function(err, token) {
-  //       //TODO: DRY this out
-  //       if (err) { return next(err); }
-  //       var maxAge = 1000 * 60 * 60 * 24 * 365;
-  //       res.cookie('remember_me', token, { path: '/', httpOnly: true, maxAge: maxAge });
-  //       devLog('AUTH: Set remember_me cookie');
-  //       return next();
-  //     });
-  //   },
-  //   function(req, res) {
-  //     devLog('AUTH: redirecting');
-  //     res.redirect('/');
+  // app.get('/auth/reddit/callback', function(req, res, next){
+  //   // devLog('AUTH: Got callback from reddit. req:', req);
+  //   devLog('AUTH: Got callback from reddit. req.query.state:', req.query.state);
+  //   devLog('AUTH: Got callback from reddit. req.session.state:', req.session.state);
+  //   // Check for origin via state token
+  //   if (req.query.state === req.session.state){
+  //     devLog('AUTH: states match, going to do passport authenticate');
+  //     passport.authenticate('reddit', {
+  //       successRedirect: '/',
+  //       failureRedirect: '/auth/sign-in-failure'
+  //     })(req, res, next);
   //   }
-  // );
+  //   else {
+  //     next( new Error(403) );
+  //   }
+  // });
+
+  app.get('/auth/reddit/callback',
+    passport.authenticate('reddit', {
+      failureRedirect: '/auth/sign-in-failure'
+    }),
+    function(req, res, next) {
+      devLog('AUTH: Got callback from reddit');
+      if (req.query.state === req.session.state){
+        //TODO: check for res.error === access_denied ?
+        issueToken(req.user, function(err, token) {
+          //TODO: DRY this out
+          if (err) { return next(err); }
+          var maxAge = 1000 * 60 * 60 * 24 * 365;
+          res.cookie('remember_me', token, { path: '/', httpOnly: true, maxAge: maxAge });
+          devLog('AUTH: Set remember_me cookie');
+          return next();
+        });
+      } else {
+        //TODO: Handle invalid state
+      }
+    },
+    function(req, res) {
+      devLog('AUTH: redirecting');
+      res.redirect('/');
+    }
+  );
+
+
+
+
+
+
+
+
+
+
+
 
   // app.get('/auth/sign-in-success', function(req, res) {
   //   res.send('success!');
@@ -252,6 +277,9 @@ exports.setUp = function(app) {
   });
   app.get('/auth/sign-out',
     function(req, res, next) {
+      //TODO: clean up tokens
+      //e.g. https://ssl.reddit.com/api/v1/revoke_token
+      //post body: token=WHATEVER_THE_TOKEN_IS&token_type_hint=access_token
       if (req.user) {
         devLog('Signing out user', req.user.name.display);
         Token.remove({userId: req.user.id}).exec(function(err, docs) {
