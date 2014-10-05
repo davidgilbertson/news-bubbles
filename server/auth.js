@@ -7,6 +7,7 @@ var path = require('path')
   , Token = require(path.join(__dirname, 'models', 'Token.model'))
   , utils = require(path.join(__dirname, 'utils'))
   , devLog = utils.devLog
+  , request = require('request')
   , FacebookStrategy = require('passport-facebook').Strategy
   , RememberMeStrategy = require('passport-remember-me').Strategy
   , RedditStrategy = require('passport-reddit').Strategy
@@ -16,13 +17,13 @@ var path = require('path')
   , FACEBOOK_APP_ID = '833772886647232'
   , FACEBOOK_APP_SECRET = '862d4c22a83572793c7214d798afe5f3'
 
-  , REDDIT_CLIENT_KEY = '1_v-tNQj16e7Sg'
+  , REDDIT_CLIENT_ID = '1_v-tNQj16e7Sg'
   , REDDIT_CLIENT_SECRET = '_yzoDtfgvzMlrFK56mLFlPt6oY4'
   ;
 
   if (process.env.DEV) {
     BASE_URL = 'http://local.news-bubbles.herokuapp.com';
-    REDDIT_CLIENT_KEY = '4tPkcfJiC76--w';
+    REDDIT_CLIENT_ID = '4tPkcfJiC76--w';
     REDDIT_CLIENT_SECRET = 'hWWKy8NNYeiP8ZFXadhS204t4a4';
   }
 
@@ -95,7 +96,8 @@ exports.setUp = function(app) {
             newUser.name.first     = profile.name.givenName;
             newUser.name.last      = profile.name.familyName;
             newUser.name.display   = profile.displayName;
-            newUser.displayName   = profile.displayName; //TODO redo this name structure
+            newUser.displayName    = profile.displayName; //TODO redo this name structure
+            newUser.stories        = [];
 
             newUser.save(function(err) {
               return done(err, newUser);
@@ -110,7 +112,7 @@ exports.setUp = function(app) {
   ));
 
   passport.use(new RedditStrategy({
-      clientID: REDDIT_CLIENT_KEY,
+      clientID: REDDIT_CLIENT_ID,
       clientSecret: REDDIT_CLIENT_SECRET,
       callbackURL: BASE_URL + '/auth/reddit/callback'
     },
@@ -133,6 +135,7 @@ exports.setUp = function(app) {
             newUser.name.display        = profile.displayName; //TODO remove this from server, db, client and don't forget prod
             newUser.displayName         = profile.name;
             newUser.profile             = profile; //TODO only for testing
+            newUser.stories             = [];
 
             newUser.save(function(err) {
               return done(err, newUser);
@@ -198,13 +201,6 @@ exports.setUp = function(app) {
 
 
 
-
-
-
-
-
-
-
   app.get('/auth/reddit', function(req, res, next){
     devLog('AUTH: Got request to sign in to reddit');
     req.session.state = utils.randomString(6);
@@ -214,23 +210,6 @@ exports.setUp = function(app) {
       scope: 'read,identity,vote'
     })(req, res, next);
   });
-
-  // app.get('/auth/reddit/callback', function(req, res, next){
-  //   // devLog('AUTH: Got callback from reddit. req:', req);
-  //   devLog('AUTH: Got callback from reddit. req.query.state:', req.query.state);
-  //   devLog('AUTH: Got callback from reddit. req.session.state:', req.session.state);
-  //   // Check for origin via state token
-  //   if (req.query.state === req.session.state){
-  //     devLog('AUTH: states match, going to do passport authenticate');
-  //     passport.authenticate('reddit', {
-  //       successRedirect: '/',
-  //       failureRedirect: '/auth/sign-in-failure'
-  //     })(req, res, next);
-  //   }
-  //   else {
-  //     next( new Error(403) );
-  //   }
-  // });
 
   app.get('/auth/reddit/callback',
     passport.authenticate('reddit', {
@@ -259,7 +238,134 @@ exports.setUp = function(app) {
   );
 
 
+// Step 7(optional):
+// If you request permanent access, then you will need to refresh the tokens after 1 hour.
+// Request: Type POST
+// URI: https://ssl.reddit.com/api/v1/access_token
+// Params:
+// state: unique string for your own use
+// scope: 'identity'
+// client_id: The client_id assigned by reddit
+// redirect_uri: the redirect_uri you assigned.
+// refresh_token: the refresh_token received in step 5 response.
+// grant_type: 'refresh_token'
 
+function refreshRdtToken(req, res, next, refreshToken) {
+  console.log('Going to try and refresh for token:', refreshToken);
+
+  req.session.state = utils.randomString(6);
+  passport.authenticate('reddit', {
+    state: req.session.state,
+    scope: 'identity',
+    client_id: REDDIT_CLIENT_ID,
+    redirect_uri: REDDIT_CLIENT_SECRET,
+    refresh_token: refreshToken,
+    grant_type: 'refresh_token'
+  })(req, res, next);
+
+}
+
+// function ensureRdtAuthentication(req, res, next) {
+//   if (req.isAuthenticated()) {
+//     return next();
+//   } else {
+//     req.session.state = utils.randomString(6);
+//     passport.authenticate('reddit', {
+//       state: req.session.state,
+//       duration: 'permanent',
+//       scope: 'read,identity,vote',
+//       client_id: REDDIT_CLIENT_ID,
+//       redirect_uri: REDDIT_CLIENT_SECRET,
+//       refresh_token: refreshToken,
+//       grant_type: 'refresh_token'
+//     });
+
+//   }
+
+// }
+
+  app.get('/api/reddit/refresh_token', function(req, res, next) {
+    console.log('testing refresh token for user', req.user.displayName);
+    var refreshToken = req.user.reddit.refreshToken;
+    refreshRdtToken(req, res, next, refreshToken);
+
+  }, function(req, res, next) {
+    console.log('got through to this next one!');
+    res.json({data: 'yep'});
+  });
+
+  app.post('/api/reddit/vote', function(req, res) {
+
+    devLog('redtVote()');
+    if (!req.isAuthenticated()) { //TODO: make this middleware to share in all reddit routes (isAuthenticated + req.user.reddit.token)
+      return res.json({err: 'not logged in'});
+    }
+    // console.log('using token:', req.user.reddit.token);
+    console.log('for user with id:', req.user._id);
+    var url = 'https://oauth.reddit.com/api/vote'
+      , dir = 0
+      , options
+    ;
+    if (req.body.upOrDown === 'up') { dir = 1; }
+    if (req.body.upOrDown === 'down') { dir = -1; }
+
+    options = {
+      url: url,
+      form: {
+        id: req.body.sourceId,
+        dir: dir
+      },
+      json: true,
+      headers: {
+        'User-Agent': 'news-bubbles.herokuapp.com/0.3.8 by /u/bubble_boi',
+        'Authorization': 'bearer ' + req.user.reddit.token
+      }
+    };
+    console.log('request to submit a request with object:', options);
+
+    request.post(options, function(err, request, data) {
+      console.log('got response from URL:', url);
+      console.log('err:', err);
+      console.log('data:', data);
+      //TODO, if the data here is {error: 401} then I want to try to re-authorize, using the refresh token
+      //I have no idea how.
+      if (data.error) {
+        if (data.error === 401) {
+          res.redirect('/api/reddit/refresh_token');
+        } else {
+          res.json({err: data.error});
+        }
+      } else {
+        res.json(data);
+      }
+    });
+
+    User.findById(req.user._id, function(err, userDoc) {
+      console.log('Looking for user to set vote...');
+      if (err) { return; } //TODO feed back to client
+      if (!userDoc) { return; } //perhaps user was deleted in another session? TODO hande better
+      var i
+        , foundMatch = false
+      ;
+
+      // console.log('Found user with stories:', userDoc.stories);
+      for (i = 0; i < userDoc.stories.length; i++) {
+        if (userDoc.stories[i].storyId === req.body.id) {
+          userDoc.stories[i].vote = req.body.upOrDown;
+          foundMatch = true;
+        }
+      }
+
+      if (!foundMatch) {
+        userDoc.stories.push({
+          storyId: req.body.id,
+          vote: req.body.upOrDown
+        });
+      }
+      userDoc.save();
+
+    });
+  });
 
 
 

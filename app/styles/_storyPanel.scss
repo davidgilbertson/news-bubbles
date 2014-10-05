@@ -1,53 +1,37 @@
-.story {
-  &-panel {
-    transition: $move-dur; //turned off while dragging
-    position: absolute;
-    display: none; //overridden on startup
-    left: 100%; //overridden on startup
-    height: 100%;
-    @include shadow();
-    right: 0px;
-    padding-left: 28px;
-    background-color: white;
-    z-index: 1;
+.story-panel {
+  transition: $move-dur; //turned off while dragging
+  position: absolute;
+  display: none; //overridden on startup
+  left: 100%; //overridden on startup
+  height: 100%;
+  @include shadow();
+  right: 0px;
+  padding-left: 28px;
+  background-color: white;
+  z-index: 1;
 
-    p {
-      line-height: 1.5;
-      margin-bottom: 30px;
+  .story-panel-resizer {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 28px;
+    background-color: $primary-color;
+    background-color: white;
+    overflow-y: hidden;
+    cursor: ew-resize;
+    &.active .story-panel-resizer-dots {
+      border: 2px dotted lighten($primary-color, 20%);
     }
-    img {
-      display: block;
-      max-width: 100%;
-      height: auto;
+    &-dots {
+      float: left;
+      margin-top: -10%;
+      height: 120%;
+      width: 8px;
+      margin-left: 4px;
+      border: 2px dotted lighten($primary-color, 30%);
     }
-    figcaption {
-      margin-bottom: 20px;
-      font-style: italic;
-    }
-    &-resizer {
-      position: absolute;
-      left: 0;
-      top: 0;
-      height: 100%;
-      width: 28px;
-      background-color: $primary-color;
-      background-color: white;
-      overflow-y: hidden;
-      cursor: ew-resize;
-      &.active .story-panel-resizer-dots {
-/*         background-color: $primary-color; */
-        border: 2px dotted lighten($primary-color, 20%);
-      }
-      &-dots {
-        float: left;
-        margin-top: -10%;
-        height: 120%;
-        width: 8px;
-        margin-left: 4px;
-        border: 2px dotted lighten($primary-color, 30%);
-      }
-    }
-    &-toggle {
+    .story-panel-toggle {
       position: absolute;
       top: 50%;
       left: 0px;
@@ -60,6 +44,111 @@
       color: $primary-color;
       cursor: pointer;
       background-color: white;
+    }
+  }
+
+  .story-wrapper {
+    height: 100%;
+    min-width: 200px;
+    overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
+    padding: 10px 20px 50px 10px;
+    background-color: white;
+    z-index: 0;
+    @media (max-width: 500px) {
+      padding: 7px;
+    }
+    
+    .story-title {
+      .line-art {
+        transition: 300ms;
+        fill: $primary-color;
+        fill-opacity: 0;
+        stroke: $primary-color;
+        stroke-weight: 1px;
+        cursor: pointer;
+
+        &:hover {
+          fill-opacity: 0.5;
+        }
+      }
+      .active .line-art {
+        fill-opacity: 1;    
+      }
+      .fav-star-wrapper {
+        width: 18px;
+        height: 18px;
+      }
+      .vote-button-wrapper {
+        position: absolute;
+        padding: 5px 0 0 5px;
+        left: 0;
+        width: 30px;
+        svg {
+          width: 24px;
+          height: 58px;
+        }
+        &.up .vote-button.up {
+          fill-opacity: 1;
+        }
+        &.down .vote-button.down {
+          fill-opacity: 1;
+        }
+      }
+      .meta-data {
+        position: absolute;
+        left: 40px;
+    /*     border: 1px solid pink; */
+
+      }
+      h1 {
+        font-size: 24px;
+        font-weight: 300;
+        color: #222;
+        line-height: 26px;
+        a {
+          text-decoration: none;
+          font-size: inherit;
+        }
+      }
+      .sub-title {
+        position: relative;
+        height: 65px;
+
+        .category-dot {
+          display: inline-block;
+          position: relative;
+          top: -3px;
+          width: 13px;
+          height: 13px;
+          border-radius: 50%;
+          margin-right: 7px;
+          vertical-align: bottom;
+        }
+        a {
+          text-decoration: none;
+        }
+        p {
+          margin: 3px;
+        }
+        font-size: 12px;
+        line-height: 2;
+        margin-bottom: 10px;
+        color: #777;
+      }
+    }
+    p {
+      line-height: 1.5;
+      margin-bottom: 30px;
+    }
+    img {
+      display: block;
+      max-width: 100%;
+      height: auto;
+    }
+    figcaption {
+      margin-bottom: 20px;
+      font-style: italic;
     }
     .comment-separator {
       border-bottom: 1px solid $primary-color;
@@ -95,7 +184,7 @@
           padding: 0;
           &.meta {
             padding: 3px 0 0 10px; 
-/*             font-weight: 400; */
+  /*             font-weight: 400; */
             font-size: 13px;
             color: #999;
           }
@@ -106,27 +195,15 @@
       }
     }
   }
-  &-control-bar {
-    position: absolute;
-    width: 100%;
-    height: 45px;
-    padding: 5px;
-    background: #1C5E54;
-    z-index: 1;
-  }
-  &-wrapper {
-    height: 100%;
-    min-width: 200px;
-    overflow-y: scroll;
-    -webkit-overflow-scrolling: touch;
-    padding: 10px 20px 50px 10px;
-    background-color: white;
-    z-index: 0;
-    @media (max-width: 500px) {
-      padding: 7px;
-    }
-  }
 }
+/* .story-control-bar {
+  position: absolute;
+  width: 100%;
+  height: 45px;
+  padding: 5px;
+  background: #1C5E54;
+  z-index: 1;
+} */
 .show-story-panel {
   .story-panel {
     margin-right: 0px;
@@ -143,81 +220,3 @@
 }
 
 //Everything in the top section of the panel
-.story-title {
-  .line-art {
-    transition: 300ms;
-    fill: $primary-color;
-    fill-opacity: 0;
-    stroke: $primary-color;
-    stroke-weight: 1px;
-    cursor: pointer;
-
-    &:hover {
-      fill-opacity: 0.5;
-    }
-  }
-  .active .line-art {
-    fill-opacity: 1;    
-  }
-  .fav-star-wrapper {
-    width: 18px;
-    height: 18px;
-  }
-  .vote-button-wrapper {
-    position: absolute;
-    padding: 5px 0 0 5px;
-    left: 0;
-    width: 30px;
-    svg {
-      width: 24px;
-      height: 58px;
-    }
-    &.up .vote-button.up {
-      fill-opacity: 1;
-    }
-    &.down .vote-button.down {
-      fill-opacity: 1;
-    }
-  }
-  .meta-data {
-    position: absolute;
-    left: 40px;
-/*     border: 1px solid pink; */
-
-  }
-  h1 {
-    font-size: 24px;
-    font-weight: 300;
-    color: #222;
-    line-height: 26px;
-    a {
-      text-decoration: none;
-      font-size: inherit;
-    }
-  }
-  .sub-title {
-    position: relative;
-    height: 65px;
-
-    .category-dot {
-      display: inline-block;
-      position: relative;
-      top: -3px;
-      width: 13px;
-      height: 13px;
-      border-radius: 50%;
-      margin-right: 7px;
-      vertical-align: bottom;
-    }
-    a {
-      text-decoration: none;
-    }
-    p {
-      margin: 3px;
-    }
-    font-size: 12px;
-    line-height: 2;
-    margin-bottom: 10px;
-    color: #777;
-  }
-}

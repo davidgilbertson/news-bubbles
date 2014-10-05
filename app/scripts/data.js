@@ -47,51 +47,72 @@ NB.Data = (function() {
     return data;
   }
 
-//   function mergeUserData(data) {
-//     //mergin four arrays into one
-//     var lsReadArray = JSON.parse(localStorage.readList) || []
-//       , lsFavArray = JSON.parse(localStorage.favs) || []
-//       , mainStoryArray = data.stories || []
-//       , userStoryArray = data.user || []
-//       , result = []
-//       , i
-//       , j
+
+  //merging the main story array with any user-specific data from localStorage or the user object form server
+  function mergeUserData(data) {
+    
+    var lsReadArray = localStorage.readList ? JSON.parse(localStorage.readList) : []
+      , lsFavArray = localStorage.favs ? JSON.parse(localStorage.favs) : []
+      , mainStoryArray = data.stories || []
+      , userStoryArray = data.user ? data.user.stories : []
+      , result = []
+      , i
+      , j
 //       , k
 //       , l
-//       , mainStory
-//       , userStory
-//     ;
+      , mainStory
+      , story
+    ;
 
-//     mainStoryLoop:
-//     for (i = 0; i < mainStoryArray.length; i++) {
-//       mainStory = mainStoryArray[i];
+    mainStoryLoop:
+    for (i = 0; i < mainStoryArray.length; i++) {
+      mainStory = mainStoryArray[i];
 
-//       userStoryLoop:
-//       for (j = 0; j < userStoryArray.length; j++) {
-//         userStory = userStoryArray[j];
-//         if (userStory._id === mainStory._id) {
-//           console.log(userStory.name)
-//         }
-//       }
-//     }
+      userStoryLoop:
+      for (j = 0; j < userStoryArray.length; j++) {
+        story = userStoryArray[j];
+        if (story.storyId === mainStory._id) {
+          if (story.read) {
+            mainStory.isRead = true;
+          }
+          if (story.fav) {
+            mainStory.isFav = true;
+          }
+          mainStory.vote = story.vote; //potentially undefined but that's OK
+          break userStoryLoop;
+        }
+      }
 
-//     delete localStorage.readList;
-//     delete localStorage.favs;
+      if (lsReadArray.indexOf(mainStory._id) > -1) {
+        mainStory.isRead = true;
+      }
+      if (lsFavArray.indexOf(mainStory._id) > -1) {
+        mainStory.isFav = true;
+      }
 
-//     return result;
+    }
+    if (data.user) {
+      delete localStorage.readList;
+      delete localStorage.favs;
+    }
 
-//   }
+    return data;
+  }
+
 
   function parseInitialData(data, captureOldest, cb) {
     if (captureOldest) {
       NB.oldestStory = Infinity;
     }
 
+
+    //TODO: bad bad bad, this is doing a second loop through the stories, see below
+    data = mergeUserData(data);
+
     //User stuff
     if (data.user) {
       NB.Auth.setUser(data.user);
 
-//       mergeUserStoryData(data);
 
       if (data.user.settings) {
         if (NB.Settings.getSetting('source') !== data.user.settings.source) {
@@ -102,36 +123,37 @@ NB.Data = (function() {
         NB.Settings.setAll(data.user.settings);
       }
 
-      if (data.user.readList) {
-        if (localStorage.readList) {
-          var lsReadList = JSON.parse(localStorage.readList);
-          var serverReadList = data.user.readList;
-          var i, j, exists = false, newReadList = [];
-          for (i = 0; i < lsReadList.length; i++) {
-            for (j = 0; j < serverReadList.length; j++) {
-              if (lsReadList[i] === serverReadList[j]) {
-                exists = true;
-              }
-            }
-            if (!exists) {
-              newReadList.push(lsReadList[i]);
-              //If the item was in local storage but not on the server, send it to the server
-              Data.emit('markAsRead', {storyId: lsReadList[i]});
-            }
-            exists = false;
-          }
-          readList = lsReadList.concat(newReadList);
-          delete localStorage.readList;
-        } else {
-          readList = data.user.readList;
-        }
-      }
+//       if (data.user.readList) {
+//         if (localStorage.readList) {
+//           var lsReadList = JSON.parse(localStorage.readList);
+//           var serverReadList = data.user.readList;
+//           var i, j, exists = false, newReadList = [];
+//           for (i = 0; i < lsReadList.length; i++) {
+//             for (j = 0; j < serverReadList.length; j++) {
+//               if (lsReadList[i] === serverReadList[j]) {
+//                 exists = true;
+//               }
+//             }
+//             if (!exists) {
+//               newReadList.push(lsReadList[i]);
+//               //If the item was in local storage but not on the server, send it to the server
+//               Data.emit('markAsRead', {storyId: lsReadList[i]});
+//             }
+//             exists = false;
+//           }
+//           readList = lsReadList.concat(newReadList);
+//           delete localStorage.readList;
+//         } else {
+//           readList = data.user.readList;
+//         }
+//       }
 
     }
 
 
 
     //Stories
+    //TODO: bad bad bad, there is also a loop of stories up in mergeUserData();
     data.stories.forEach(function(s) {
       s.postDate = new Date(s.postDate);
       if (!s.isRead) { //if the story is NOT marked as read from the server, then check if it is here.

@@ -5,6 +5,25 @@ var NB = NB || {};
 NB.StoryModel = (function() {
   var StoryModel = {};
 
+  /*  --  Story methods  --  */
+  function rdtVote(upOrDown) {
+    var data = {
+      upOrDown: upOrDown,
+      id: StoryModel.panelStory.raw._id,
+      sourceId: StoryModel.panelStory.raw.sourceId
+    };
+
+    StoryModel.panelStory.userVote(upOrDown);
+//     console.log('Voting this way:', data);
+
+    $.post('/api/reddit/vote', data, function(res) {
+      if (res.err) {
+        alert(res);
+      }
+    });
+
+  }
+
   function init() {
     //TODO these really should inherit from a common parent.
     StoryModel.tooltipStory = {
@@ -40,7 +59,18 @@ NB.StoryModel = (function() {
       dateString: ko.observable(),
       content: ko.observable(''),
       isFav: ko.observable(false),
-      userVote: ko.observable('')
+      userVote: ko.observable(''),
+      upVote: function() {
+        if (this.userVote() !== 'up') {
+          rdtVote('up');
+        } else {
+          rdtVote('');
+        }
+        
+      },
+      downVote: function() {
+        rdtVote('down');
+      }
     };
   }
 
@@ -57,10 +87,7 @@ NB.StoryModel = (function() {
     var name = story.name;
     var category = story.category || '';
     var isFav = NB.Favs.isFav(story);
-
     var color = NB.Settings.getColor(story.source, category);
-
-    var userVote = 'up'; // -1 = down; 1 = up; 0 = neither
 
 
     if (story.source === 'rdt') {
@@ -117,7 +144,7 @@ NB.StoryModel = (function() {
       .timeString(timeFormatter(story.postDate))
       .dateString(dateFormatter(story.postDate))
       .isFav(isFav)
-      .userVote(userVote);
+      .userVote(story.vote);
 
 
     if (tooltipOrPanel === 'panel') {
@@ -144,7 +171,8 @@ NB.StoryModel = (function() {
       .timeString('')
       .dateString('')
       .content('')
-      .isFav('');
+      .isFav('')
+      .userVote('');
 
   };
 

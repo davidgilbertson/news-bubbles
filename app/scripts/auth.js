@@ -106,11 +106,20 @@ NB.Auth = (function() {
 
 
 
-  Auth.getMe = function() {
-    $.post('/api/reddit/me', function(res) {
-      console.log(res);
-    })
-  };
+//   Auth.getMe = function() {
+//     $.post('/api/reddit/me', function(res) {
+//       console.log(res);
+//     })
+//   };
+
+//   Auth.testRefresh = function() {
+//     console.log('testRefresh()');
+//     var url = 'api/reddit/test_refresh';
+
+//     $.get(url, function(response) {
+//       console.log(response);
+//     });
+//   }
 
 
   return Auth;

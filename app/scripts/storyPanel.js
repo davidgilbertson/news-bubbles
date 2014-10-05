@@ -4,6 +4,7 @@ var NB = NB || {};
 NB.StoryPanel = (function() {
   var StoryPanel = {};
   var currentStoryId;
+  var currentStory;
 
 
   function getReadability(story, cb) {
@@ -51,7 +52,7 @@ NB.StoryPanel = (function() {
         if (story.sourceId === currentStoryId) {
           NB.StoryModel.setCurrentStory('panel', story);
         } else {
-          console.log('The story has already changed, dumping the comments');
+          console.log('The story has already changed, dumping these comments');
         }
 
       });
@@ -173,33 +174,28 @@ NB.StoryPanel = (function() {
   }
 
 
-  function vote(upOrDown) {
-    var url = '/api/reddit/vote'
-      , dir = 0;
-    if (upOrDown === 'down') {
-      dir = -1;
-    }
-    if (upOrDown === 'up') {
-      dir = 1;
-    }
-    var data = {
-      dir: dir,
-      id: 't3_' + '2i9655'
-    }
+//   function rdtVote(upOrDown) {
+//     var url = '/api/reddit/vote'
+//     var data = {
+//       upOrDown: upOrDown,
+//       id: currentStory._id,
+//       sourceId: currentStory.sourceId
+//     };
 
-    console.log('gonna post with data', data);
+//     currentStory.vote = upOrDown;
 
 //     $.post(url, data, function(response) {
 //       console.log(response);
 //     });
 
-  };
+//   }
 
 
   /*  --  PUBLIC  --  */
 
   StoryPanel.render = function(story) {
-    console.log('Redering for story id:', story._id);
+    currentStory = story;
+//     console.log('Redering for story id:', story._id);
     NB.StoryModel.setCurrentStory('panel', story); //to get a quick change in the panel.
 
     //The story panel element is passed into these funciton because if it goes to readability it's an async call
@@ -218,7 +214,7 @@ NB.StoryPanel = (function() {
     NB.StoryModel.clear();
   };
 
-  StoryPanel.vote = vote;
+//   StoryPanel.rdtVote = rdtVote;
 
 
   return StoryPanel;
