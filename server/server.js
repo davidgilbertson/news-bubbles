@@ -35,6 +35,7 @@ var path = require('path')
 ;
 
 
+
 //TODO change to createConnections
 mongoose.connect(conn);
 var db = mongoose.connection;
@@ -50,6 +51,13 @@ exports.start = function(app) {
   app.use(cookieParser());
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded());
+
+  //TODO uninstall cors.
+  // var cors = require('express-cors')
+
+  // app.use(cors({
+  //     allowedOrigins: ['reddit.com', '*.reddit.com']
+  // }));
 
   auth.setUp(app);
 

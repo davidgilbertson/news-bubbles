@@ -58,8 +58,21 @@
     @media (max-width: 500px) {
       padding: 7px;
     }
-    
+
+    .story-panel-header {
+      .user-story-actions {
+        background: olive;
+      }
+      .story-metadata {
+        background: beige;
+      }
+    }
+
     .story-title {
+
+
+
+
       .line-art {
         transition: 300ms;
         fill: $primary-color;

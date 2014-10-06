@@ -4,6 +4,7 @@ var path = require('path')
   , passport = require('passport')
   , session = require('express-session')
   , User = require(path.join(__dirname, 'models', 'User.model'))
+  , userController = require(path.join(__dirname, 'controllers', 'user.controller'))
   , Token = require(path.join(__dirname, 'models', 'Token.model'))
   , utils = require(path.join(__dirname, 'utils'))
   , devLog = utils.devLog
@@ -26,6 +27,7 @@ var path = require('path')
     REDDIT_CLIENT_ID = '4tPkcfJiC76--w';
     REDDIT_CLIENT_SECRET = 'hWWKy8NNYeiP8ZFXadhS204t4a4';
   }
+  var REDDIT_CALLBACK_URL = BASE_URL + '/auth/reddit/callback';
 
 // This code from here:
 // https://github.com/jaredhanson/passport-remember-me/blob/master/examples/login/server.js
@@ -78,7 +80,7 @@ exports.setUp = function(app) {
   passport.use(new FacebookStrategy({
       clientID: FACEBOOK_APP_ID,
       clientSecret: FACEBOOK_APP_SECRET,
-      callbackURL: BASE_URL + '/auth/facebook/callback'
+      callbackURL: REDDIT_CALLBACK_URL
     },
     function(accessToken, refreshToken, profile, done) {
       process.nextTick(function() {
@@ -203,7 +205,7 @@ exports.setUp = function(app) {
 
   app.get('/auth/reddit', function(req, res, next){
     devLog('AUTH: Got request to sign in to reddit');
-    req.session.state = utils.randomString(6);
+    req.session.state = utils.randomString(32);
     passport.authenticate('reddit', {
       state: req.session.state,
       duration: 'permanent',
@@ -228,7 +230,7 @@ exports.setUp = function(app) {
           return next();
         });
       } else {
-        //TODO: Handle invalid state
+        // TODO: Handle invalid state
       }
     },
     function(req, res) {
@@ -238,79 +240,88 @@ exports.setUp = function(app) {
   );
 
 
-// Step 7(optional):
-// If you request permanent access, then you will need to refresh the tokens after 1 hour.
-// Request: Type POST
-// URI: https://ssl.reddit.com/api/v1/access_token
-// Params:
-// state: unique string for your own use
-// scope: 'identity'
-// client_id: The client_id assigned by reddit
-// redirect_uri: the redirect_uri you assigned.
-// refresh_token: the refresh_token received in step 5 response.
-// grant_type: 'refresh_token'
+  function saveVoteToUser(userId, storyId, vote) {
+    console.log('saveVoteToUser()');
+    User.findById(userId, function(err, userDoc) {
+      if (err) { return; } //TODO feed back to client
+      if (!userDoc) { return; } //perhaps user was deleted in another session? TODO hande better
+      var i
+        , foundMatch = false
+      ;
 
-function refreshRdtToken(req, res, next, refreshToken) {
-  console.log('Going to try and refresh for token:', refreshToken);
+      for (i = 0; i < userDoc.stories.length; i++) {
+        if (userDoc.stories[i].storyId === storyId) {
+          userDoc.stories[i].vote = vote;
+          foundMatch = true;
+        }
+      }
 
-  req.session.state = utils.randomString(6);
-  passport.authenticate('reddit', {
-    state: req.session.state,
-    scope: 'identity',
-    client_id: REDDIT_CLIENT_ID,
-    redirect_uri: REDDIT_CLIENT_SECRET,
-    refresh_token: refreshToken,
-    grant_type: 'refresh_token'
-  })(req, res, next);
+      if (!foundMatch) {
+        userDoc.stories.push({
+          storyId: storyId,
+          vote: vote
+        });
+      }
+      userDoc.save();
 
-}
+    });
+  }
 
-// function ensureRdtAuthentication(req, res, next) {
-//   if (req.isAuthenticated()) {
-//     return next();
-//   } else {
-//     req.session.state = utils.randomString(6);
-//     passport.authenticate('reddit', {
-//       state: req.session.state,
-//       duration: 'permanent',
-//       scope: 'read,identity,vote',
-//       client_id: REDDIT_CLIENT_ID,
-//       redirect_uri: REDDIT_CLIENT_SECRET,
-//       refresh_token: refreshToken,
-//       grant_type: 'refresh_token'
-//     });
+  function refreshRedditToken(req, res, cb) {
+    console.log('refreshRedditToken()');
 
-//   }
-
-// }
-
-  app.get('/api/reddit/refresh_token', function(req, res, next) {
-    console.log('testing refresh token for user', req.user.displayName);
     var refreshToken = req.user.reddit.refreshToken;
-    refreshRdtToken(req, res, next, refreshToken);
 
-  }, function(req, res, next) {
-    console.log('got through to this next one!');
-    res.json({data: 'yep'});
-  });
+    var options = {
+      url: 'https://ssl.reddit.com/api/v1/access_token',
+      form: {
+        grant_type: 'refresh_token',
+        refresh_token: refreshToken
+      },
+      auth: {
+        user: REDDIT_CLIENT_ID,
+        pass: REDDIT_CLIENT_SECRET,
+        sendImmediately: true
+      },
+      json: true,
+      headers: {
+        'User-Agent': 'news-bubbles.herokuapp.com/0.3.8 by /u/bubble_boi'
+      }
+    };
 
-  app.post('/api/reddit/vote', function(req, res) {
+    request.post(options, function(err, httpResponse, data) {
+      console.log('did the post to refresh token, got this:', data);
+      if (err) { return console.log(err); }
+      if (data.err) {
+        console.log(data.err);
+      } else if (data.access_token) {
+        console.log('Got a new token:', data.access_token);
+        req.user.reddit.token = data.access_token;
+        userController.updateToken(req.user._id, data.access_token, function(err) {
+          console.log('token updated');
+          req.session.tokenRefreshInProgress = false;
+          cb(err);
 
-    devLog('redtVote()');
-    if (!req.isAuthenticated()) { //TODO: make this middleware to share in all reddit routes (isAuthenticated + req.user.reddit.token)
-      return res.json({err: 'not logged in'});
-    }
-    // console.log('using token:', req.user.reddit.token);
-    console.log('for user with id:', req.user._id);
-    var url = 'https://oauth.reddit.com/api/vote'
-      , dir = 0
+        });
+      }
+    });
+  }
+
+
+
+  function sendVoteToReddit(req, res) {
+    req.session.actionCount++;
+    if (req.session.actionCount > 3) { return; } //TODO return something to user
+
+    console.log('sendVoteToReddit(), attempt', req.session.actionCount);
+    var dir = 0
       , options
     ;
     if (req.body.upOrDown === 'up') { dir = 1; }
     if (req.body.upOrDown === 'down') { dir = -1; }
 
     options = {
-      url: url,
+      url: 'https://oauth.reddit.com/api/vote',
       form: {
         id: req.body.sourceId,
         dir: dir
@@ -321,50 +332,44 @@ function refreshRdtToken(req, res, next, refreshToken) {
         'Authorization': 'bearer ' + req.user.reddit.token
       }
     };
-    console.log('request to submit a request with object:', options);
+    console.log('submit a request with object:', options);
 
     request.post(options, function(err, request, data) {
-      console.log('got response from URL:', url);
       console.log('err:', err);
       console.log('data:', data);
-      //TODO, if the data here is {error: 401} then I want to try to re-authorize, using the refresh token
-      //I have no idea how.
       if (data.error) {
         if (data.error === 401) {
-          res.redirect('/api/reddit/refresh_token');
+          if (req.session.tokenRefreshInProgress) {
+            return;
+          } else {
+            req.session.tokenRefreshInProgress = true;
+            refreshRedditToken(req, res, function() {
+              req.session.actionCount++;
+              sendVoteToReddit(req, res);
+            });
+          }
+          // next();
+          //TODO in here, refresh token and then try again
         } else {
           res.json({err: data.error});
         }
       } else {
+        saveVoteToUser(req.user._id, req.body.id, req.body.upOrDown);
+        req.session.actionCount = 0;
         res.json(data);
       }
     });
+  }
 
-    User.findById(req.user._id, function(err, userDoc) {
-      console.log('Looking for user to set vote...');
-      if (err) { return; } //TODO feed back to client
-      if (!userDoc) { return; } //perhaps user was deleted in another session? TODO hande better
-      var i
-        , foundMatch = false
-      ;
 
-      // console.log('Found user with stories:', userDoc.stories);
-      for (i = 0; i < userDoc.stories.length; i++) {
-        if (userDoc.stories[i].storyId === req.body.id) {
-          userDoc.stories[i].vote = req.body.upOrDown;
-          foundMatch = true;
-        }
-      }
 
-      if (!foundMatch) {
-        userDoc.stories.push({
-          storyId: req.body.id,
-          vote: req.body.upOrDown
-        });
-      }
-      userDoc.save();
-
-    });
+  app.post('/api/reddit/vote', function(req, res) {
+    console.log('/api/reddit/vote');
+    if (!req.isAuthenticated()) { //TODO: make this middleware to share in all reddit routes (isAuthenticated + req.user.reddit.token)
+      return res.json({err: 'not logged in'});
+    }
+    req.session.actionCount = 0; //help stop an infinite loop if refresh token fetch fails.
+    sendVoteToReddit(req, res);
   });
 
 
@@ -375,9 +380,12 @@ function refreshRdtToken(req, res, next, refreshToken) {
 
 
 
-  // app.get('/auth/sign-in-success', function(req, res) {
-  //   res.send('success!');
-  // });
+
+
+
+
+
+
   app.get('/auth/sign-in-failure', function(req, res) {
     res.send('Boooo!'); //TODO handle properly
   });

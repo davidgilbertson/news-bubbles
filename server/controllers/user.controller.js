@@ -145,70 +145,18 @@ function removeFromFavs(data) {
 
 }
 
+function updateToken(userId, token, done) {
+  console.log('updateToken(', userId, token, ')');
+  User.findById(userId, function(err, userDoc) {
+    console.log('saving for user:', userDoc);
+    userDoc.reddit.token = token;
+    userDoc.save(function(err) {
+      done(err);
+    });
+  });
+}
+
 function rdtVote(req, res) {
-//   devLog('redtVote()');
-//   if (!req.isAuthenticated()) { //TODO: make this middleware to share in all reddit routes (isAuthenticated + req.user.reddit.token)
-//     return res.json({err: 'not logged in'});
-//   }
-//   // console.log('using token:', req.user.reddit.token);
-//   console.log('for user with id:', req.user._id);
-//   var url = 'https://oauth.reddit.com/api/vote'
-//     , dir = 0
-//     , options
-//   ;
-//   if (req.body.upOrDown === 'up') {
-//     dir = 1;
-//   }
-//   if (req.body.upOrDown === 'down') {
-//     dir = -1;
-//   }
-
-//   options = {
-//     url: url,
-//     form: {
-//       id: req.body.sourceId,
-//       dir: dir
-//     },
-//     json: true,
-//     headers: {
-//       'User-Agent': 'news-bubbles.herokuapp.com/0.3.8 by /u/bubble_boi',
-//       'Authorization': 'bearer ' + req.user.reddit.token
-//     }
-//   };
-//   console.log('request to submit a request with object:', options);
-
-//   request.post(options, function(err, req, data) {
-//     console.log('got response from URL:', url);
-//     console.log('err:', err);
-//     console.log('data:', data);
-//     res.json(data);
-//   });
-
-//   User.findById(req.user._id, function(err, userDoc) {
-//     console.log('Looking for user to set vote...');
-//     if (err) { return; } //TODO feed back to client
-//     if (!userDoc) { return; } //perhaps user was deleted in another session? TODO hande better
-//     var i
-//       , foundMatch = false
-//     ;
-
-//     // console.log('Found user with stories:', userDoc.stories);
-//     for (i = 0; i < userDoc.stories.length; i++) {
-//       if (userDoc.stories[i].storyId === req.body.id) {
-//         userDoc.stories[i].vote = req.body.upOrDown;
-//         foundMatch = true;
-//       }
-//     }
-
-//     if (!foundMatch) {
-//       userDoc.stories.push({
-//         storyId: req.body.id,
-//         vote: req.body.upOrDown
-//       });
-//     }
-//     userDoc.save();
-
-//   });
 }
 
 exports.markAsRead = markAsRead;
@@ -217,4 +165,5 @@ exports.addToFavs = addToFavs;
 exports.updateSettings = updateSettings;
 exports.removeFromFavs = removeFromFavs;
 exports.rdtVote = rdtVote;
+exports.updateToken = updateToken;
 

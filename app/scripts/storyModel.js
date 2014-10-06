@@ -18,7 +18,7 @@ NB.StoryModel = (function() {
 
     $.post('/api/reddit/vote', data, function(res) {
       if (res.err) {
-        alert(res);
+//         alert(res);
       }
     });
 
