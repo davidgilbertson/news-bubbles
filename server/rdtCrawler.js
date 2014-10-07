@@ -31,8 +31,8 @@ function goGet(url, cb) {
   };
 
   request.get(options, function(err, response, data) {
-    devLog('got data:');
-    console.log(data);
+    // devLog('got data:');
+    // console.log(data);
     cb(data);
   });
 }
