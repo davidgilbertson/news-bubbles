@@ -27,6 +27,7 @@ var path = require('path')
     REDDIT_CLIENT_ID = '4tPkcfJiC76--w';
     REDDIT_CLIENT_SECRET = 'hWWKy8NNYeiP8ZFXadhS204t4a4';
   }
+  var FACEBOOK_CALLBACK_URL = BASE_URL + '/auth/facebook/callback';
   var REDDIT_CALLBACK_URL = BASE_URL + '/auth/reddit/callback';
 
 // This code from here:
@@ -80,7 +81,7 @@ exports.setUp = function(app) {
   passport.use(new FacebookStrategy({
       clientID: FACEBOOK_APP_ID,
       clientSecret: FACEBOOK_APP_SECRET,
-      callbackURL: REDDIT_CALLBACK_URL
+      callbackURL: FACEBOOK_CALLBACK_URL
     },
     function(accessToken, refreshToken, profile, done) {
       process.nextTick(function() {
@@ -116,7 +117,7 @@ exports.setUp = function(app) {
   passport.use(new RedditStrategy({
       clientID: REDDIT_CLIENT_ID,
       clientSecret: REDDIT_CLIENT_SECRET,
-      callbackURL: BASE_URL + '/auth/reddit/callback'
+      callbackURL: REDDIT_CALLBACK_URL
     },
     function(accessToken, refreshToken, profile, done) {
       // devLog('AUTH: got response from reddit with this profile:', profile);
