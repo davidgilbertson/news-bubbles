@@ -26,7 +26,7 @@ var path = require('path')
   , rdtCrawler = require(path.join(__dirname, 'rdtCrawler'))
   , auth = require(path.join(__dirname, 'auth'))
   , utils = require(path.join(__dirname, 'utils'))
-  , devLog = utils.devLog
+  // , devLog = utils.devLog
   , prodLog = utils.prodLog
   , workers = require(path.join(__dirname, 'workers'))
   , bodyParser = require('body-parser')
@@ -56,8 +56,8 @@ exports.start = function(app) {
   require(path.join(__dirname, 'routes.js'))(app);
 
   db.on('open', function() {
-    hxnCrawler.startCrawler();
-    rdtCrawler.startCrawler();
+    // hxnCrawler.startCrawler();
+    // rdtCrawler.startCrawler();
     workers.startCleanupWorker();
     workers.startMemoryStatsReporter();
 

@@ -119,7 +119,7 @@ exports.setUp = function(app) {
       callbackURL: BASE_URL + '/auth/reddit/callback'
     },
     function(accessToken, refreshToken, profile, done) {
-      console.log('AUTH: got response from reddit with this profile:', profile);
+      // devLog('AUTH: got response from reddit with this profile:', profile);
       process.nextTick(function() {
 
         User.findOne({'reddit.id': profile.id}, function(err, doc) {
@@ -241,7 +241,7 @@ exports.setUp = function(app) {
 
 
   function saveVoteToUser(userId, storyId, vote) {
-    console.log('saveVoteToUser()');
+    devLog('saveVoteToUser()');
     User.findById(userId, function(err, userDoc) {
       if (err) { return; } //TODO feed back to client
       if (!userDoc) { return; } //perhaps user was deleted in another session? TODO hande better
@@ -268,7 +268,7 @@ exports.setUp = function(app) {
   }
 
   function refreshRedditToken(req, res, cb) {
-    console.log('refreshRedditToken()');
+    devLog('refreshRedditToken()');
 
     var refreshToken = req.user.reddit.refreshToken;
 
@@ -290,15 +290,15 @@ exports.setUp = function(app) {
     };
 
     request.post(options, function(err, httpResponse, data) {
-      console.log('did the post to refresh token, got this:', data);
-      if (err) { return console.log(err); }
+      devLog('did the post to refresh token, got this:', data);
+      // if (err) { return devLog(err); }
       if (data.err) {
-        console.log(data.err);
+        // devLog(data.err);
       } else if (data.access_token) {
-        console.log('Got a new token:', data.access_token);
+        devLog('Got a new token:', data.access_token);
         req.user.reddit.token = data.access_token;
         userController.updateToken(req.user._id, data.access_token, function(err) {
-          console.log('token updated');
+          devLog('token updated');
           req.session.tokenRefreshInProgress = false;
           cb(err);
 
@@ -317,7 +317,7 @@ exports.setUp = function(app) {
     req.session.actionCount++;
     if (req.session.actionCount > 3) { return; } //TODO return something to user
 
-    console.log('sendVoteToReddit(), attempt', req.session.actionCount);
+    devLog('sendVoteToReddit(), attempt', req.session.actionCount);
     var dir = 0
       , options
     ;
@@ -336,11 +336,11 @@ exports.setUp = function(app) {
         'Authorization': 'bearer ' + req.user.reddit.token
       }
     };
-    console.log('submit a request with object:', options);
+    devLog('submit a request with object:', options);
 
     request.post(options, function(err, request, data) {
-      console.log('err:', err);
-      console.log('data:', data);
+      devLog('err:', err);
+      devLog('data:', data);
       if (data.error) {
         if (data.error === 401) {
           if (req.session.tokenRefreshInProgress) {
@@ -368,7 +368,7 @@ exports.setUp = function(app) {
 
 
   app.post('/api/reddit/vote', function(req, res) {
-    console.log('/api/reddit/vote');
+    devLog('/api/reddit/vote');
     if (!req.isAuthenticated()) { //TODO: make this middleware to share in all reddit routes (isAuthenticated + req.user.reddit.token)
       return res.json({err: 'not logged in'});
     }
