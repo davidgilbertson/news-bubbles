@@ -309,6 +309,10 @@ exports.setUp = function(app) {
 
 
 
+
+
+
+
   function sendVoteToReddit(req, res) {
     req.session.actionCount++;
     if (req.session.actionCount > 3) { return; } //TODO return something to user

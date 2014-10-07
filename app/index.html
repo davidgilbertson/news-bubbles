@@ -45,7 +45,7 @@
 
 
     <header id="header-wrapper" class="header">
-      <h1 class="header-title">BUBBLE READER</h1>
+      <h1 class="header-title">BUBBLE READER <span class="by-line">[pre-beta preview]</span></h1>
       <div id="open-settings-btn" class="header-icons-wrapper">
         <svg width="25" height="25">
           <g class="gear-icon">
@@ -54,10 +54,7 @@
         </svg>
       </div>
       <div id="user-items" class="user-items header-float">
-        <a href class="user-item header-float" data-bind="click: open, text: headerText"></a>
-        <!-- <a href="/auth/facebook" class="user-item header-float" data-bind="visible: signedIn() === false">Login with Facebook</a> -->
-        <!-- <a class="user-item header-float" href="/auth/sign-out" data-bind="visible: signedIn, click: signOut"> (sign out)</a> -->
-        <!-- <span class="user-item header-float name" data-bind="visible: signedIn"><span>Hey </span><span data-bind="text: name.first"></span></span> -->
+        <a href class="user-item header-float" data-bind="click: open"><span>Hi there, </span><span data-bind="text: headerText"></span></a>
       </div>
       <div id="news-sources" class="news-sources header-float">
         <button id="news-source-rdt"
@@ -85,14 +82,6 @@
           <div id="story-panel-toggle" class="story-panel-toggle">«</div>
         </div>
         <div id="story-panel-content" class="story-wrapper">
-          <div class="story-panel-header">
-            <div class="user-story-actions">
-              <!-- the arrows and star -->
-            </div>
-            <div class="story-metadata">
-              <!-- the title, subititle and whatnot -->
-            </div>
-          </div>
           <div id="story-title" class="story-title">
             <h1 data-bind="css: {active: isFav()}">
               <!-- <svg class="fav-star-wrapper" data-bind="click: NB.Favs.toggleFav">
@@ -102,7 +91,6 @@
             </h1>
             <div class="sub-title">
               <div class="vote-button-wrapper" data-bind="css: userVote()">
-              <!-- <a href="/api/reddit/vote/1243qwer/up">vote</a> -->
                 <svg>
                   <polygon class="vote-button up line-art" data-bind="click: upVote" points="0,24 24,24 12,0 0,24"/></polygon>
                   <polygon class="vote-button down line-art" data-bind="click: downVote" points="0,34 24,34 12,58 0,34"/></polygon>

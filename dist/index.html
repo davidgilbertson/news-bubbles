@@ -6,7 +6,7 @@
     <meta name="description" content="A visual display for news stories.">
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 
-    <link rel="stylesheet" href="styles/main-096ba05e.css">
+    <link rel="stylesheet" href="styles/main-0ea9db7a.css">
 
     <link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
     <link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
@@ -31,9 +31,19 @@
     <![endif]-->
 
 
+<!--     <div id="test-modal">
+      <button id="up-vote" onclick="NB.Auth.vote('up')">Up vote</button>
+      <button id="down-vote" onclick="NB.Auth.vote('down')">Down vote</button>
+      <button id="down-vote" onclick="NB.Auth.getMe()">Get ME stuff</button>
+      <button onclick="NB.Auth.testRefresh()">Test refresh token</button>
+      <br>
+      <a href="/api/reddit/test_refresh">Test refresh token</a>
+      <pre id="vote-result">Results...</pre>
+    </div> -->
+
 
     <header id="header-wrapper" class="header">
-      <h1 class="header-title">BUBBLE READER</h1>
+      <h1 class="header-title">BUBBLE READER <span class="by-line">[pre-beta preview]</span></h1>
       <div id="open-settings-btn" class="header-icons-wrapper">
         <svg width="25" height="25">
           <g class="gear-icon">
@@ -42,10 +52,7 @@
         </svg>
       </div>
       <div id="user-items" class="user-items header-float">
-        <a href class="user-item header-float" data-bind="click: open, text: headerText"></a>
-        <!-- <a href="/auth/facebook" class="user-item header-float" data-bind="visible: signedIn() === false">Login with Facebook</a> -->
-        <!-- <a class="user-item header-float" href="/auth/sign-out" data-bind="visible: signedIn, click: signOut"> (sign out)</a> -->
-        <!-- <span class="user-item header-float name" data-bind="visible: signedIn"><span>Hey </span><span data-bind="text: name.first"></span></span> -->
+        <a href class="user-item header-float" data-bind="click: open"><span>Hi there, </span><span data-bind="text: headerText"></span></a>
       </div>
       <div id="news-sources" class="news-sources header-float">
         <button id="news-source-rdt"
@@ -54,9 +61,9 @@
         <button id="news-source-hxn"
           class="news-sources-source"
           data-bind="css: {active: currentSource() === 'hxn'}, click: NB.Nav.navigate.bind($data, 'hxn')">HACKER NEWS</button>
-        <button id="news-source-fav"
+        <!-- <button id="news-source-fav"
           class="news-sources-source"
-          data-bind="css: {active: currentSource() === 'fav'}, click: NB.Nav.navigate.bind($data, 'fav')">FAVORITES</button>
+          data-bind="css: {active: currentSource() === 'fav'}, click: NB.Nav.navigate.bind($data, 'fav')">FAVORITES</button> -->
       </div>
     </header>
 
@@ -75,19 +82,27 @@
         <div id="story-panel-content" class="story-wrapper">
           <div id="story-title" class="story-title">
             <h1 data-bind="css: {active: isFav()}">
-              <svg id="fav-star" data-bind="click: NB.Favs.toggleFav">
-                <polygon class="fav-star" points="0.37,7.3 7.25,7.3 9.37,0.42 11.5,7.3 18.37,7.3 12.81,11.55 14.93,18.42 9.37,14.17 3.81,18.42 5.93,11.55"/></polygon>
-              </svg>
+              <!-- <svg class="fav-star-wrapper" data-bind="click: NB.Favs.toggleFav">
+                <polygon class="line-art fav-star" points="0.37,7.3 7.25,7.3 9.37,0.42 11.5,7.3 18.37,7.3 12.81,11.55 14.93,18.42 9.37,14.17 3.81,18.42 5.93,11.55"/></polygon>
+              </svg> -->
               <a data-bind="attr: {href: url}, text: name" target="_blank">...</a>
             </h1>
             <div class="sub-title">
-              <p><span class="category-dot" data-bind="style: {backgroundColor: color}"></span><span data-bind="text: category"></span></p>
-              <p><span data-bind="text: score">...</span>
-              point<span data-bind="visible: score() != 1">s</span>
-               | <a data-bind="attr: {href: sourceUrl}" target="_blank"><span data-bind="text: commentCount">...</span>
-               <span> comment<span data-bind="visible: commentCount() != 1">s</span></span>
-               </a> | posted by <a data-bind="attr: {href: authorUrl}, text: author" target="_blank">...</a></p>
-              <p><span data-bind="text: timeString">...</span> on <span data-bind="text: dateString">...</span></p>
+              <div class="vote-button-wrapper" data-bind="css: userVote()">
+                <svg>
+                  <polygon class="vote-button up line-art" data-bind="click: upVote" points="0,24 24,24 12,0 0,24"/></polygon>
+                  <polygon class="vote-button down line-art" data-bind="click: downVote" points="0,34 24,34 12,58 0,34"/></polygon>
+                </svg>
+              </div>
+              <div class="meta-data">
+                <p><span data-bind="text: score">...</span>
+                point<span data-bind="visible: score() != 1">s</span>
+                 | <a data-bind="attr: {href: sourceUrl}" target="_blank"><span data-bind="text: commentCount">...</span>
+                 <span> comment<span data-bind="visible: commentCount() != 1">s</span></span>
+                 </a> | posted by <a data-bind="attr: {href: authorUrl}, text: author" target="_blank">...</a></p>
+                <p><span data-bind="text: timeString">...</span> on <span data-bind="text: dateString">...</span></p>
+                <p><span class="category-dot" data-bind="style: {backgroundColor: color}"></span><span data-bind="text: category"></span></p>
+              </div>
             </div>
           </div>
           <hr>
@@ -148,12 +163,15 @@
             <p>Sign in to sync your Bubble Reader favourites, settings, and stories marked as read across devices. We will not post on your behalf or store any interesting data about you.</p>
             <p>We're adding more social providers every day so shut up and be patient.</p>
             <hr>
+            <p>If you sign in with Reddit, you will also be able to vote and, one day, comment.</p>
+            <!-- TODO: these should be checking WHICH auth provider is used -->
+            <a href="/auth/reddit" class="user-item header-float" data-bind="visible: signedIn() === false">Sign in to Reddit</a>
+            <hr>
             <a href="/auth/facebook" class="user-item header-float" data-bind="visible: signedIn() === false">Sign in with Facebook</a>
             <div data-bind="visible: signedIn">
-              <p><span>You're signed in to Facebook as </span><span data-bind="text: name.display"></span></p>
-              <a href="/auth/sign-out">Disconnect</a>
-
+              <p><span>You're signed in to Facebook as </span><span data-bind="text: displayName"></span></p>
             </div>
+            <a data-bind="visible: signedIn" href="/auth/sign-out">Disconnect all accounts from Bubble Reader.</a>
           </div>
 
         </div>
@@ -260,7 +278,7 @@
     <script src="/socket.io/socket.io.js"></script>
 
 
-    <script src="scripts/main-25be66e0.js"></script>
+    <script src="scripts/main-9a8696f2.js"></script>
 
   </body>
 </html>

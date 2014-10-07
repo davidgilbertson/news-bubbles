@@ -220,6 +220,8 @@ NB.Settings = (function() {
 'use strict';
 var NB = NB || {};
 
+//Everything here runs before anything else is initialized
+
 //Constants
 NB.DUR_FAST = 200; //should match _variables.scss duration variable
 NB.DUR_SLOW = 2000;
@@ -235,6 +237,14 @@ if (!!document.location.host.match(/localhost/)) {
 NB.hasTouch = false;
 NB.oldestStory = Infinity;
 
+
+var targetLocalStorageVersion = 1; //increment this to wipe the localstorage for older versions
+var lsVersion = localStorage.v ? localStorage.v : 0;
+if (lsVersion < targetLocalStorageVersion) {
+  console.log('Clearing local storage.');
+  localStorage.clear();
+  localStorage.v = targetLocalStorageVersion;
+}
 'use strict';
 var NB = NB || {};
 
@@ -285,12 +295,9 @@ NB.Auth = (function() {
       last: ko.observable(''),
       display: ko.observable('')
     },
+    displayName: ko.observable(''),
     signedIn: ko.observable(false),
     headerText: ko.observable('Sign in'),
-//     signOut: function() {
-//       $.get('/auth/sign-out');
-//       Auth.setUser(null);
-//     },
     open: open,
     close: close,
     save: save
@@ -308,19 +315,21 @@ NB.Auth = (function() {
   /*  --  EXPORTS  --  */
   Auth.setUser = function(user) {
     rawUser = user;
+    var displayName = user.displayName || user.name.display;
     if (user) {
       userModel._id = user._id;
-      userModel.name.first(user.name.first);
-      userModel.name.last(user.name.last);
-      userModel.name.display(user.name.display);
+//       userModel.name.first(user.name.first);
+//       userModel.name.last(user.name.last);
+      userModel.displayName(displayName);
       userModel.signedIn(true);
-      userModel.headerText('Account');
+      userModel.headerText(displayName);
       removeFacebookAppendedHash(); //TODO test for FB?
     } else {
       userModel._id = null;
-      userModel.name.first(null);
-      userModel.name.last(null);
-      userModel.name.display(null);
+//       userModel.name.first(null);
+//       userModel.name.last(null);
+//       userModel.name.display(null);
+      userModel.displayName(null);
       userModel.signedIn(false);
       userModel.headerText('Sign in');
     }
@@ -341,6 +350,24 @@ NB.Auth = (function() {
   Auth.signOut = function() {
     console.log('OK, will sign out (ha ha, but I am not really!');
   };
+
+
+
+//   Auth.getMe = function() {
+//     $.post('/api/reddit/me', function(res) {
+//       console.log(res);
+//     })
+//   };
+
+//   Auth.testRefresh = function() {
+//     console.log('testRefresh()');
+//     var url = 'api/reddit/test_refresh';
+
+//     $.get(url, function(response) {
+//       console.log(response);
+//     });
+//   }
+
 
   return Auth;
 })();
@@ -371,7 +398,7 @@ NB.Data = (function() {
 
     delta.forEach(function(d) {
       var existing = Data.stories.filter(function(existingStory) {
-        return existingStory.id === d.id;
+        return existingStory._id === d._id;
       })[0];
       if (existing) {
         existing.commentCount = d.commentCount;
@@ -393,14 +420,72 @@ NB.Data = (function() {
     return data;
   }
 
+
+  //merging the main story array with any user-specific data from localStorage or the user object form server
+  function mergeUserData(data) {
+    
+    var lsReadArray = localStorage.readList ? JSON.parse(localStorage.readList) : []
+      , lsFavArray = localStorage.favs ? JSON.parse(localStorage.favs) : []
+      , mainStoryArray = data.stories || []
+      , userStoryArray = data.user ? data.user.stories : []
+      , result = []
+      , i
+      , j
+//       , k
+//       , l
+      , mainStory
+      , story
+    ;
+
+    mainStoryLoop:
+    for (i = 0; i < mainStoryArray.length; i++) {
+      mainStory = mainStoryArray[i];
+
+      userStoryLoop:
+      for (j = 0; j < userStoryArray.length; j++) {
+        story = userStoryArray[j];
+        if (story.storyId === mainStory._id) {
+          if (story.read) {
+            mainStory.isRead = true;
+          }
+          if (story.fav) {
+            mainStory.isFav = true;
+          }
+          mainStory.vote = story.vote; //potentially undefined but that's OK
+          break userStoryLoop;
+        }
+      }
+
+      if (lsReadArray.indexOf(mainStory._id) > -1) {
+        mainStory.isRead = true;
+      }
+      if (lsFavArray.indexOf(mainStory._id) > -1) {
+        mainStory.isFav = true;
+      }
+
+    }
+    if (data.user) {
+      delete localStorage.readList;
+      delete localStorage.favs;
+    }
+
+    return data;
+  }
+
+
   function parseInitialData(data, captureOldest, cb) {
     if (captureOldest) {
       NB.oldestStory = Infinity;
     }
 
+
+    //TODO: bad bad bad, this is doing a second loop through the stories, see below
+    data = mergeUserData(data);
+
     //User stuff
     if (data.user) {
       NB.Auth.setUser(data.user);
+
 
       if (data.user.settings) {
         if (NB.Settings.getSetting('source') !== data.user.settings.source) {
@@ -411,39 +496,41 @@ NB.Data = (function() {
         NB.Settings.setAll(data.user.settings);
       }
 
-      if (data.user.readList) {
-        if (localStorage.readList) {
-          var lsReadList = JSON.parse(localStorage.readList);
-          var serverReadList = data.user.readList;
-          var i, j, exists = false, newReadList = [];
-          for (i = 0; i < lsReadList.length; i++) {
-            for (j = 0; j < serverReadList.length; j++) {
-              if (lsReadList[i] === serverReadList[j]) {
-                exists = true;
-              }
-            }
-            if (!exists) {
-              newReadList.push(lsReadList[i]);
-              //If the item was in local storage but not on the server, send it to the server
-              Data.emit('markAsRead', {storyId: lsReadList[i]});
-            }
-            exists = false;
-          }
-          readList = lsReadList.concat(newReadList);
-          delete localStorage.readList;
-        } else {
-          readList = data.user.readList;
-        }
-      }
+//       if (data.user.readList) {
+//         if (localStorage.readList) {
+//           var lsReadList = JSON.parse(localStorage.readList);
+//           var serverReadList = data.user.readList;
+//           var i, j, exists = false, newReadList = [];
+//           for (i = 0; i < lsReadList.length; i++) {
+//             for (j = 0; j < serverReadList.length; j++) {
+//               if (lsReadList[i] === serverReadList[j]) {
+//                 exists = true;
+//               }
+//             }
+//             if (!exists) {
+//               newReadList.push(lsReadList[i]);
+//               //If the item was in local storage but not on the server, send it to the server
+//               Data.emit('markAsRead', {storyId: lsReadList[i]});
+//             }
+//             exists = false;
+//           }
+//           readList = lsReadList.concat(newReadList);
+//           delete localStorage.readList;
+//         } else {
+//           readList = data.user.readList;
+//         }
+//       }
+
     }
 
 
 
     //Stories
+    //TODO: bad bad bad, there is also a loop of stories up in mergeUserData();
     data.stories.forEach(function(s) {
       s.postDate = new Date(s.postDate);
       if (!s.isRead) { //if the story is NOT marked as read from the server, then check if it is here.
-        s.isRead = isRead(s.id);
+        s.isRead = isRead(s._id);
       }
       if (captureOldest) {
         NB.oldestStory = Math.min(NB.oldestStory, s.postDate);
@@ -514,8 +601,12 @@ NB.Data = (function() {
   function markAsRead(id) {
     if (isRead(id)) { return; } //prevent duplicates
     readList.push(id);
-    localStorage.readList = JSON.stringify(readList);
-    Data.emit('markAsRead', {storyId: id});
+
+    if (NB.Auth.getUser()) {
+      Data.emit('markAsRead', {storyId: id});
+    } else {
+      localStorage.readList = JSON.stringify(readList);
+    }
   }
 
 
@@ -545,10 +636,8 @@ NB.Data = (function() {
     var user = NB.Auth.getUser();
     if (user) {
       data.userId = user._id;
-//       console.log('Emitting: ', eventName, 'with data:', data);
       socket.emit(eventName, data);
     }
-
   };
 
   Data.setData = function(key, value) {
@@ -650,11 +739,11 @@ NB.Favs = (function() {
 
   Favs.removeFromFavs = function(story) {
 //     console.log('Removing story from favs:', story);
-    var id = story.id;
-    NB.Data.emit('removeFromFavs', {storyId: story.id});
+    var id = story._id;
+    NB.Data.emit('removeFromFavs', {storyId: story._id});
     
     store.forEach(function(fav, i) {
-      if (fav.id === id) {
+      if (fav._id === id) {
         store.splice(i, 1);
         localStorage.favs = JSON.stringify(store);
         return;
@@ -664,11 +753,11 @@ NB.Favs = (function() {
 
   Favs.isFav = function(story) {
     if (!store.length) { return false; }
-    var id = story.id;
+    var id = story._id;
     var hasMatch = false;
 
     store.forEach(function(fav) {
-      if (fav.id === id) { hasMatch = true; }
+      if (fav._id === id) { hasMatch = true; }
     });
 
     return hasMatch;
@@ -831,10 +920,10 @@ NB.Chart = (function() {
   function toggleRead(circle, story) {
     if (circle.classed('read')) {
       circle.classed('read', false);
-      NB.Data.markAsUnread(story.id);
+      NB.Data.markAsUnread(story._id);
     } else {
       circle.classed('read', true);
-      NB.Data.markAsRead(story.id);
+      NB.Data.markAsRead(story._id);
     }
   }
 
@@ -856,7 +945,7 @@ NB.Chart = (function() {
 
     //get the D3 flvoured dom el
     var el = d3.select(d3.event.currentTarget);
-    //TODO if clicked story is already showing, return. (lastID === d.id)
+    //TODO if clicked story is already showing, return. (lastID === d._id)
 
     //Make the last selected item read and no longer selected
     d3.select('.selected')
@@ -870,7 +959,7 @@ NB.Chart = (function() {
     var setting = NB.Settings.getSetting('clickAction');
 
     if (setting === 'storyPanel') {
-      NB.Data.markAsRead(d.id);
+      NB.Data.markAsRead(d._id);
       el.classed('read', true);
       NB.Layout.showStoryPanel();
       NB.StoryPanel.render(d);
@@ -994,7 +1083,7 @@ NB.Chart = (function() {
     //NB data may be only a few new or changed stories
     var points = plotArea.selectAll('circle')
       .data(NB.Data.stories, function(d) {
-        return d.id;
+        return d._id;
       });
 
     points
@@ -1382,12 +1471,12 @@ NB.Comments = (function() {
     result = result.replace(/(<a [^>]*?)(>)/g, '$1 target="_blank"$2');
 
     //any link ending in jpg, turn into inline img
-    result = result.replace(/(<a.*?href=)(".*?(?:jpg|png|gif)")(.*?)(<\/a>)/g, '$1$2$3<img src=$2>$4');
+    //todo this should exclude the domains iruntheinternet.com and fanpop.com
+    result = result.replace(/(<a [^>]*?href=)("[^>]*?(?:jpg|png|gif)")(.*?)(<\/a>)/g, '$1$2$3<img src=$2>$4');
 
-    //turn any imgur link without jpg into jpg (TODO: this will break for imgur links with extensions)
-    //Rather, test above for existence of URL. Then repending on the URL, replace differently
-    //Copy the logic from storyPanel.js
-//     result = result.replace(/(<a.*?href=")(.*?imgur\.com\/.*?)(")(.*?)(<\/a>)/, '$1$2$3$4<img src="$2.jpg">$5');
+    //turn any imgur link without jpg into jpg
+    result = result.replace(/(<a [^>]*?href=")(http:\/\/imgur\.com\/[^./]*?)(".*?)(<\/a>)/g, '$1$2$3<img src="$2.jpg">$4');
+
     return result;
   }
 
@@ -1514,6 +1603,7 @@ var NB = NB || {};
 NB.StoryPanel = (function() {
   var StoryPanel = {};
   var currentStoryId;
+  var currentStory;
 
 
   function getReadability(story, cb) {
@@ -1542,7 +1632,7 @@ NB.StoryPanel = (function() {
 
   function renderRdt(story) {
     var dom = story.rdt.domain.toLowerCase();
-    currentStoryId = story.id; //To check when comments come back
+    currentStoryId = story.sourceId; //To check when comments come back
     story.content = '';
 
     //get comments and append. NB done() is not needed.
@@ -1558,10 +1648,10 @@ NB.StoryPanel = (function() {
 
         //Because a user can click one story, then another before the first story comments are loaded
         //Check that the expected story is still the active one.
-        if (story.id === currentStoryId) {
+        if (story.sourceId === currentStoryId) {
           NB.StoryModel.setCurrentStory('panel', story);
         } else {
-          console.log('The story has already changed, dumping the comments');
+          console.log('The story has already changed, dumping these comments');
         }
 
       });
@@ -1683,11 +1773,28 @@ NB.StoryPanel = (function() {
   }
 
 
+//   function rdtVote(upOrDown) {
+//     var url = '/api/reddit/vote'
+//     var data = {
+//       upOrDown: upOrDown,
+//       id: currentStory._id,
+//       sourceId: currentStory.sourceId
+//     };
+
+//     currentStory.vote = upOrDown;
+
+//     $.post(url, data, function(response) {
+//       console.log(response);
+//     });
+
+//   }
 
 
   /*  --  PUBLIC  --  */
 
   StoryPanel.render = function(story) {
+    currentStory = story;
+//     console.log('Redering for story id:', story._id);
     NB.StoryModel.setCurrentStory('panel', story); //to get a quick change in the panel.
 
     //The story panel element is passed into these funciton because if it goes to readability it's an async call
@@ -1706,6 +1813,8 @@ NB.StoryPanel = (function() {
     NB.StoryModel.clear();
   };
 
+//   StoryPanel.rdtVote = rdtVote;
+
 
   return StoryPanel;
 })();
@@ -1715,6 +1824,25 @@ var NB = NB || {};
 
 NB.StoryModel = (function() {
   var StoryModel = {};
+
+  /*  --  Story methods  --  */
+  function rdtVote(upOrDown) {
+    var data = {
+      upOrDown: upOrDown,
+      id: StoryModel.panelStory.raw._id,
+      sourceId: StoryModel.panelStory.raw.sourceId
+    };
+
+    StoryModel.panelStory.userVote(upOrDown);
+//     console.log('Voting this way:', data);
+
+    $.post('/api/reddit/vote', data, function(res) {
+      if (res.err) {
+//         alert(res);
+      }
+    });
+
+  }
 
   function init() {
     //TODO these really should inherit from a common parent.
@@ -1750,7 +1878,19 @@ NB.StoryModel = (function() {
       timeString: ko.observable(),
       dateString: ko.observable(),
       content: ko.observable(''),
-      isFav: ko.observable(false)
+      isFav: ko.observable(false),
+      userVote: ko.observable(''),
+      upVote: function() {
+        if (this.userVote() !== 'up') {
+          rdtVote('up');
+        } else {
+          rdtVote('');
+        }
+        
+      },
+      downVote: function() {
+        rdtVote('down');
+      }
     };
   }
 
@@ -1767,7 +1907,6 @@ NB.StoryModel = (function() {
     var name = story.name;
     var category = story.category || '';
     var isFav = NB.Favs.isFav(story);
-
     var color = NB.Settings.getColor(story.source, category);
 
 
@@ -1824,7 +1963,8 @@ NB.StoryModel = (function() {
       .score(Math.round(story.score))
       .timeString(timeFormatter(story.postDate))
       .dateString(dateFormatter(story.postDate))
-      .isFav(isFav);
+      .isFav(isFav)
+      .userVote(story.vote);
 
 
     if (tooltipOrPanel === 'panel') {
@@ -1851,7 +1991,8 @@ NB.StoryModel = (function() {
       .timeString('')
       .dateString('')
       .content('')
-      .isFav('');
+      .isFav('')
+      .userVote('');
 
   };
 
