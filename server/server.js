@@ -57,7 +57,7 @@ exports.start = function(app) {
 
   db.on('open', function() {
     hxnCrawler.startCrawler();
-    // rdtCrawler.startCrawler();
+    rdtCrawler.startCrawler();
     workers.startCleanupWorker();
     workers.startMemoryStatsReporter();
 
