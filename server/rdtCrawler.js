@@ -10,10 +10,9 @@ var path = require('path')
   ;
 
 function upsert(story) {
-  //TODO RITMO: do I need nextTick here? I call it before doing a db write anyway.
-  // process.nextTick(function() {
+  process.nextTick(function() {
     storyController.upsertRdtStory(story);
-  // });
+  });
 }
 
 //TODO this probably belongs in controllers, but don't want callback soup or passing io around everywhere right now
@@ -29,7 +28,7 @@ function goGet(url, cb) {
   var options = {
     url: url,
     json: true,
-    'User-Agent': 'news-bubbles.herokuapp.com/0.3.8 by /u/bubble_boi'
+    'User-Agent': 'news-bubbles.herokuapp.com/0.4.0 by /u/bubble_boi'
   };
 
   request.get(options, function(err, req, data) {
@@ -151,7 +150,7 @@ function startCrawler() {
           looper.lastKnownAfter = response.data.after;
         }
       } catch (err) {
-        // devLog('Error in reddit crawler:', err);
+        devLog('Error in reddit crawler:', err);
         // devLog('response was', response);
         looper.count = 0;
         looper.lastKnownAfter = undefined;
@@ -185,11 +184,6 @@ function startCrawler() {
     startLooper(loopers[i]);
   }
 }
-
-
-// exports.startCrawler = function() {
-//   startCrawler();
-// };
 
 exports.startCrawler = startCrawler;
 
