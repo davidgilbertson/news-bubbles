@@ -10,9 +10,9 @@ var path = require('path')
   ;
 
 function upsert(story) {
-  process.nextTick(function() {
+  // process.nextTick(function() {
     storyController.upsertRdtStory(story);
-  });
+  // });
 }
 
 //TODO this probably belongs in controllers, but don't want callback soup or passing io around everywhere right now
@@ -59,30 +59,30 @@ function startCrawler() {
       loops: 15,
       lastKnownAfter: undefined
     },
-    {
-      name: 'Looper 2',
-      list: 'new',
-      count: 0,
-      interval: 31000,
-      loops: 30,
-      lastKnownAfter: undefined
-    },
-    {
-      name: 'Looper 3',
-      list: 'new',
-      count: 0,
-      interval: 61000,
-      loops: 60,
-      lastKnownAfter: undefined
-    },
-    {
-      name: 'Looper 4',
-      list: 'new',
-      count: 0,
-      interval: 127000,
-      loops: 120,
-      lastKnownAfter: undefined
-    },
+    // {
+    //   name: 'Looper 2',
+    //   list: 'new',
+    //   count: 0,
+    //   interval: 31000,
+    //   loops: 30,
+    //   lastKnownAfter: undefined
+    // },
+    // {
+    //   name: 'Looper 3',
+    //   list: 'new',
+    //   count: 0,
+    //   interval: 61000,
+    //   loops: 60,
+    //   lastKnownAfter: undefined
+    // },
+    // {
+    //   name: 'Looper 4',
+    //   list: 'new',
+    //   count: 0,
+    //   interval: 127000,
+    //   loops: 120,
+    //   lastKnownAfter: undefined
+    // },
     // {
     //   name: 'Looper 5',
     //   list: 'new',
@@ -93,38 +93,38 @@ function startCrawler() {
     // },
 
     //'hot' loopers
-    {
-      name: 'Looper 6',
-      list: 'hot',
-      count: 0,
-      interval: 13000,
-      loops: 15,
-      lastKnownAfter: undefined
-    },
-    {
-      name: 'Looper 7',
-      list: 'hot',
-      count: 0,
-      interval: 29000,
-      loops: 30,
-      lastKnownAfter: undefined
-    },
-    {
-      name: 'Looper 8',
-      list: 'hot',
-      count: 0,
-      interval: 63000,
-      loops: 60,
-      lastKnownAfter: undefined
-    },
-    {
-      name: 'Looper 9',
-      list: 'hot',
-      count: 0,
-      interval: 123000,
-      loops: 120,
-      lastKnownAfter: undefined
-    },
+    // {
+    //   name: 'Looper 6',
+    //   list: 'hot',
+    //   count: 0,
+    //   interval: 13000,
+    //   loops: 15,
+    //   lastKnownAfter: undefined
+    // },
+    // {
+    //   name: 'Looper 7',
+    //   list: 'hot',
+    //   count: 0,
+    //   interval: 29000,
+    //   loops: 30,
+    //   lastKnownAfter: undefined
+    // },
+    // {
+    //   name: 'Looper 8',
+    //   list: 'hot',
+    //   count: 0,
+    //   interval: 63000,
+    //   loops: 60,
+    //   lastKnownAfter: undefined
+    // },
+    // {
+    //   name: 'Looper 9',
+    //   list: 'hot',
+    //   count: 0,
+    //   interval: 123000,
+    //   loops: 120,
+    //   lastKnownAfter: undefined
+    // },
     // {
     //   name: 'Looper 10',
     //   list: 'hot',
@@ -136,7 +136,7 @@ function startCrawler() {
   ];
 
   function fetch(looper) {
-    // devLog(looper.name + ' - getting...');
+    devLog(looper.name + ' - getting...');
     var url = buildUrl({after: looper.lastKnownAfter, list: looper.list});
     // devLog(looper.name, 'doing fetch', looper.count, 'of', looper.loops);
     // devLog(looper.count, '- Getting data with the URL:', url);
