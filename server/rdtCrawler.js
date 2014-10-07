@@ -16,7 +16,7 @@ function upsert(story) {
 }
 
 function saveStories(data) {
-  devLog('  --  Saving', data.length, 'RDT stories  --');
+  // devLog('  --  Saving', data.length, 'RDT stories  --');
   data.forEach(function(story) {
     upsert(story);
   });
@@ -32,13 +32,13 @@ function goGet(url, cb) {
 
   request.get(options, function(err, response, data) {
     if (response.headers['X-Ratelimit-Used']) {
-      devLog('X-Ratelimit-Used' + response.headers['X-Ratelimit-Used']);
+      prodLog('X-Ratelimit-Used' + response.headers['X-Ratelimit-Used']);
     }
     if (response.headers['X-Ratelimit-Remaining']) {
-      devLog('X-Ratelimit-Remaining' + response.headers['X-Ratelimit-Remaining']);
+      prodLog('X-Ratelimit-Remaining' + response.headers['X-Ratelimit-Remaining']);
     }
     if (response.headers['X-Ratelimit-Remaining']) {
-      devLog('X-Ratelimit-Reset' + response.headers['X-Ratelimit-Reset']);
+      prodLog('X-Ratelimit-Reset' + response.headers['X-Ratelimit-Reset']);
     }
     // devLog('got data:');
     // console.log(data);
@@ -146,7 +146,7 @@ function startCrawler() {
   ];
 
   function fetch(looper) {
-    devLog(looper.name + ' - getting...');
+    // devLog(looper.name + ' - getting...');
     var url = buildUrl({after: looper.lastKnownAfter, list: looper.list});
 
     goGet(url, function(response) {
@@ -156,12 +156,11 @@ function startCrawler() {
           saveStories(response.data.children);
           looper.lastKnownAfter = response.data.after;
         } else {
-          devLog('The reddit response did not have data. It looks like this:');
+          prodLog('The reddit response did not have data. It looks like this:');
           console.log(response);
         }
       } catch (err) {
-        devLog('Error in reddit crawler:', err);
-        // devLog('response was', response);
+        prodLog('Error in reddit crawler:', err);
         looper.count = 0;
         looper.lastKnownAfter = undefined;
       }
