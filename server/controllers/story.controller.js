@@ -113,8 +113,6 @@ exports.upsertRdtStory = function(obj) {
   obj = obj.data;
   // var id = 'rdt-' + obj.name;
 
-  // Story.findOne({id: id}, function(err, doc) {
-    //TODO I should do an index for this source+sourceId
   Story.findOne({source: 'rdt', sourceId: obj.name}, function(err, doc) {
     if (doc) {
       updateRdtStory(doc, obj);
