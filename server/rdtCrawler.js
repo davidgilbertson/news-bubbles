@@ -61,14 +61,14 @@ function startCrawler() {
   /* -- looper variables  --  */
   //'new' loopers
   var loopers = [
-    {
-      name: 'Looper 1',
-      list: 'new',
-      count: 0,
-      interval: 11000,
-      loops: 15,
-      lastKnownAfter: undefined
-    },
+    // {
+    //   name: 'Looper 1',
+    //   list: 'new',
+    //   count: 0,
+    //   interval: 11000,
+    //   loops: 15,
+    //   lastKnownAfter: undefined
+    // },
     // {
     //   name: 'Looper 2',
     //   list: 'new',
