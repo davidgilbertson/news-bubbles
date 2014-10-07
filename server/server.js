@@ -56,7 +56,7 @@ exports.start = function(app) {
   require(path.join(__dirname, 'routes.js'))(app);
 
   db.on('open', function() {
-    // hxnCrawler.startCrawler();
+    hxnCrawler.startCrawler();
     // rdtCrawler.startCrawler();
     workers.startCleanupWorker();
     workers.startMemoryStatsReporter();
