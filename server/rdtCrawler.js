@@ -10,9 +10,9 @@ var path = require('path')
   ;
 
 function upsert(story) {
-  // process.nextTick(function() {
+  process.nextTick(function() {
     storyController.upsertRdtStory(story);
-  // });
+  });
 }
 
 function saveStories(data) {
