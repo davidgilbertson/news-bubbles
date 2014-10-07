@@ -15,9 +15,8 @@ function upsert(story) {
   // });
 }
 
-//TODO this probably belongs in controllers, but don't want callback soup or passing io around everywhere right now
 function saveStories(data) {
-  // devLog('  --  Saving', data.length, 'RDT stories  --');
+  devLog('  --  Saving', data.length, 'RDT stories  --');
   data.forEach(function(story) {
     upsert(story);
   });
@@ -31,7 +30,9 @@ function goGet(url, cb) {
     'User-Agent': 'news-bubbles.herokuapp.com/0.4.0 by /u/bubble_boi'
   };
 
-  request.get(options, function(err, req, data) {
+  request.get(options, function(err, response, data) {
+    devLog('got data:');
+    console.log(data);
     cb(data);
   });
 }
@@ -142,7 +143,6 @@ function startCrawler() {
     // devLog(looper.count, '- Getting data with the URL:', url);
 
     goGet(url, function(response) {
-      // devLog(looper.name + ' - got');
       getInProgress = false;
       try {
         if (response.data) { //this should save the try, but who knows.
