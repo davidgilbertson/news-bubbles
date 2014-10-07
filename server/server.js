@@ -31,7 +31,6 @@ var path = require('path')
   , workers = require(path.join(__dirname, 'workers'))
   , bodyParser = require('body-parser')
   , cookieParser = require('cookie-parser')
-  , userController = require(path.join(__dirname, 'controllers', 'user.controller'))
 ;
 
 
@@ -44,27 +43,19 @@ exports.start = function(app) {
   prodLog('Server Starting');
 
   var http = require('http').Server(app);
-  // global.io = require('socket.io')(http); //TODO put io in global?
-  var io = require('socket.io')(http); //TODO put io in global?
-  global.io = io; //IO is used for global emitting
+  global.io = require('socket.io')(http); //TODO put io in global?
+  // var io = require('socket.io')(http);
+  // global.io = io; //IO is used for global emitting
 
   app.use(cookieParser());
   app.use(bodyParser.json());
-  app.use(bodyParser.urlencoded());
-
-  //TODO uninstall cors.
-  // var cors = require('express-cors')
-
-  // app.use(cors({
-  //     allowedOrigins: ['reddit.com', '*.reddit.com']
-  // }));
+  app.use(bodyParser.urlencoded({extended: true}));
 
   auth.setUp(app);
 
   require(path.join(__dirname, 'routes.js'))(app);
 
   db.on('open', function() {
-    // devLog('Database connection opened.');
     hxnCrawler.startCrawler();
     rdtCrawler.startCrawler();
     workers.startCleanupWorker();
