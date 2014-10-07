@@ -31,6 +31,15 @@ function goGet(url, cb) {
   };
 
   request.get(options, function(err, response, data) {
+    if (response.headers['X-Ratelimit-Used']) {
+      devLog('X-Ratelimit-Used' + response.headers['X-Ratelimit-Used']);
+    }
+    if (response.headers['X-Ratelimit-Remaining']) {
+      devLog('X-Ratelimit-Remaining' + response.headers['X-Ratelimit-Remaining']);
+    }
+    if (response.headers['X-Ratelimit-Remaining']) {
+      devLog('X-Ratelimit-Reset' + response.headers['X-Ratelimit-Reset']);
+    }
     // devLog('got data:');
     // console.log(data);
     cb(data);
@@ -60,30 +69,30 @@ function startCrawler() {
       loops: 15,
       lastKnownAfter: undefined
     },
-    {
-      name: 'Looper 2',
-      list: 'new',
-      count: 0,
-      interval: 31000,
-      loops: 30,
-      lastKnownAfter: undefined
-    },
-    {
-      name: 'Looper 3',
-      list: 'new',
-      count: 0,
-      interval: 61000,
-      loops: 60,
-      lastKnownAfter: undefined
-    },
-    {
-      name: 'Looper 4',
-      list: 'new',
-      count: 0,
-      interval: 127000,
-      loops: 120,
-      lastKnownAfter: undefined
-    },
+    // {
+    //   name: 'Looper 2',
+    //   list: 'new',
+    //   count: 0,
+    //   interval: 31000,
+    //   loops: 30,
+    //   lastKnownAfter: undefined
+    // },
+    // {
+    //   name: 'Looper 3',
+    //   list: 'new',
+    //   count: 0,
+    //   interval: 61000,
+    //   loops: 60,
+    //   lastKnownAfter: undefined
+    // },
+    // {
+    //   name: 'Looper 4',
+    //   list: 'new',
+    //   count: 0,
+    //   interval: 127000,
+    //   loops: 120,
+    //   lastKnownAfter: undefined
+    // },
     // {
     //   name: 'Looper 5',
     //   list: 'new',
@@ -102,30 +111,30 @@ function startCrawler() {
       loops: 15,
       lastKnownAfter: undefined
     },
-    {
-      name: 'Looper 7',
-      list: 'hot',
-      count: 0,
-      interval: 29000,
-      loops: 30,
-      lastKnownAfter: undefined
-    },
-    {
-      name: 'Looper 8',
-      list: 'hot',
-      count: 0,
-      interval: 63000,
-      loops: 60,
-      lastKnownAfter: undefined
-    },
-    {
-      name: 'Looper 9',
-      list: 'hot',
-      count: 0,
-      interval: 123000,
-      loops: 120,
-      lastKnownAfter: undefined
-    },
+    // {
+    //   name: 'Looper 7',
+    //   list: 'hot',
+    //   count: 0,
+    //   interval: 29000,
+    //   loops: 30,
+    //   lastKnownAfter: undefined
+    // },
+    // {
+    //   name: 'Looper 8',
+    //   list: 'hot',
+    //   count: 0,
+    //   interval: 63000,
+    //   loops: 60,
+    //   lastKnownAfter: undefined
+    // },
+    // {
+    //   name: 'Looper 9',
+    //   list: 'hot',
+    //   count: 0,
+    //   interval: 123000,
+    //   loops: 120,
+    //   lastKnownAfter: undefined
+    // },
     // {
     //   name: 'Looper 10',
     //   list: 'hot',
