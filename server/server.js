@@ -1,14 +1,10 @@
 'use strict';
 
-// require('v8-profiler');
-
 if (process.env.DEV) {
-  require('nodetime').profile({
-    accountKey: '05d915a7339098057141246ef49ab77a3c5bd013',
-    appName: 'News Bubbles Dev' // optional
-  });
-  // var agent = require('webkit-devtools-agent');
-  // agent.start();
+  // require('nodetime').profile({
+  //   accountKey: '05d915a7339098057141246ef49ab77a3c5bd013',
+  //   appName: 'News Bubbles Dev' // optional
+  // });
 } else {
   if (process.env.NODETIME_ACCOUNT_KEY) {
     require('nodetime').profile({
@@ -18,9 +14,10 @@ if (process.env.DEV) {
   }
 }
 
+
+
 var path = require('path')
-  , port = process.env.PORT || 80
-  , conn = process.env.MONGOLAB_URL || 'mongodb://localhost/news_bubbles'
+  , configVars = require(path.join(__dirname, 'config'))
   , mongoose = require('mongoose')
   , hxnCrawler = require(path.join(__dirname, 'hxnCrawler'))
   , rdtCrawler = require(path.join(__dirname, 'rdtCrawler'))
@@ -34,6 +31,17 @@ var path = require('path')
 ;
 
 
+
+var config = configVars.prod;
+if (process.env.DEV) {
+  config = configVars.dev;
+}
+
+var port = config.db.port
+  , conn = config.db.conn;
+  // , conn = process.env.MONGOLAB_URL || 'mongodb://localhost/news_bubbles'
+
+console.log('Running with config:', config);
 
 //TODO change to createConnections
 mongoose.connect(conn);
