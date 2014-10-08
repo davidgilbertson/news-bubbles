@@ -5,7 +5,8 @@
     "jquery": "~1.11.0",
     "d3": "~3.4.11",
     "knockout": "~3.2.0",
-    "moment": "~2.8.3"
+    "moment": "~2.8.3",
+    "firebase": "~1.1.0"
   },
   "devDependencies": {
     "normalize-scss": "~3.0.1"
