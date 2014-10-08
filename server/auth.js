@@ -8,27 +8,28 @@ var path = require('path')
   , Token = require(path.join(__dirname, 'models', 'Token.model'))
   , utils = require(path.join(__dirname, 'utils'))
   , devLog = utils.devLog
+  , prodLog = utils.prodLog
   , request = require('request')
   , FacebookStrategy = require('passport-facebook').Strategy
   , RememberMeStrategy = require('passport-remember-me').Strategy
   , RedditStrategy = require('passport-reddit').Strategy
 
-  , BASE_URL = 'http://news-bubbles.herokuapp.com'
+  // , BASE_URL = 'http://news-bubbles.herokuapp.com'
 
-  , FACEBOOK_APP_ID = '833772886647232'
-  , FACEBOOK_APP_SECRET = '862d4c22a83572793c7214d798afe5f3'
+  // , FACEBOOK_APP_ID = '833772886647232'
+  // , FACEBOOK_APP_SECRET = '862d4c22a83572793c7214d798afe5f3'
 
-  , REDDIT_CLIENT_ID = '1_v-tNQj16e7Sg'
-  , REDDIT_CLIENT_SECRET = '_yzoDtfgvzMlrFK56mLFlPt6oY4'
+  // , REDDIT_CLIENT_ID = '1_v-tNQj16e7Sg'
+  // , REDDIT_CLIENT_SECRET = '_yzoDtfgvzMlrFK56mLFlPt6oY4'
   ;
 
-  if (process.env.DEV) {
-    BASE_URL = 'http://local.news-bubbles.herokuapp.com';
-    REDDIT_CLIENT_ID = '4tPkcfJiC76--w';
-    REDDIT_CLIENT_SECRET = 'hWWKy8NNYeiP8ZFXadhS204t4a4';
-  }
-  var FACEBOOK_CALLBACK_URL = BASE_URL + '/auth/facebook/callback';
-  var REDDIT_CALLBACK_URL = BASE_URL + '/auth/reddit/callback';
+  // if (process.env.DEV) {
+    // BASE_URL = 'http://local.news-bubbles.herokuapp.com';
+    // REDDIT_CLIENT_ID = '4tPkcfJiC76--w';
+    // REDDIT_CLIENT_SECRET = 'hWWKy8NNYeiP8ZFXadhS204t4a4';
+  // }
+  // var FACEBOOK_CALLBACK_URL = BASE_URL + '/auth/facebook/callback';
+  // var REDDIT_CALLBACK_URL = BASE_URL + '/auth/reddit/callback';
 
 // This code from here:
 // https://github.com/jaredhanson/passport-remember-me/blob/master/examples/login/server.js
@@ -79,9 +80,12 @@ exports.setUp = function(app) {
   });
 
   passport.use(new FacebookStrategy({
-      clientID: FACEBOOK_APP_ID,
-      clientSecret: FACEBOOK_APP_SECRET,
-      callbackURL: FACEBOOK_CALLBACK_URL
+      clientID: config.auth.facebook.clientId,
+      clientSecret: config.auth.facebook.secret,
+      callbackURL: config.auth.facebook.callbackUrl
+      // clientID: FACEBOOK_APP_ID,
+      // clientSecret: FACEBOOK_APP_SECRET,
+      // callbackURL: FACEBOOK_CALLBACK_URL
     },
     function(accessToken, refreshToken, profile, done) {
       process.nextTick(function() {
@@ -115,9 +119,12 @@ exports.setUp = function(app) {
   ));
 
   passport.use(new RedditStrategy({
-      clientID: REDDIT_CLIENT_ID,
-      clientSecret: REDDIT_CLIENT_SECRET,
-      callbackURL: REDDIT_CALLBACK_URL
+      clientID: config.auth.reddit.clientId,
+      clientSecret: config.auth.reddit.secret,
+      callbackURL: config.auth.reddit.callbackUrl
+      // clientID: REDDIT_CLIENT_ID,
+      // clientSecret: REDDIT_CLIENT_SECRET,
+      // callbackURL: REDDIT_CALLBACK_URL
     },
     function(accessToken, refreshToken, profile, done) {
       // devLog('AUTH: got response from reddit with this profile:', profile);
@@ -126,7 +133,7 @@ exports.setUp = function(app) {
         User.findOne({'reddit.id': profile.id}, function(err, doc) {
 
           if (err) {
-            devLog('AUTH: DB error looking up user');
+            prodLog('AUTH: DB error looking up user');
             return done(err);
           } else if (!doc) {
             devLog('AUTH: did not find user, creating a new one');
@@ -280,13 +287,15 @@ exports.setUp = function(app) {
         refresh_token: refreshToken
       },
       auth: {
-        user: REDDIT_CLIENT_ID,
-        pass: REDDIT_CLIENT_SECRET,
+        user: config.auth.reddit.clientId,
+        pass: config.auth.reddit.secret,
+        // user: REDDIT_CLIENT_ID,
+        // pass: REDDIT_CLIENT_SECRET,
         sendImmediately: true
       },
       json: true,
       headers: {
-        'User-Agent': 'news-bubbles.herokuapp.com/0.3.8 by /u/bubble_boi'
+        'User-Agent': 'news-bubbles.herokuapp.com/0.4.0 by /u/bubble_boi'
       }
     };
 

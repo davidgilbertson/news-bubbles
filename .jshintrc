@@ -19,5 +19,5 @@
     "trailing": true,
     "smarttabs": true,
     "jquery": true,
-    "predef": ["$", "d3", "io", "ko", "moment", "socket", "RegExp"]
+    "predef": ["$", "d3", "io", "ko", "moment", "socket", "RegExp", "config"]
 }

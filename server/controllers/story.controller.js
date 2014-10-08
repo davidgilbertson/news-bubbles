@@ -209,7 +209,7 @@ exports.upsertHxnStory = function(obj, suppressResults) {
 
 
 exports.getStories = function(req, res) {
-  devLog('getStories()');
+  // devLog('getStories()');
   var user = null;
   if (req.isAuthenticated()) {
     user = req.user;
@@ -231,7 +231,7 @@ exports.getStories = function(req, res) {
         devLog('Error finding stories:', err);
         return;
       }
-      devLog('Query returned ' + docs.length + ' items');
+      // devLog('Query returned ' + docs.length + ' items');
       res.json({user: user, stories: docs}); //TODO this could be io.emit(). faster? Weirder?
     });
 };

@@ -1,20 +1,11 @@
 'use strict';
 
-if (process.env.DEV) {
-  // require('nodetime').profile({
-  //   accountKey: '05d915a7339098057141246ef49ab77a3c5bd013',
-  //   appName: 'News Bubbles Dev' // optional
-  // });
-} else {
-  if (process.env.NODETIME_ACCOUNT_KEY) {
-    require('nodetime').profile({
-      accountKey: process.env.NODETIME_ACCOUNT_KEY,
-      appName: 'News Bubbles' // optional
-    });
-  }
+if (process.env.NODETIME_ACCOUNT_KEY) {
+  require('nodetime').profile({
+    accountKey: process.env.NODETIME_ACCOUNT_KEY,
+    appName: 'News Bubbles' // optional
+  });
 }
-
-
 
 var path = require('path')
   , configVars = require(path.join(__dirname, 'config'))
@@ -32,19 +23,18 @@ var path = require('path')
 
 
 
-var config = configVars.prod;
+var config;
 if (process.env.DEV) {
   config = configVars.dev;
+} else {
+  config = configVars.prod;
 }
-
-var port = config.db.port
-  , conn = config.db.conn;
-  // , conn = process.env.MONGOLAB_URL || 'mongodb://localhost/news_bubbles'
+global.config = config;
 
 console.log('Running with config:', config);
 
 //TODO change to createConnections
-mongoose.connect(conn);
+mongoose.connect(config.db.conn);
 var db = mongoose.connection;
 
 exports.start = function(app) {
@@ -69,7 +59,7 @@ exports.start = function(app) {
     workers.startCleanupWorker();
     // workers.startMemoryStatsReporter();
 
-    http.listen(port);
+    http.listen(config.db.port);
   });
 
   db.on('error', function(err) {
