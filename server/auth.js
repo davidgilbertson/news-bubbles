@@ -300,7 +300,7 @@ exports.setUp = function(app) {
     };
 
     request.post(options, function(err, httpResponse, data) {
-      devLog('did the post to refresh token, got this:', data);
+      // devLog('did the post to refresh token, got this:', data);
       // if (err) { return devLog(err); }
       if (data.err) {
         // devLog(data.err);
