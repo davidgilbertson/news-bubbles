@@ -11,6 +11,7 @@ var path = require('path')
   , configVars = require(path.join(__dirname, 'config'))
   , mongoose = require('mongoose')
   , hxnCrawler = require(path.join(__dirname, 'hxnCrawler'))
+  , newHxnCrawler = require(path.join(__dirname, 'new-hxncrawler'))
   , rdtCrawler = require(path.join(__dirname, 'rdtCrawler'))
   , auth = require(path.join(__dirname, 'auth'))
   , utils = require(path.join(__dirname, 'utils'))
@@ -31,7 +32,7 @@ if (process.env.DEV) {
 }
 global.config = config;
 
-console.log('Running with config:', config);
+// console.log('Running with config:', config);
 
 //TODO change to createConnections
 mongoose.connect(config.db.conn);
@@ -54,8 +55,13 @@ exports.start = function(app) {
   require(path.join(__dirname, 'routes.js'))(app);
 
   db.on('open', function() {
-    hxnCrawler.startCrawler();
-    rdtCrawler.startCrawler();
+    // hxnCrawler.startCrawler();
+
+
+    newHxnCrawler.start();
+
+
+    // rdtCrawler.startCrawler();
     workers.startCleanupWorker();
     // workers.startMemoryStatsReporter();
 
