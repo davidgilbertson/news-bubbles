@@ -208,6 +208,130 @@ exports.upsertHxnStory = function(obj, suppressResults) {
 };
 
 
+function emitNow(story) {
+  io.emit('data', {source: 'hxn', data: [story]});
+}
+
+function saveNewFbHxnStory(newStory) {
+  devLog('adding a new story:', newStory.title);
+  //firebase schema:
+  // var example = {
+  //   by: 'harscoat',
+  //   id: 8426148,
+  //   score: 327,
+  //   kids: [], //comments
+  //   text: '',
+  //   time: 1412763239,
+  //   title: 'Watson Services',
+  //   type: 'story',
+  //   url: 'http://www.ibm.com/smarterplanet/us/en/ibmwatson/developercloud/services-catalog.html'
+  // };
+
+  if (!newStory.url) {
+    newStory.url = '';
+  }
+  if (!newStory.kids) {
+    newStory.kids = [];
+  }
+  if (!newStory.title) {
+    newStory.title = [];
+  }
+
+  var category;
+  //Get from :// up until the next slash
+  var urlTest = newStory.url.match(/:\/\/([^\/]*)/);
+  if (urlTest) {
+    category = urlTest[1] ? urlTest[1] : 'Hacker News Story'; //TODO: what?
+  } else {
+    category = 'Hacker News Story';
+  }
+  if (newStory.title.toLowerCase().indexOf('ask hn') === 0) { //for lack of a better test
+    category = 'Ask HN';
+  }
+  if (newStory.title.toLowerCase().indexOf('show hn') === 0) { //for lack of a better test
+    category = 'Show HN';
+  }
+  var commentCount = newStory.kids ? newStory.kids.length : 0;
+
+  hxnStory = new Story({
+    // id: 'hxn-' + newStory.objectID,
+    source: 'hxn',
+    sourceId: newStory.id,
+    name: newStory.title,
+    desc: null,
+    postDate: new Date(newStory.time * 1000),
+    postDateSeconds: (newStory.time),
+    url: newStory.url,
+    sourceUrl: 'https://news.ycombinator.com/item?id=' + newStory.id,
+    authorUrl: 'https://news.ycombinator.com/user?id=' + newStory.by,
+    category: category,
+    commentCount: commentCount,
+    score: newStory.score,
+    author: newStory.by,
+    thumbnail: null,
+    hxn: {
+      tags: [],
+      storyText: newStory.text,
+      kids: newStory.kids
+
+    }
+  });
+  process.nextTick(function() {
+    hxnStory.save(function(err) {
+      if (err) {
+        prodLog('Error saving new story:', err);
+      }
+    });
+  });
+
+  // hxnEmitQueue.push(hxnStory.toObject());
+  emitNow(hxnStory.toObject());
+
+}
+
+function updateFbHxnStory(existingStory, newStory) {
+  var commentCount = newStory.kids ? newStory.kids.length : 0;
+  var hasChanged = false;
+
+  if (existingStory.commentCount !== commentCount) {
+    existingStory.commentCount = commentCount;
+    existingStory.hxn.kids = newStory.kids;
+    hasChanged = true;
+  }
+  if (existingStory.score !== newStory.score) {
+    existingStory.score = newStory.score;
+    hasChanged = true;
+  }
+
+  if (hasChanged) {
+    console.log('Going to update:', newStory.title);
+    process.nextTick(function() { //TODO needed?
+      existingStory.save(function(err) {
+        if (err) {
+          prodLog('Error updating story:', err);
+        }
+      });
+    });
+    emitNow(existingStory.toObject());
+  }
+
+}
+
+function upsertFbHxnStory(story) {
+  Story.findOne({source: 'hxn', sourceId: story.id}, function(err, doc) {
+    if (doc) {
+      updateFbHxnStory(doc, story);
+    } else {
+      saveNewFbHxnStory(story);
+    }
+  });
+}
+
+
+
+
+
+
 exports.getStories = function(req, res) {
   // devLog('getStories()');
   var user = null;
@@ -235,3 +359,7 @@ exports.getStories = function(req, res) {
       res.json({user: user, stories: docs}); //TODO this could be io.emit(). faster? Weirder?
     });
 };
+
+
+
+exports.upsertFbHxnStory = upsertFbHxnStory;

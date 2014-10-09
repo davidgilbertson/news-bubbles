@@ -7,6 +7,7 @@
     "cookie-session": "^1.0.2",
     "express": "^4.8.4",
     "express-session": "^1.8.2",
+    "firebase": "^1.1.0",
     "mongoose": "^3.8.15",
     "nodetime": "^0.8.15",
     "passport": "^0.2.1",
