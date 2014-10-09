@@ -234,7 +234,7 @@ function saveNewFbHxnStory(newStory) {
     newStory.kids = [];
   }
   if (!newStory.title) {
-    newStory.title = [];
+    newStory.title = '';
   }
 
   var category;
