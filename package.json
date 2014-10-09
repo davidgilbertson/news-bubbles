@@ -1,5 +1,5 @@
 {
-  "name": "news-bubbles",
+  "name": "bubblereader",
   "version": "0.4.1",
   "dependencies": {
     "body-parser": "^1.9.0",
