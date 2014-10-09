@@ -61,9 +61,9 @@ exports.start = function(app) {
     newHxnCrawler.start();
 
 
-    // rdtCrawler.startCrawler();
+    rdtCrawler.startCrawler();
     workers.startCleanupWorker();
-    // workers.startMemoryStatsReporter();
+    workers.startMemoryStatsReporter();
 
     http.listen(config.db.port);
   });

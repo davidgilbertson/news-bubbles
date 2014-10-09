@@ -227,6 +227,16 @@ function saveNewFbHxnStory(newStory) {
   //   url: 'http://www.ibm.com/smarterplanet/us/en/ibmwatson/developercloud/services-catalog.html'
   // };
 
+  if (!newStory.url) {
+    newStory.url = '';
+  }
+  if (!newStory.kids) {
+    newStory.kids = [];
+  }
+  if (!newStory.title) {
+    newStory.title = [];
+  }
+
   var category;
   //Get from :// up until the next slash
   var urlTest = newStory.url.match(/:\/\/([^\/]*)/);
@@ -242,14 +252,6 @@ function saveNewFbHxnStory(newStory) {
     category = 'Show HN';
   }
   var commentCount = newStory.kids ? newStory.kids.length : 0;
-  // if (newStory._tags && newStory._tags.length) {
-  //   var tags = newStory._tags;
-  //   if (tags.indexOf('ask_hn') > -1) {
-  //     category = 'Ask HN';
-  //   } else if (tags.indexOf('show_hn') > -1) {
-  //     category = 'Show HN';
-  //   }
-  // }
 
   hxnStory = new Story({
     // id: 'hxn-' + newStory.objectID,
@@ -288,11 +290,21 @@ function saveNewFbHxnStory(newStory) {
 }
 
 function updateFbHxnStory(existingStory, newStory) {
-  console.log('Going to update existing story:', newStory.title);
   var commentCount = newStory.kids ? newStory.kids.length : 0;
-  if (existingStory.commentCount !== commentCount || existingStory.score !== newStory.score) {
+  var hasChanged = false;
+
+  if (existingStory.commentCount !== commentCount) {
     existingStory.commentCount = commentCount;
+    existingStory.hxn.kids = newStory.kids;
+    hasChanged = true;
+  }
+  if (existingStory.score !== newStory.score) {
     existingStory.score = newStory.score;
+    hasChanged = true;
+  }
+
+  if (hasChanged) {
+    console.log('Going to update:', newStory.title);
     process.nextTick(function() { //TODO needed?
       existingStory.save(function(err) {
         if (err) {
@@ -300,14 +312,12 @@ function updateFbHxnStory(existingStory, newStory) {
         }
       });
     });
-    // hxnEmitQueue.push(existingStory.toObject());
     emitNow(existingStory.toObject());
   }
 
 }
 
 function upsertFbHxnStory(story) {
-  // console.log('Gonna upsert firebase HN story:', story.title);
   Story.findOne({source: 'hxn', sourceId: story.id}, function(err, doc) {
     if (doc) {
       updateFbHxnStory(doc, story);
@@ -316,11 +326,6 @@ function upsertFbHxnStory(story) {
     }
   });
 }
-
-exports.upsertFbHxnStory = upsertFbHxnStory;
-
-
-
 
 
 
@@ -354,3 +359,7 @@ exports.getStories = function(req, res) {
       res.json({user: user, stories: docs}); //TODO this could be io.emit(). faster? Weirder?
     });
 };
+
+
+
+exports.upsertFbHxnStory = upsertFbHxnStory;
