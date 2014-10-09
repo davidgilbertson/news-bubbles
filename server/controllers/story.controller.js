@@ -213,7 +213,7 @@ function emitNow(story) {
 }
 
 function saveNewFbHxnStory(newStory) {
-  devLog('adding a new story:', newStory.title);
+  devLog('AddingHN story:', newStory.title);
   //firebase schema:
   // var example = {
   //   by: 'harscoat',
@@ -254,7 +254,6 @@ function saveNewFbHxnStory(newStory) {
   var commentCount = newStory.kids ? newStory.kids.length : 0;
 
   hxnStory = new Story({
-    // id: 'hxn-' + newStory.objectID,
     source: 'hxn',
     sourceId: newStory.id,
     name: newStory.title,
@@ -284,7 +283,6 @@ function saveNewFbHxnStory(newStory) {
     });
   });
 
-  // hxnEmitQueue.push(hxnStory.toObject());
   emitNow(hxnStory.toObject());
 
 }
@@ -304,7 +302,6 @@ function updateFbHxnStory(existingStory, newStory) {
   }
 
   if (hasChanged) {
-    console.log('Going to update:', newStory.title);
     process.nextTick(function() { //TODO needed?
       existingStory.save(function(err) {
         if (err) {
@@ -314,7 +311,6 @@ function updateFbHxnStory(existingStory, newStory) {
     });
     emitNow(existingStory.toObject());
   }
-
 }
 
 function upsertFbHxnStory(story) {
