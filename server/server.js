@@ -63,7 +63,7 @@ exports.start = function(app) {
 
     rdtCrawler.startCrawler();
     workers.startCleanupWorker();
-    workers.startMemoryStatsReporter();
+    // workers.startMemoryStatsReporter();
 
     http.listen(config.db.port);
   });
