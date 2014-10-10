@@ -6,7 +6,7 @@
   z-index: 2;
   &-title {
     float: left;
-    padding: 5px 8px;
+    padding: 10px;
     margin: 0;
     font-size: 22px;
     color: white;
@@ -28,17 +28,27 @@
   }
   .user-items {
     height: 100%;
-    padding: 0 0 0 10px;
-    .user-item {
+    padding: 0 0 0 20px;
+    color: white;
+    .user-item { 
       //TODO not sure how to stop FOUC
 /*       display: none; //Overridden by knockout */
-      padding: 9px 0 0 4px;
       color: white;
+/*       text-decoration: none; */
       &.name {
-        display: inline;
+        display: inline-block;
+        position: relative;
+        top: -3px;
+        padding-right: 10px;
         @media (max-width: 600px) {
           display: none;
         }
+      }
+      &.sign {
+      padding: 13px 14px;
+      }
+      &.icon {
+        padding: 9px; 
       }
     }
   }
@@ -65,17 +75,12 @@
   }
   &-icons-wrapper {
     float: right;
-    width: 80px;
+    width: 60px;
     height: 40px;
-    padding: 7px;
+    padding: 9px;
     text-align: center;
     cursor: pointer;
-    path {
-      fill: white;
-    }
-    @media (max-width: 800px) {
-      width: 60px;
-    }
+    color: white;
   }
   &-btn { //TODO what is this?
     float: right;

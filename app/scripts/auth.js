@@ -67,24 +67,26 @@ NB.Auth = (function() {
 
   /*  --  EXPORTS  --  */
   Auth.setUser = function(user) {
+    if (user.reddit) {
+      $('body').addClass('user-rdt');
+//       $('#story-panel-header').addClass('show-vote-btns');
+    } else {
+      $('body').removeClass('user-rdt');
+//       $('#story-panel-header').removeClass('show-vote-btns');
+    }
     rawUser = user;
     var displayName = user.displayName || user.name.display;
     if (user) {
       userModel._id = user._id;
-//       userModel.name.first(user.name.first);
-//       userModel.name.last(user.name.last);
       userModel.displayName(displayName);
       userModel.signedIn(true);
       userModel.headerText(displayName);
       removeFacebookAppendedHash(); //TODO test for FB?
     } else {
       userModel._id = null;
-//       userModel.name.first(null);
-//       userModel.name.last(null);
-//       userModel.name.display(null);
       userModel.displayName(null);
       userModel.signedIn(false);
-      userModel.headerText('Sign in');
+      userModel.headerText('Sign in'); //TODO not used when no signed in
     }
   };
 
@@ -104,22 +106,6 @@ NB.Auth = (function() {
     console.log('OK, will sign out (ha ha, but I am not really!');
   };
 
-
-
-//   Auth.getMe = function() {
-//     $.post('/api/reddit/me', function(res) {
-//       console.log(res);
-//     })
-//   };
-
-//   Auth.testRefresh = function() {
-//     console.log('testRefresh()');
-//     var url = 'api/reddit/test_refresh';
-
-//     $.get(url, function(response) {
-//       console.log(response);
-//     });
-//   }
 
 
   return Auth;

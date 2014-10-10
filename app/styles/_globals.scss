@@ -29,6 +29,15 @@ p {
 figure {
   margin: 0;
 }
+button.nil-style {
+  background: none;
+  border: none;
+  outline: none;
+  padding: 0;
+  &:focus {
+    outline: none;
+  }
+}
 
 #test-modal {
   position: fixed;
