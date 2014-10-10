@@ -29,6 +29,37 @@ setInterval(function() {
 
 
 
+
+exports.getStories = function(req, res) {
+  // devLog('getStories()');
+  var user = null;
+  if (req.isAuthenticated()) {
+    user = req.user;
+  }
+
+  var source = req.params.source
+    , limit = req.params.limit
+    , minScore = req.params.minScore || 0
+  ;
+
+  Story
+    .find({source: source, score: {$gte: minScore}}, {history: false})
+    .sort({postDate: -1})
+    .limit(limit)
+    .hint({source: 1, postDate: 1, score: 1}) //use this index
+    .lean()
+    .exec(function(err, docs) {
+      if (err) {
+        devLog('Error finding stories:', err);
+        return;
+      }
+      // devLog('Query returned ' + docs.length + ' items');
+      res.json({user: user, stories: docs}); //TODO this could be io.emit(). faster? Weirder?
+    });
+};
+
+
+
 function saveNewRdtStory(newStory) {
   // devLog('Saving new story:', newStory.title);
 
@@ -125,88 +156,6 @@ exports.upsertRdtStory = function(obj) {
 
 /*  --  HACKER NEWS STUFF  --  */
 
-function saveNewHxnStory(newStory, suppressResults) {
-
-  var category;
-  //Get from :// up until the next slash
-  var urlTest = newStory.url.match(/:\/\/([^\/]*)/);
-  if (urlTest) {
-    category = urlTest[1] ? urlTest[1] : 'Hacker News Story'; //TODO: what?
-  } else {
-    category = 'Hacker News Story';
-  }
-  if (newStory._tags && newStory._tags.length) {
-    var tags = newStory._tags;
-    if (tags.indexOf('ask_hn') > -1) {
-      category = 'Ask HN';
-    } else if (tags.indexOf('show_hn') > -1) {
-      category = 'Show HN';
-    }
-  }
-
-  hxnStory = new Story({
-    // id: 'hxn-' + newStory.objectID,
-    source: 'hxn',
-    sourceId: newStory.objectID,
-    name: newStory.title,
-    desc: null,
-    postDate: newStory.created_at,
-    postDateSeconds: newStory.created_at_i,
-    url: newStory.url,
-    sourceUrl: 'https://news.ycombinator.com/item?id=' + newStory.objectID,
-    authorUrl: 'https://news.ycombinator.com/user?id=' + newStory.author,
-    category: category,
-    commentCount: newStory.num_comments,
-    score: newStory.points,
-    author: newStory.author,
-    thumbnail: null,
-    hxn: {
-      tags: newStory._tags,
-      storyText: newStory.story_text
-    }
-  });
-  process.nextTick(function() {
-    hxnStory.save(function(err) {
-      if (err) {
-        prodLog('Error saving new story:', err);
-      }
-    });
-  });
-
-  if (!suppressResults) { //results are suppressed for the really old crawlers, the updates don't need to be sent to the client.
-    hxnEmitQueue.push(hxnStory.toObject());
-  }
-
-}
-
-function updateHxnStory(existingStory, newStory) {
-  if (existingStory.commentCount !== newStory.num_comments || existingStory.score !== newStory.points) {
-    existingStory.commentCount = newStory.num_comments;
-    existingStory.score = newStory.points;
-    process.nextTick(function() {
-      existingStory.save(function(err) {
-        if (err) {
-          prodLog('Error updating story:', err);
-        }
-      });
-    });
-    hxnEmitQueue.push(existingStory.toObject());
-  }
-
-}
-
-exports.upsertHxnStory = function(obj, suppressResults) {
-  // var id = 'hxn-' + obj.objectID;
-  // Story.findOne({id: id}, function(err, doc) {
-  Story.findOne({source: 'hxn', sourceId: obj.objectID}, function(err, doc) {
-    if (doc) {
-      updateHxnStory(doc, obj);
-    } else {
-      saveNewHxnStory(obj, suppressResults);
-    }
-  });
-};
-
 
 function emitNow(story) {
   io.emit('data', {source: 'hxn', data: [story]});
@@ -218,6 +167,7 @@ function saveNewFbHxnStory(newStory) {
   // var example = {
   //   by: 'harscoat',
   //   id: 8426148,
+  //   deleted: true/false
   //   score: 327,
   //   kids: [], //comments
   //   text: '',
@@ -227,15 +177,23 @@ function saveNewFbHxnStory(newStory) {
   //   url: 'http://www.ibm.com/smarterplanet/us/en/ibmwatson/developercloud/services-catalog.html'
   // };
 
-  if (!newStory.url) {
-    newStory.url = '';
-  }
-  if (!newStory.kids) {
-    newStory.kids = [];
-  }
-  if (!newStory.title) {
-    newStory.title = '';
-  }
+  if (!newStory.title) { return; }
+
+  newStory.url = newStory.url || '';
+  newStory.kids = newStory.kids || [];
+  newStory.score = newStory.score || 0;
+  // if (!newStory.url) {
+  //   newStory.url = '';
+  // }
+  // if (!newStory.kids) {
+  //   newStory.kids = [];
+  // }
+  // if (!newStory.title) {
+  //   newStory.title = '';
+  // }
+  // if (!newStory.score) {
+  //   newStory.score = 0;
+  // }
 
   var category;
   //Get from :// up until the next slash
@@ -313,11 +271,21 @@ function updateFbHxnStory(existingStory, newStory) {
   }
 }
 
+//decide what to do with the story.
+//Check if it exists.
+//If it does, and the new one is flagged as deleted, delete it from the database.
+//If it doesn't exist, but the new story is flagged as deleted, do nothing.
+//If it doesn't exist, and isn't flagged as deleted, add it to the database.
 function upsertFbHxnStory(story) {
   Story.findOne({source: 'hxn', sourceId: story.id}, function(err, doc) {
     if (doc) {
-      updateFbHxnStory(doc, story);
+      if (story.deleted) {
+        updateFbHxnStory(doc, story);
+      } else {
+        doc.remove();
+      }
     } else {
+      if (story.deleted) { return; }
       saveNewFbHxnStory(story);
     }
   });
@@ -325,37 +293,93 @@ function upsertFbHxnStory(story) {
 
 
 
-
-
-
-exports.getStories = function(req, res) {
-  // devLog('getStories()');
-  var user = null;
-  if (req.isAuthenticated()) {
-    user = req.user;
-  }
-
-  var source = req.params.source
-    , limit = req.params.limit
-    , minScore = req.params.minScore || 0
-  ;
-
-  Story
-    .find({source: source, score: {$gte: minScore}}, {history: false})
-    .sort({postDate: -1})
-    .limit(limit)
-    .hint({source: 1, postDate: 1, score: 1}) //use this index
-    .lean()
-    .exec(function(err, docs) {
-      if (err) {
-        devLog('Error finding stories:', err);
-        return;
-      }
-      // devLog('Query returned ' + docs.length + ' items');
-      res.json({user: user, stories: docs}); //TODO this could be io.emit(). faster? Weirder?
-    });
-};
-
-
-
 exports.upsertFbHxnStory = upsertFbHxnStory;
+
+
+
+
+
+
+// OLD HN STUFF BEFORE FIREBASE
+
+// function saveNewHxnStory(newStory, suppressResults) {
+
+//   var category;
+//   //Get from :// up until the next slash
+//   var urlTest = newStory.url.match(/:\/\/([^\/]*)/);
+//   if (urlTest) {
+//     category = urlTest[1] ? urlTest[1] : 'Hacker News Story'; //TODO: what?
+//   } else {
+//     category = 'Hacker News Story';
+//   }
+//   if (newStory._tags && newStory._tags.length) {
+//     var tags = newStory._tags;
+//     if (tags.indexOf('ask_hn') > -1) {
+//       category = 'Ask HN';
+//     } else if (tags.indexOf('show_hn') > -1) {
+//       category = 'Show HN';
+//     }
+//   }
+
+//   hxnStory = new Story({
+//     // id: 'hxn-' + newStory.objectID,
+//     source: 'hxn',
+//     sourceId: newStory.objectID,
+//     name: newStory.title,
+//     desc: null,
+//     postDate: newStory.created_at,
+//     postDateSeconds: newStory.created_at_i,
+//     url: newStory.url,
+//     sourceUrl: 'https://news.ycombinator.com/item?id=' + newStory.objectID,
+//     authorUrl: 'https://news.ycombinator.com/user?id=' + newStory.author,
+//     category: category,
+//     commentCount: newStory.num_comments || 0,
+//     score: newStory.points || 0,
+//     author: newStory.author,
+//     thumbnail: null,
+//     hxn: {
+//       tags: newStory._tags,
+//       storyText: newStory.story_text
+//     }
+//   });
+//   process.nextTick(function() {
+//     hxnStory.save(function(err) {
+//       if (err) {
+//         prodLog('Error saving new story:', err);
+//       }
+//     });
+//   });
+
+//   if (!suppressResults) { //results are suppressed for the really old crawlers, the updates don't need to be sent to the client.
+//     hxnEmitQueue.push(hxnStory.toObject());
+//   }
+
+// }
+
+// function updateHxnStory(existingStory, newStory) {
+//   if (existingStory.commentCount !== newStory.num_comments || existingStory.score !== newStory.points) {
+//     existingStory.commentCount = newStory.num_comments;
+//     existingStory.score = newStory.points;
+//     process.nextTick(function() {
+//       existingStory.save(function(err) {
+//         if (err) {
+//           prodLog('Error updating story:', err);
+//         }
+//       });
+//     });
+//     hxnEmitQueue.push(existingStory.toObject());
+//   }
+
+// }
+
+// exports.upsertHxnStory = function(obj, suppressResults) {
+//   // var id = 'hxn-' + obj.objectID;
+//   // Story.findOne({id: id}, function(err, doc) {
+//   Story.findOne({source: 'hxn', sourceId: obj.objectID}, function(err, doc) {
+//     if (doc) {
+//       updateHxnStory(doc, obj);
+//     } else {
+//       saveNewHxnStory(obj, suppressResults);
+//     }
+//   });
+// };

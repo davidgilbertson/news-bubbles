@@ -38,7 +38,7 @@ function start() {
       getByIdFromFirebase(storyId);
     });
   }, function(err) {
-    prodLog('Error:', err);
+    prodLog('Error in Firebase listener:', err);
   });
 
 }
