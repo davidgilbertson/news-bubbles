@@ -8,7 +8,6 @@ if (process.env.NODETIME_ACCOUNT_KEY) {
 }
 
 var path = require('path')
-  , compression = require('compression')
   , mongoose = require('mongoose')
   , bodyParser = require('body-parser')
   , cookieParser = require('cookie-parser')
@@ -51,7 +50,6 @@ exports.start = function(app) {
   app.use(cookieParser());
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({extended: true}));
-  app.use(compression());
 
   auth.setUp(app);
 

@@ -8,6 +8,9 @@ var path = require('path')
   , app = express()
 ;
 
+
+app.use(require('compression')());
+
 app.use(express.static('dist'));
 
 //TODO add compression or does Heroku have that?

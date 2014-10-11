@@ -71,6 +71,8 @@ gulp.task('express', ['mongod'], function () {
     , app = express();
 
   app.use(require('connect-livereload')({ port: 35729 }));
+
+  app.use(require('compression')());
   app.use(express.static('app'));
   app.use(express.static('.tmp'));
   process.env.DEV = true;
