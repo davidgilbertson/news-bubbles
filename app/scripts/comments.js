@@ -25,7 +25,8 @@ NB.Comments = (function() {
 
     //Replace YouTube links with YouTube videos
     result = result.replace(/<a[^>]*?www\.youtube\.com\/watch\?v=([^?&"]*).*<\/a>/g, '<iframe width="560" height="315" src="//www.youtube.com/embed/$1" frameborder="0" allowfullscreen></iframe>');
-
+    result = result.replace(/<a[^>]*?http:\/\/youtu\.be\/([^?&"]*).*<\/a>/g, '<iframe width="560" height="315" src="//www.youtube.com/embed/$1" frameborder="0" allowfullscreen></iframe>');
+    
     return result;
   }
 
