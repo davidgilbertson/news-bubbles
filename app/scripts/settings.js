@@ -28,6 +28,17 @@ NB.Settings = (function() {
   }
 
   function init() {
+    var defaultPage = 'rdt';
+    if (window.location.hash === '#hxn') {
+      defaultPage = 'hxn';
+      if (window.history && window.history.replaceState) {
+        window.history.replaceState('', document.title, window.location.pathname);
+      } else {
+        window.location.hash = '';
+      }
+    }
+
+    //TODO why are these not just bound with KO?
     d3.select('#open-settings-btn').on('click', Settings.openSettings);
     d3.select('#save-settings-btn').on('click', Settings.saveSettings);
     d3.select('#cancel-settings-btn').on('click', Settings.cancelSettings);
@@ -36,7 +47,7 @@ NB.Settings = (function() {
     settings = {
       clickAction: ko.observable('storyPanel'), //storyPanel | storyTooltip
       rightClickAction: ko.observable('toggleRead'), // toggleRead | nothing
-      source: ko.observable('rdt'), // rdt | hxn
+      source: ko.observable(defaultPage), // rdt | hxn
       hitLimit: ko.observable(100),
       rdtMinScore: ko.observable(500),
       hxnMinScore: ko.observable(5),
@@ -66,7 +77,6 @@ NB.Settings = (function() {
   }
 
   function closeSettings() {
-//     settingsEl.fadeOut(100);
     settingsEl
       .transition().duration(500)
       .style('opacity', 0)
@@ -80,7 +90,6 @@ NB.Settings = (function() {
     }
 
     //The settings ko object is bound so nothing needs to be updated there
-//     var maxHitLimit = Math.min(500, settings.hitLimit());
     var tmp = NB.Utils.constrain(1, settings.hitLimit(), 500);
     settings.hitLimit(tmp);
 
@@ -89,9 +98,6 @@ NB.Settings = (function() {
 
     tmp = Math.max(0, settings.hxnMinScore());
     settings.hxnMinScore(tmp);
-
-
-
 
     var localSettings = {
       clickAction: settings.clickAction(),
@@ -126,39 +132,28 @@ NB.Settings = (function() {
   }
 
   function setAll(settings) {
-//     console.log('gonna save settings:', settings);
     var keys = Object.keys(settings);
     keys.forEach(function(setting) {
-//       console.log('Setting', setting, 'to', settings[setting]);
       Settings.setSetting(setting, settings[setting], true);
     });
   }
 
 
-  /*  ---------------  */
-  /*  --  Exports  --  */
-  /*  ---------------  */
-
-  Settings.openSettings = function() {
-//     settingsEl.fadeIn(500);
+  function openSettings() {
     settingsEl
       .style('display', 'block')
       .transition().duration(100)
       .style('opacity', 1);
   };
 
-  Settings.saveSettings = function() {
-    saveSettings();
-  };
-
-  Settings.cancelSettings = function() {
+  function cancelSettings() {
     //since the settings object is bound to the radio buttons, it may have changed.
     //so reset it to what's in localStorage
     retrieveLocalSettings();
     closeSettings();
   };
 
-  Settings.getSetting = function(setting) {
+  function getSetting(setting) {
     if (!settings[setting]) {
       console.log(setting + ' is not a setting.');
       return;
@@ -166,9 +161,7 @@ NB.Settings = (function() {
     return settings[setting]();
   };
 
-  Settings.setAll = setAll; //used when settings are loaded from user account
-
-  Settings.setSetting = function(setting, value, silent) {
+  function setSetting(setting, value, silent) {
     //TODO, if this took an object, then I could use Object.keys and merge this with setAll.
     if (!settings[setting]) { //TODO test for "typeof function"
       console.log(setting + ' is not something that can be set.');
@@ -177,7 +170,8 @@ NB.Settings = (function() {
     settings[setting](value);
     saveSettings(silent);
   };
-  Settings.getColor = function(source, category) {
+
+  function getColor(source, category) {
     if (!settings[source + 'CategoryColors']) {
       console.log('There are no colours for this source');
       return;
@@ -195,6 +189,20 @@ NB.Settings = (function() {
     return defaultColor;
   };
 
+
+
+
+  /*  ---------------  */
+  /*  --  Exports  --  */
+  /*  ---------------  */
+
+  Settings.openSettings   = openSettings;
+  Settings.saveSettings   = saveSettings;
+  Settings.cancelSettings = cancelSettings;
+  Settings.getSetting     = getSetting;
+  Settings.setAll         = setAll;
+  Settings.setSetting     = setSetting;
+  Settings.getColor       = getColor;
 
   init();
   return Settings;
