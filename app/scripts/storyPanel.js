@@ -174,28 +174,10 @@ NB.StoryPanel = (function() {
   }
 
 
-//   function rdtVote(upOrDown) {
-//     var url = '/api/reddit/vote'
-//     var data = {
-//       upOrDown: upOrDown,
-//       id: currentStory._id,
-//       sourceId: currentStory.sourceId
-//     };
-
-//     currentStory.vote = upOrDown;
-
-//     $.post(url, data, function(response) {
-//       console.log(response);
-//     });
-
-//   }
 
 
-  /*  --  PUBLIC  --  */
-
-  StoryPanel.render = function(story) {
+  function render(story) {
     currentStory = story;
-//     console.log('Redering for story id:', story._id);
     NB.StoryModel.setCurrentStory('panel', story); //to get a quick change in the panel.
 
     //The story panel element is passed into these funciton because if it goes to readability it's an async call
@@ -208,14 +190,19 @@ NB.StoryPanel = (function() {
       renderHxn(story);
     }
 
-  };
+  }
 
-  StoryPanel.clear = function() {
+  function clear() {
     NB.StoryModel.clear();
-  };
+  }
+  
 
-//   StoryPanel.rdtVote = rdtVote;
+  /*  ---------------  */
+  /*  --  Exports  --  */
+  /*  ---------------  */
 
+  StoryPanel.render = render;
+  StoryPanel.clear = clear;
 
   return StoryPanel;
 })();

@@ -145,14 +145,14 @@ NB.Settings = (function() {
       .style('display', 'block')
       .transition().duration(100)
       .style('opacity', 1);
-  };
+  }
 
   function cancelSettings() {
     //since the settings object is bound to the radio buttons, it may have changed.
     //so reset it to what's in localStorage
     retrieveLocalSettings();
     closeSettings();
-  };
+  }
 
   function getSetting(setting) {
     if (!settings[setting]) {
@@ -160,7 +160,7 @@ NB.Settings = (function() {
       return;
     }
     return settings[setting]();
-  };
+  }
 
   function setSetting(setting, value, silent) {
     //TODO, if this took an object, then I could use Object.keys and merge this with setAll.
@@ -170,7 +170,7 @@ NB.Settings = (function() {
     }
     settings[setting](value);
     saveSettings(silent);
-  };
+  }
 
   function getColor(source, category) {
     if (!settings[source + 'CategoryColors']) {
@@ -188,7 +188,7 @@ NB.Settings = (function() {
       }
     }
     return defaultColor;
-  };
+  }
 
 
 

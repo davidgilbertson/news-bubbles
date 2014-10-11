@@ -201,6 +201,9 @@ NB.Chart = (function() {
     points
       .classed('updating', true); //TODO not doing this any more
 
+
+    console.timeEnd('prepare chart');
+
     points
       .enter()
       .append('circle')
@@ -406,25 +409,31 @@ NB.Chart = (function() {
   }
 
 
-/*  --  Exported Methods  --  */
-
-  Chart.drawStories = function() {
+  function drawChart() {
     setScales();
     setDimensions();
     drawStories('slow');
-  };
+  }
 
-  Chart.reset = function() {
+  function reset() {
     init();
-  };
+  }
 
-  Chart.resize = function(animateDuration) { //animateDuration = slow | fast
+  function resize(animateDuration) { //animateDuration = slow | fast
     if (!NB.Data.stories.length) { return; }
     setDimensions();
     setScales();
     drawStories(animateDuration);
-  };
+  }
+  
 
+  /*  ---------------  */
+  /*  --  Exports  --  */
+  /*  ---------------  */
+
+  Chart.drawChart   = drawChart;
+  Chart.reset       = reset;
+  Chart.resize      = resize;
 
   init();
   return Chart;

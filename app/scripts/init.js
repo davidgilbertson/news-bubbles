@@ -1,5 +1,6 @@
 'use strict';
 var NB = NB || {};
+console.time('initialize app');
 
 //Everything here runs before anything else is initialized
 

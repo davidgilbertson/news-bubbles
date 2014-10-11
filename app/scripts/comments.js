@@ -205,15 +205,17 @@ NB.Comments = (function() {
   }
 
 
-
-  /*  --  PUBLIC  --  */
-
-  Comments.getForRdtStory = getForRdtStory;
-
-  Comments.getForHxnStory = function(story, cb) {
+  function getForHxnStory(story, cb) {
     renderHxnComments(story, cb);
 
   };
+
+  /*  ---------------  */
+  /*  --  Exports  --  */
+  /*  ---------------  */
+
+  Comments.getForRdtStory = getForRdtStory;
+  Comments.getForHxnStory = getForHxnStory;
 
   return Comments;
 

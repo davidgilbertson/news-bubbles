@@ -113,7 +113,6 @@ NB.Data = (function() {
     if (data.user) {
       NB.Auth.setUser(data.user);
 
-
       if (data.user.settings) {
         if (NB.Settings.getSetting('source') !== data.user.settings.source) {
           NB.Nav.navigate(data.user.settings.source); //this handles the setting and resetting of the chart
@@ -122,31 +121,6 @@ NB.Data = (function() {
 
         NB.Settings.setAll(data.user.settings);
       }
-
-//       if (data.user.readList) {
-//         if (localStorage.readList) {
-//           var lsReadList = JSON.parse(localStorage.readList);
-//           var serverReadList = data.user.readList;
-//           var i, j, exists = false, newReadList = [];
-//           for (i = 0; i < lsReadList.length; i++) {
-//             for (j = 0; j < serverReadList.length; j++) {
-//               if (lsReadList[i] === serverReadList[j]) {
-//                 exists = true;
-//               }
-//             }
-//             if (!exists) {
-//               newReadList.push(lsReadList[i]);
-//               //If the item was in local storage but not on the server, send it to the server
-//               Data.emit('markAsRead', {storyId: lsReadList[i]});
-//             }
-//             exists = false;
-//           }
-//           readList = lsReadList.concat(newReadList);
-//           delete localStorage.readList;
-//         } else {
-//           readList = data.user.readList;
-//         }
-//       }
 
     }
 
@@ -180,21 +154,27 @@ NB.Data = (function() {
       parseInitialData(response, true, function(parsedData) {
         if (!parsedData) { return; }
         Data.stories = parsedData;
-        NB.Chart.drawStories();
+        NB.Chart.drawChart();
       });
     });
   }
 
 
-  function getRdtData(minScore) {
+  function getRdtData(minScore) {http://local.bubblereader.com/
+    console.timeEnd('initialize app');
+    console.time('get data (AJAX)');
     var limit = NB.Settings.getSetting('hitLimit');
     $.get('/api/rdt/' + limit + '/' + minScore, function(response) {
+      console.timeEnd('get data (AJAX)');
+      console.time('parse data');
       if (NB.Settings.getSetting('source') !== 'rdt') { return; } //this could occur if the page is changed before the data comes back
       if (!response.stories.length) { return; } //TODO show user a message for no data to return
       parseInitialData(response, true, function(parsedData) {
         if (!parsedData) { return; }
         Data.stories = parsedData;
-        NB.Chart.drawStories();
+        console.timeEnd('parse data');
+        console.time('prepare chart');
+        NB.Chart.drawChart();
       });
     });
   }
@@ -247,35 +227,25 @@ NB.Data = (function() {
       var src = NB.Settings.getSetting('source');
       if (msg.data.length && msg.source === src) { //e.g. if it's the reddit view and the data is reddit data
         mergeStories(parseSocketIoData(msg.data));
-        NB.Chart.drawStories();
+        NB.Chart.drawChart();
       }
     });
 
   }
 
 
-
-  /*  --  PUBLIC  --  */
-  Data.stories = [];
-
-  Data.emit = function(eventName, data) {
+  function emit(eventName, data) {
     //adds the userId to the payload and sends it on its way.
     var user = NB.Auth.getUser();
     if (user) {
       data.userId = user._id;
       socket.emit(eventName, data);
     }
-  };
-
-  Data.setData = function(key, value) {
+  }
+  function setData(key, value) {
     store[key] = value;
-  };
-
-  Data.markAsRead = markAsRead;
-  Data.markAsUnread = markAsUnread;
-
-
-  Data.getData = function() {
+  }
+  function getData() {
     var source = NB.Settings.getSetting('source') || 'rdt'; //this should never be empty, but 'rdt' is there for the fun of it.
     var minScore = NB.Settings.getSetting(source + 'MinScore');
 
@@ -283,18 +253,17 @@ NB.Data = (function() {
       getRdtData(minScore);
     } else if (source === 'hxn') {
       getHxnData(minScore);
-    } else if (source === 'fav') {
+    } else if (source === 'fav') { //TODO favs are gone, this can go
       var stories = NB.Favs.getAll();
       stories.forEach(function(fav) {
         fav.postDate = new Date(fav.postDate);
       });
 
       Data.stories = stories;
-      NB.Chart.drawStories();
+      NB.Chart.drawChart();
     }
-  };
-
-  Data.getImgurGalleryAsHtml = function(id, cb) {
+  }
+  function getImgurGalleryAsHtml(id, cb) {
     var i
       , img
       , html = ''
@@ -331,8 +300,21 @@ NB.Data = (function() {
       process(response.data);
     });
 
-  };
+  }
 
+  
+
+  /*  ---------------  */
+  /*  --  Exports  --  */
+  /*  ---------------  */
+
+  Data.stories               = [];
+  Data.emit                  = emit;
+  Data.setData               = setData;
+  Data.markAsRead            = markAsRead;
+  Data.markAsUnread          = markAsUnread;
+  Data.getData               = getData;
+  Data.getImgurGalleryAsHtml = getImgurGalleryAsHtml;
 
   init();
   return Data;

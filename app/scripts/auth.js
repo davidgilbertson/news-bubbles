@@ -63,10 +63,7 @@ NB.Auth = (function() {
   }
 
 
-  init();
-
-  /*  --  EXPORTS  --  */
-  Auth.setUser = function(user) {
+  function setUser(user) {
     if (user.reddit) {
       $('body').addClass('user-rdt');
 //       $('#story-panel-header').addClass('show-vote-btns');
@@ -88,25 +85,34 @@ NB.Auth = (function() {
       userModel.signedIn(false);
       userModel.headerText('Sign in'); //TODO not used when no signed in
     }
-  };
+  }
 
-  Auth.getUser = function() {
+  function getUser() {
     if (userModel.signedIn()) {
       return userModel;
     } else {
       return null;
     }
 
-  };
-  Auth.getRawUser = function() {
+  }
+  function getRawUser() {
     return rawUser;
-  };
+  }
 
-  Auth.signOut = function() {
+  function signOut() {
     console.log('OK, will sign out (ha ha, but I am not really!');
-  };
+  }
 
 
+  /*  ---------------  */
+  /*  --  Exports  --  */
+  /*  ---------------  */
 
+  Auth.setUser    = setUser;
+  Auth.getUser    = getUser;
+  Auth.getRawUser = getRawUser;
+  Auth.signOut    = signOut;
+
+  init();
   return Auth;
 })();
