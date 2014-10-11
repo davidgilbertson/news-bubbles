@@ -368,7 +368,7 @@ NB.Chart = (function() {
 
     x = d3.time.scale();
     y = d3.scale.pow().exponent(0.2);
-    z = d3.scale.pow().exponent(0.2);
+    z = d3.scale.pow().exponent(0.3);
 
     xAxis = d3.svg.axis()
       .scale(x)
