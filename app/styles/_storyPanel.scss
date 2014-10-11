@@ -205,9 +205,14 @@
           padding: 0;
           &.meta {
             padding: 3px 0 0 10px; 
-  /*             font-weight: 400; */
             font-size: 13px;
             color: #999;
+            a.reply {
+              color: #999;
+              &:hover {
+                color: $primary-color;
+              }
+            }
           }
           &.body p {
             margin: 0;

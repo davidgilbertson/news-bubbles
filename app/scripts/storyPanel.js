@@ -38,7 +38,7 @@ NB.StoryPanel = (function() {
 
     //get comments and append. NB done() is not needed.
     function appendComments() {
-      NB.Comments.getForRdtStory(story.rdt.shortId, function(commentTree) {
+      NB.Comments.getForRdtStory(story, function(commentTree) {
         story.content += '<h3 class="comment-separator">Comments</h3>';
         story.content += [
           '<p class="comment-list-title">Head on over to ',
@@ -67,7 +67,7 @@ NB.StoryPanel = (function() {
 
 
     if (story.rdt.self) {
-      NB.Comments.getForRdtStory(story.rdt.shortId, function(commentTree) {
+      NB.Comments.getForRdtStory(story, function(commentTree) {
         story.content = commentTree.html();
         done();
       });

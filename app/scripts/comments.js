@@ -27,9 +27,9 @@ NB.Comments = (function() {
   }
 
 
-  function parseRdtComments(commentTree, cb) {
+  function parseRdtComments(story, commentTree, cb) {
     var $result = $('<div>')
-//       , result
+      , permalink
       , level = 0
       , author
       , timeAgo
@@ -50,6 +50,7 @@ NB.Comments = (function() {
         } else {
           author = commentObj.data.author;
           timeAgo = moment(commentObj.data.created_utc * 1000).fromNow();
+          permalink = 'http://www.reddit.com/' + story.permalink + commentObj.data.id;
           if (commentObj.data.score_hidden) {
             score = '[score hidden]';
           } else {
@@ -61,7 +62,12 @@ NB.Comments = (function() {
           var $commentBody = $('<div class="comment-list-item-text body"></div>');
           $commentBody.append(bodyHtml);
           $child.append($commentBody);
-          $child.append('<p class="comment-list-item-text meta"> ' + author + ' | ' + timeAgo + ' | ' + score + '</p>');
+          $child.append('<p class="comment-list-item-text meta"> ' 
+            + author + ' | ' 
+            + timeAgo + ' | ' 
+            + score  + ' | '
+            + '<a href="' + permalink + '" class="reply" target="_blank">reply</a>'
+            + '</p>');
 
           if (commentObj.data.replies && commentObj.data.replies.data && commentObj.data.replies.data.children.length) {
             $child.append(getChildren(commentObj.data.replies.data.children));
@@ -87,13 +93,22 @@ NB.Comments = (function() {
   }
 
 
+  function getForRdtStory(story, cb) {
+    var storyId = story.rdt.shortId;
+    var url = 'http://www.reddit.com/comments/' + storyId + '.json';
+
+    $.get(url, function(data) {
+      parseRdtComments(story, data, cb);
+    });
+
+  };
 
 
 
 
 
 
-  function parseHxnComments(story, cb) { //TODO rename this function
+  function renderHxnComments(story, cb) { //TODO rename this function
 
 
     var apiBase = 'https://hacker-news.firebaseio.com/v0/item/'
@@ -139,14 +154,16 @@ NB.Comments = (function() {
           return done();
         }
 
-        var $child = $('<li class="comment-list-item">');
-        var author = res.by;
-        var commentText = NB.Utils.unescape(res.text);
-        var timeAgo = moment(res.time * 1000).fromNow();
-//         var points = res.points + ' points';
+        var $child = $('<li class="comment-list-item">')
+          , author = res.by
+          , commentText = NB.Utils.unescape(res.text)
+          , timeAgo = moment(res.time * 1000).fromNow()
+          , replyUrl = 'https://news.ycombinator.com/reply?id=' + res.id;
 
         $child.append('<div class="comment-list-item-text body">' + commentText + '</div>');
-        $child.append('<p class="comment-list-item-text meta">' + author + ' | ' + timeAgo + '</p>');
+        $child.append('<p class="comment-list-item-text meta">' 
+          + author + ' | ' 
+          + timeAgo + ' | <a href="' + replyUrl + '" class="reply" target="_blank">reply</a></p>');
 
         if (res.kids && res.kids.length > -1) {
           res.kids.forEach(function(d) {
@@ -155,13 +172,13 @@ NB.Comments = (function() {
           });
         }
         $children.append($child);
-        commentCount--; //TODO move this down?
+        commentCount--;
         level--;
         done();
 
-        //TODO, this might have an empty UL if all children were dead/deleted. Remove it?
       });
 
+        //TODO, this might have an empty UL if all children were dead/deleted. Remove it?
       return $children;
     }
 
@@ -187,61 +204,13 @@ NB.Comments = (function() {
 
   /*  --  PUBLIC  --  */
 
-  Comments.getForRdtStory = function(storyId, cb) {
-    var url = 'http://www.reddit.com/comments/' + storyId + '.json';
-
-    $.get(url, function(data) {
-      parseRdtComments(data, cb);
-    });
-
-  };
+  Comments.getForRdtStory = getForRdtStory;
 
   Comments.getForHxnStory = function(story, cb) {
-    parseHxnComments(story, cb);
+    renderHxnComments(story, cb);
 
   };
 
   return Comments;
 
 })();
-
-
-
-//   function parseHxnComments(story, comments, cb) {
-//     var $result = $('<ul class="comment-list level-1"></ul>');
-
-//     if (story.hxn.storyText) {
-//       $result.append(story.hxn.storyText);
-//       $result.append('<h3 class="comment-separator">Comments</h3>');
-//     }
-//     var html = [
-//       '<p class="comment-list-title">Head on over to ',
-//         '<a href="' + story.sourceUrl + '" target="_blank">Hacker News</a> to comment.',
-//       '</p>'
-//     ].join('');
-//     $result.append(html);
-
-//     comments.hits.forEach(function(comment) {
-//       var $child = $('<li class="comment-list-item">');
-//       var author = comment.author;
-//       var timeAgo = moment(comment.created_at_i * 1000).fromNow();
-//       var points = comment.points + ' points';
-
-//       $child.append('<div class="comment-list-item-text body">' + comment.comment_text.replace(/\\n/, '<br>') + '</div>');
-//       $child.append('<p class="comment-list-item-text meta"> ' + author + ' | ' + timeAgo + ' | ' + points + '</p>');
-
-//       $result.append($child);
-//     });
-
-//     html = $result[0].outerHTML;
-//     cb(html);
-//   }
-
-//   Comments.getForHxnStory = function(story, cb) {
-//     var url = 'https://hn.algolia.com/api/v1/search?tags=comment,story_' + story.sourceId;
-
-//     $.get(url, function(comments) {
-//       parseHxnComments(story, comments, cb);
-//     });
-
-//   };
