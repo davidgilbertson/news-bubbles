@@ -4,6 +4,7 @@
   background: $header-color;
   position: relative;
   z-index: 2;
+  overflow: hidden;
   &-title {
     float: left;
     padding: 10px;
@@ -20,6 +21,9 @@
       font-family: monospace;
       font-size: 12px;
       color: black;
+      @media (max-width: 830px) {
+        display: none;
+      }
     }
   }
   .header-float {
