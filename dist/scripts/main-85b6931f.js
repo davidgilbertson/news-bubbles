@@ -1267,7 +1267,7 @@ NB.Chart = (function() {
 
     x = d3.time.scale();
     y = d3.scale.pow().exponent(0.2);
-    z = d3.scale.pow().exponent(0.5);
+    z = d3.scale.pow().exponent(0.3);
 
     xAxis = d3.svg.axis()
       .scale(x)
@@ -1487,6 +1487,9 @@ NB.Comments = (function() {
 
     //turn any imgur link without jpg into jpg
     result = result.replace(/(<a [^>]*?href=")(http:\/\/imgur\.com\/[^./]*?)(".*?)(<\/a>)/g, '$1$2$3<img src="$2.jpg">$4');
+
+    //Replace YouTube links with YouTube videos
+    result = result.replace(/<a[^>]*?www\.youtube\.com\/watch\?v=([^?&"]*).*<\/a>/g, '<iframe width="560" height="315" src="//www.youtube.com/embed/$1" frameborder="0" allowfullscreen></iframe>');
 
     return result;
   }
