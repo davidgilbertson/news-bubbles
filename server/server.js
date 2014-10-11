@@ -8,8 +8,12 @@ if (process.env.NODETIME_ACCOUNT_KEY) {
 }
 
 var path = require('path')
-  , configVars = require(path.join(__dirname, 'config'))
+  , compression = require('compression')
   , mongoose = require('mongoose')
+  , bodyParser = require('body-parser')
+  , cookieParser = require('cookie-parser')
+
+  , configVars = require(path.join(__dirname, 'config'))
   , hxnCrawler = require(path.join(__dirname, 'hxnCrawler'))
   , newHxnCrawler = require(path.join(__dirname, 'new-hxncrawler'))
   , rdtCrawler = require(path.join(__dirname, 'rdtCrawler'))
@@ -18,8 +22,6 @@ var path = require('path')
   // , devLog = utils.devLog
   , prodLog = utils.prodLog
   , workers = require(path.join(__dirname, 'workers'))
-  , bodyParser = require('body-parser')
-  , cookieParser = require('cookie-parser')
 ;
 
 
@@ -49,6 +51,7 @@ exports.start = function(app) {
   app.use(cookieParser());
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({extended: true}));
+  app.use(compression());
 
   auth.setUp(app);
 
