@@ -279,10 +279,10 @@ function updateFbHxnStory(existingStory, newStory) {
 function upsertFbHxnStory(story) {
   Story.findOne({source: 'hxn', sourceId: story.id}, function(err, doc) {
     if (doc) {
-      if (story.deleted) {
-        updateFbHxnStory(doc, story);
-      } else {
+      if (story.deleted || story.dead) {
         doc.remove();
+      } else {
+        updateFbHxnStory(doc, story);
       }
     } else {
       if (story.deleted) { return; }
