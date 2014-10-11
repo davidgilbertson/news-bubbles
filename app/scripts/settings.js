@@ -61,9 +61,10 @@ NB.Settings = (function() {
       rdtCategoryColors: ko.observableArray([
         {category: 'AskReddit', color: '#2980b9'},
         {category: 'funny', color: '#2ecc71'},
-        {category: 'pics', color: '#f39c12'},
+        {category: 'pics', color: '#e67e22'},
         {category: 'aww', color: '#8e44ad'},
         {category: 'videos', color: '#e74c3c'},
+        {category: 'Showerthoughts', color: '#f1c40f'},
         {category: 'Everything else', color: '#7f8c8d'}
       ])
     };
