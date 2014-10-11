@@ -33,8 +33,9 @@ function start() {
   var newStoryList = [];
 
   fb.on('value', function (snapshot) {
-    newStoryList = snapshot.val().items;
-    newStoryList.forEach(function(storyId) {
+    if (!snapshot.val().items) { return; }
+
+    snapshot.val().items.forEach(function(storyId) {
       getByIdFromFirebase(storyId);
     });
   }, function(err) {
