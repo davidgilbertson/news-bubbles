@@ -41,11 +41,21 @@
         background: darken($primary-color, 10%);
       }
     }
+    .footer {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      right: 0;
+/*       background: beige; */
+      height: 80px;
+      padding: 20px;
+    }
     .save-btn {
       transition: 300ms;
-      position: absolute;
-      bottom: 20px;
-      right: 20px;
+      float: right;
+/*       position: absolute; */
+/*       bottom: 20px; */
+/*       right: 20px; */
       width: 200px;
       background: $belizeHole;
       padding: 10px 15px;
