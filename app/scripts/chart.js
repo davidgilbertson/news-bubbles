@@ -66,7 +66,12 @@ NB.Chart = (function() {
     //Now select the item just clicked
     el.classed('selected', true);
 
-
+//     NB.Actions.showTooltip({
+//       story: d,
+//       domEl: el,
+//       chartWidth: w,
+//       chartHeight: h
+//     });
 
     var setting = NB.Settings.getSetting('clickAction');
 
@@ -115,7 +120,7 @@ NB.Chart = (function() {
 
       maxiTooltipShowing = true; //will block little tooltip from showing
 
-      d3.event.stopPropagation(); //TODO I do not know the diff between this and immediate
+      d3.event.stopPropagation(); //TODO I do not know the diff between this and immediate. Immediate stops other events on this el?
 
       $(document).on('click.tooltip', function() { //TODO try .one, still not working?
         maxiTooltip.style('display', 'none');
@@ -129,7 +134,7 @@ NB.Chart = (function() {
         toggleRead(el, d);
       });
       d3.select('#tooltip-open-reading-pane').on('click', function() { //D3 will remove any existing listener
-        NB.Data.markAsRead(d.id);
+        NB.Data.markAsRead(d._id);
         el.classed('read', true);
         NB.Layout.showStoryPanel();
         NB.StoryPanel.render(d);

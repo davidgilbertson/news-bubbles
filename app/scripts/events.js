@@ -49,86 +49,132 @@ NB.Events = (function() {
     body.on('touchend', null);
   }
 
-  d3.select('#story-panel-resizer').on('mousedown', resizerMousedown);
-  d3.select('#story-panel-resizer').on('touchstart', resizerMousedown);
+//   function chartBubbleClicked(d) {
 
+//     //move to back
+//     moveToBack();
 
-  d3.select('#story-panel-toggle').on('click', function() {
-//     console.log('#story-panel-toggle clicked');
-    d3.event.preventDefault();
-//     body = d3.select('body');
-    NB.Layout.toggleStoryPanel();
-    return false;
-  });
+//     //get the D3 flvoured dom el
+//     var el = d3.select(d3.event.currentTarget);
+//     //TODO if clicked story is already showing, return. (lastID === d._id)
 
-  $('#more-btn').on('click', function() {
-    NB.Data.getNextPage(function(data) {
-      NB.Chart.addStories(data);
-    });
-  });
+//     //Make the last selected item read and no longer selected
+//     d3.select('.selected')
+//       .classed('selected', false);
 
-
-
-  /*  ----------------  */
-  /*  --  Settings  --  */
-  /*  ----------------  */
+//     //Now select the item just clicked
+//     el.classed('selected', true);
 
 
 
+//     var setting = NB.Settings.getSetting('clickAction');
 
-  /*  ---------------  */
-  /*  --  Sources  --  */
-  /*  ---------------  */
+//     if (setting === 'storyPanel') {
+//       NB.Data.markAsRead(d._id);
+//       el.classed('read', true);
+//       NB.Layout.showStoryPanel();
+//       NB.StoryPanel.render(d);
+//     }
 
-//   var rdtSource = $('#news-source-rdt');
-//   var hxnSource = $('#news-source-hxn');
-//   var favSource = $('#news-source-fav');
+//     if (setting === 'storyTooltip') { //TODO move this out to maxiTooltip module (pass el and d)
+//       var maxiTooltip = d3.select('#story-tooltip');
+//       var tooltipWidth = parseInt(maxiTooltip.style('width'));
+//       var tooltipHeight = parseInt(maxiTooltip.style('height'));
 
-//   function setBodyClass(src) {
-//     d3.select('body').classed('rdt', src === 'rdt');
-//     d3.select('body').classed('hxn', src === 'hxn');
-//     d3.select('body').classed('fav', src === 'fav');
+//       var thisDims = el.node().getBoundingClientRect();
+
+//       var r = z(d.commentCount);
+//       var left = thisDims.left + r - tooltipWidth / 2;
+//       var maxLeft = w - tooltipWidth - 20;
+//       left = Math.min(left, maxLeft);
+//       left = Math.max(left, 0);
+
+//       var top = thisDims.top - tooltipHeight;
+//       if (top < 50) {
+//         top = thisDims.bottom;
+//       }
+
+//       NB.StoryModel.setCurrentStory('tooltip', d); //TODO should this make visible? E.g. control vis in model?
+
+//       var readUnreadLink = d3.select('#tooltip-mark-as-read');
+//       if (el.classed('read')) {
+//         readUnreadLink.text('Mark as unread');
+//       } else {
+//         readUnreadLink.text('Mark as read');
+//       }
+
+
+//       var duration = maxiTooltipShowing ? 200 : 0;
+//       maxiTooltip
+//         .style('display', 'block')
+//         .transition()
+//         .duration(duration)
+//         .style('left', left + 'px')
+//         .style('top', top + 'px');
+
+//       maxiTooltipShowing = true; //will block little tooltip from showing
+
+//       d3.event.stopPropagation(); //TODO I do not know the diff between this and immediate
+
+//       $(document).on('click.tooltip', function() { //TODO try .one, still not working?
+//         maxiTooltip.style('display', 'none');
+//         $(document).off('click.tooltip');
+
+//         window.setTimeout(function() {
+//           maxiTooltipShowing = false; //wait a bit before allowing the little tooltip to show
+//         }, 300);
+//       });
+//       readUnreadLink.on('click', function() { //D3 will remove any existing listener
+//         toggleRead(el, d);
+//       });
+//       d3.select('#tooltip-open-reading-pane').on('click', function() { //D3 will remove any existing listener
+//         NB.Data.markAsRead(d.id);
+//         el.classed('read', true);
+//         NB.Layout.showStoryPanel();
+//         NB.StoryPanel.render(d);
+//       });
+
+//     }
+
+//     if (setting === 'openTab') {
+//       //TODO I'm not sure I can do this, maybe the text should be 'open page' or 'navigate to URL'
+//     }
+//     tooltip.style('visibility', 'hidden');
 //   }
 
-//   rdtSource.on('click', function() {
-//     setBodyClass('rdt');
-//     rdtSource.addClass('active');
-//     hxnSource.removeClass('active');
-//     favSource.removeClass('active');
-//     NB.Settings.setSetting('source', 'rdt');
-//     NB.Chart.reset(); //TODO build reset into getData?
-//     NB.Data.getData(); //TODO get the settings for limits and min scores
-//   });
 
-//   hxnSource.on('click', function() {
-//     setBodyClass('hxn');
-//     rdtSource.removeClass('active');
-//     hxnSource.addClass('active');
-//     favSource.removeClass('active');
-//     NB.Settings.setSetting('source', 'hxn');
-//     NB.Chart.reset();
-//     NB.Data.getData(); //TODO get the settings for limits and min scores
-//   });
-//   favSource.on('click', function() {
-//     setBodyClass('fav');
-//     rdtSource.removeClass('active');
-//     hxnSource.removeClass('active');
-//     favSource.addClass('active');
-//     NB.Settings.setSetting('source', 'fav');
-//     NB.Chart.reset();
-//     NB.Data.getData();
-//   });
+  function init() {
+    window.onresize = function() {
+      NB.Layout.render();
+      NB.Chart.resize();
+    };
+
+    d3.select('#story-panel-resizer').on('mousedown', resizerMousedown);
+    d3.select('#story-panel-resizer').on('touchstart', resizerMousedown);
 
 
-  /*  --------------  */
-  /*  --  Global  --  */
-  /*  --------------  */
+    d3.select('#story-panel-toggle').on('click', function() {
+      d3.event.preventDefault();
+      NB.Layout.toggleStoryPanel();
+      return false;
+    });
 
-  window.onresize = function() {
-    NB.Layout.render();
-    NB.Chart.resize();
-  };
+    $('#more-btn').on('click', function() {
+      NB.Data.getNextPage(function(data) {
+        NB.Chart.addStories(data);
+      });
+    });
 
+  }
+
+
+
+  /*  ---------------  */
+  /*  --  Exports  --  */
+  /*  ---------------  */
+
+
+  init();
   return Events;
 
 })();
