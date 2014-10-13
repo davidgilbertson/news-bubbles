@@ -58,8 +58,8 @@ NB.Auth = (function() {
 
 
   function init() {
-    ko.applyBindings(userModel, document.getElementById('user-items'));
-    ko.applyBindings(userModel, document.getElementById('auth-modal'));
+//     ko.applyBindings(userModel, document.getElementById('user-items'));
+//     ko.applyBindings(userModel, document.getElementById('auth-modal'));
   }
 
 
@@ -112,6 +112,7 @@ NB.Auth = (function() {
   Auth.getUser    = getUser;
   Auth.getRawUser = getRawUser;
   Auth.signOut    = signOut;
+  Auth.userModel  = userModel;
 
   init();
   return Auth;
