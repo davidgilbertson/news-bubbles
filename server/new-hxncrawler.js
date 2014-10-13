@@ -33,11 +33,16 @@ function start() {
   var newStoryList = [];
 
   fb.on('value', function (snapshot) {
-    if (!snapshot.val().items) { return; }
+    try {
+      if (!snapshot.val() || !snapshot.val().items) { return; }
 
-    snapshot.val().items.forEach(function(storyId) {
-      getByIdFromFirebase(storyId);
-    });
+      snapshot.val().items.forEach(function(storyId) {
+        getByIdFromFirebase(storyId);
+      });
+
+    } catch (err) {
+      prodLog('Error in Firebase listener:', err);
+    }
   }, function(err) {
     prodLog('Error in Firebase listener:', err);
   });

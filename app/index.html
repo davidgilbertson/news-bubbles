@@ -57,22 +57,22 @@
       </div>
       <div id="user-items" class="user-items header-float">
         <!-- <a href class="user-item header-float" data-bind="click: open"><span>Hi there, </span><span data-bind="text: headerText"></span></a> -->
-        <div data-bind="visible: !signedIn()">
-          <a href class="user-item sign header-float" data-bind="click: open">Sign in</a>
+        <div data-bind="visible: !user.signedIn()">
+          <a href class="user-item sign header-float" data-bind="click: user.open">Sign in</a>
         </div>
-        <div data-bind="visible: signedIn()">
+        <div data-bind="visible: user.signedIn()">
           <!-- <span data-bind="text: headerText"></span><button class="nil-style fa fa-user fa-2x" data-bind="click: open"></button> -->
           <!-- <a href="" data-bind="click: open" class="user-item header-float">Hi, <span class="name" data-bind="text: headerText"></span><span class="nil-style fa fa-user fa-2x"></span></a> -->
-          <span class="user-item name" data-bind="text: headerText"></span><button class="nil-style user-item icon fa fa-user fa-2x" data-bind="click: open"></button>
+          <span class="user-item name" data-bind="text: user.headerText"></span><button class="nil-style user-item icon fa fa-user fa-2x" data-bind="click: user.open"></button>
         </div>
       </div>
       <div id="news-sources" class="news-sources header-float">
         <button id="news-source-rdt"
           class="news-sources-source"
-          data-bind="css: {active: currentSource() === 'rdt'}, click: NB.Nav.navigate.bind($data, 'rdt')">REDDIT</button>
+          data-bind="css: {active: settings.currentSource() === 'rdt'}, click: NB.Nav.navigate.bind($data, 'rdt')">REDDIT</button>
         <button id="news-source-hxn"
           class="news-sources-source"
-          data-bind="css: {active: currentSource() === 'hxn'}, click: NB.Nav.navigate.bind($data, 'hxn')">HACKER NEWS</button>
+          data-bind="css: {active: settings.currentSource() === 'hxn'}, click: NB.Nav.navigate.bind($data, 'hxn')">HACKER NEWS</button>
         <!-- <button id="news-source-fav"
           class="news-sources-source"
           data-bind="css: {active: currentSource() === 'fav'}, click: NB.Nav.navigate.bind($data, 'fav')">FAVORITES</button> -->
@@ -167,7 +167,7 @@
     <!-- This modal is bound to the KO auth model -->
     <div id="auth-modal" class="modal-wrapper auth">
       <div class="panel">
-        <div id="cancel-auth-btn" class="close-x" data-bind="click: close">×</div>
+        <div id="cancel-auth-btn" class="close-x" data-bind="click: user.close">×</div>
         <div>
           <h1>YOUR ACCOUNT</h1>
           <hr>
@@ -179,17 +179,16 @@
             <hr>
             <p>If you sign in with Reddit, you will also be able to vote and, one day, comment.</p>
             <!-- TODO: these should be checking WHICH auth provider is used -->
-            <a href="/auth/reddit" class="user-item header-float" data-bind="visible: signedIn() === false">Sign in to Reddit</a>
+            <a href="/auth/reddit" class="user-item header-float" data-bind="visible: user.signedIn() === false">Sign in to Reddit</a>
             <hr>
-            <a href="/auth/facebook" class="user-item header-float" data-bind="visible: signedIn() === false">Sign in with Facebook</a>
-            <div data-bind="visible: signedIn">
-              <p><span>You're signed in to Facebook as </span><span data-bind="text: displayName"></span></p>
+            <a href="/auth/facebook" class="user-item header-float" data-bind="visible: user.signedIn() === false">Sign in with Facebook</a>
+            <div data-bind="visible: user.signedIn">
+              <p><span>You're signed in to Facebook as </span><span data-bind="text: user.displayName"></span></p>
             </div>
-            <a data-bind="visible: signedIn" href="/auth/sign-out">Disconnect all accounts from Bubble Reader.</a>
+            <a data-bind="visible: user.signedIn" href="/auth/sign-out">Disconnect all accounts from Bubble Reader.</a>
           </div>
 
         </div>
-        <!-- <div id="save-auth-btn" class="save-btn" data-bind="click: save">SAVE & CLOSE</div> -->
       </div>
     </div>
 
@@ -318,6 +317,7 @@
       <script src="scripts/storyPanel.js"></script>
       <script src="scripts/storyModel.js"></script>
       <script src="scripts/nav.js"></script>
+      <script src="scripts/app.js"></script>
       <script src="scripts/main.js"></script>
     <!-- endbuild -->
 

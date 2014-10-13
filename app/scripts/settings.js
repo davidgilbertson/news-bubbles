@@ -4,7 +4,7 @@ var NB = NB || {};
 NB.Settings = (function() {
 
   var Settings = {}
-    , settings
+    , settings = {}
     , settingsEl
   ;
 
@@ -71,7 +71,7 @@ NB.Settings = (function() {
 
     settingsEl = d3.select('#settings-modal');
 
-    ko.applyBindings(settings, settingsEl.node(0));
+//     ko.applyBindings(settings, settingsEl.node(0));
 
     retrieveLocalSettings(); //Override the defaults if they were in local storage.
 
@@ -204,6 +204,7 @@ NB.Settings = (function() {
   Settings.setAll         = setAll;
   Settings.setSetting     = setSetting;
   Settings.getColor       = getColor;
+  Settings.settings       = settings;
 
   init();
   return Settings;

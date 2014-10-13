@@ -16,9 +16,9 @@ NB.main = (function() {
   //The server will be emitting new/changed stories as they become available.
   NB.Data.getData(src, minScore);
 
-  ko.applyBindings(NB.StoryModel.tooltipStory, document.getElementById('story-tooltip'));
-  ko.applyBindings(NB.StoryModel.panelStory, document.getElementById('story-panel'));
-  ko.applyBindings(NB.Nav.navModel, document.getElementById('news-sources'));
+//   ko.applyBindings(NB.StoryModel.tooltipStory, document.getElementById('story-tooltip'));
+//   ko.applyBindings(NB.StoryModel.panelStory, document.getElementById('story-panel'));
+//   ko.applyBindings(NB.Nav.navModel, document.getElementById('news-sources'));
 
 
   //Two approaches to touch detection

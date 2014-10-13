@@ -13,8 +13,6 @@ app.use(require('compression')());
 
 app.use(express.static('dist'));
 
-//TODO add compression or does Heroku have that?
-
 var server = require(path.join(__dirname, 'server', 'server.js'));
 
 server.start(app);
