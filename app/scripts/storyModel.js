@@ -143,12 +143,12 @@ NB.StoryModel = (function() {
       .score(Math.round(story.score))
       .timeString(timeFormatter(story.postDate))
       .dateString(dateFormatter(story.postDate))
-      .isFav(isFav)
-      .userVote(story.vote);
+      .isFav(isFav);
 
 
     if (tooltipOrPanel === 'panel') {
-        storyObj.content(story.content);
+        storyObj.content(story.content)
+        .userVote(story.vote);
     }
   };
 
