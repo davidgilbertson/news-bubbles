@@ -12,17 +12,17 @@ NB.Settings = (function() {
     if (localStorage.settings) {
       var localSettings = JSON.parse(localStorage.settings);
 
-      if (localSettings.clickAction) { settings.clickAction(localSettings.clickAction); }
-      if (localSettings.rightClickAction) { settings.rightClickAction(localSettings.rightClickAction); }
+      if (localSettings.clickAction) { Settings.clickAction(localSettings.clickAction); }
+      if (localSettings.rightClickAction) { Settings.rightClickAction(localSettings.rightClickAction); }
       if (localSettings.source) {
         //TODO replace this logic with versioning the localstorage
         if (localSettings.source === 'rd') { localSettings.source = 'rdt'; }
         if (localSettings.source === 'hn') { localSettings.source = 'hxn'; }
-        settings.source(localSettings.source);
+        Settings.source(localSettings.source);
       }
-      if (localSettings.hitLimit) { settings.hitLimit(+localSettings.hitLimit); }
-      if (localSettings.rdtMinScore) { settings.rdtMinScore(+localSettings.rdtMinScore); }
-      if (localSettings.hxnMinScore) { settings.hxnMinScore(+localSettings.hxnMinScore); }
+      if (localSettings.hitLimit) { Settings.hitLimit(+localSettings.hitLimit); }
+      if (localSettings.rdtMinScore) { Settings.rdtMinScore(+localSettings.rdtMinScore); }
+      if (localSettings.hxnMinScore) { Settings.hxnMinScore(+localSettings.hxnMinScore); }
 
     }
   }
@@ -44,30 +44,28 @@ NB.Settings = (function() {
     d3.select('#cancel-settings-btn').on('click', Settings.cancelSettings);
 
     //Init a settings objects with some defaults.
-    settings = {
-      clickAction: ko.observable('storyPanel'), //storyPanel | storyTooltip
-      rightClickAction: ko.observable('toggleRead'), // toggleRead | nothing
-      source: ko.observable(defaultPage), // rdt | hxn
-      hitLimit: ko.observable(100),
-      rdtMinScore: ko.observable(500),
-      hxnMinScore: ko.observable(5),
-      favMinScore: ko.observable(0),
-      //TODO this will need to be universal so that favourites will be coloured correctly.
-      hxnCategoryColors: ko.observableArray([
-        {category: 'Ask HN', color: '#e74c3c'},
-        {category: 'Show HN', color: '#16a085'},
-        {category: 'Everything else', color: '#2980b9'}
-      ]),
-      rdtCategoryColors: ko.observableArray([
-        {category: 'AskReddit', color: '#2980b9'},
-        {category: 'funny', color: '#2ecc71'},
-        {category: 'pics', color: '#e67e22'},
-        {category: 'aww', color: '#8e44ad'},
-        {category: 'videos', color: '#e74c3c'},
-        {category: 'Showerthoughts', color: '#f1c40f'},
-        {category: 'Everything else', color: '#7f8c8d'}
-      ])
-    };
+    Settings.clickAction = ko.observable('storyPanel'); //storyPanel | storyTooltip
+    Settings.rightClickAction = ko.observable('toggleRead'); // toggleRead | nothing
+    Settings.source = ko.observable(defaultPage); // rdt | hxn
+    Settings.hitLimit = ko.observable(100);
+    Settings.rdtMinScore = ko.observable(500);
+    Settings.hxnMinScore = ko.observable(5);
+    Settings.favMinScore = ko.observable(0);
+    //TODO this will need to be universal so that favourites will be coloured correctly.
+    Settings.hxnCategoryColors = ko.observableArray([
+      {category: 'Ask HN', color: '#e74c3c'},
+      {category: 'Show HN', color: '#16a085'},
+      {category: 'Everything else', color: '#2980b9'}
+    ]);
+    Settings.rdtCategoryColors = ko.observableArray([
+      {category: 'AskReddit', color: '#2980b9'},
+      {category: 'funny', color: '#2ecc71'},
+      {category: 'pics', color: '#e67e22'},
+      {category: 'aww', color: '#8e44ad'},
+      {category: 'videos', color: '#e74c3c'},
+      {category: 'Showerthoughts', color: '#f1c40f'},
+      {category: 'Everything else', color: '#7f8c8d'}
+    ]);
 
     settingsEl = d3.select('#settings-modal');
 
@@ -87,26 +85,26 @@ NB.Settings = (function() {
 
   function saveSettings(silent) {
     if (!silent) {
-      NB.Data.emit('updateSettings', {settings: ko.toJS(settings)});
+      NB.Data.emit('updateSettings', {settings: ko.toJS(Settings)});
     }
 
     //The settings ko object is bound so nothing needs to be updated there
-    var tmp = NB.Utils.constrain(1, settings.hitLimit(), 500);
-    settings.hitLimit(tmp);
+    var tmp = NB.Utils.constrain(1, Settings.hitLimit(), 500);
+    Settings.hitLimit(tmp);
 
-    tmp = Math.max(0, settings.rdtMinScore());
-    settings.rdtMinScore(tmp);
+    tmp = Math.max(0, Settings.rdtMinScore());
+    Settings.rdtMinScore(tmp);
 
-    tmp = Math.max(0, settings.hxnMinScore());
-    settings.hxnMinScore(tmp);
+    tmp = Math.max(0, Settings.hxnMinScore());
+    Settings.hxnMinScore(tmp);
 
     var localSettings = {
-      clickAction: settings.clickAction(),
-      rightClickAction: settings.rightClickAction(),
-      source: settings.source(),
-      hitLimit: settings.hitLimit(),
-      rdtMinScore: settings.rdtMinScore(),
-      hxnMinScore: settings.hxnMinScore()
+      clickAction: Settings.clickAction(),
+      rightClickAction: Settings.rightClickAction(),
+      source: Settings.source(),
+      hitLimit: Settings.hitLimit(),
+      rdtMinScore: Settings.rdtMinScore(),
+      hxnMinScore: Settings.hxnMinScore()
     };
 
     var previousSettings = {};
@@ -115,13 +113,13 @@ NB.Settings = (function() {
       previousSettings = JSON.parse(localStorage.settings);
     }
 
-    if (settings.hitLimit() !== previousSettings.hitLimit) {
+    if (Settings.hitLimit() !== previousSettings.hitLimit) {
       NB.Chart.reset();
       NB.Data.getData();
     }
 
-    var src = settings.source();
-    var koScore = settings[src + 'MinScore'];
+    var src = Settings.source();
+    var koScore = Settings[src + 'MinScore'];
     if (koScore && koScore() !== previousSettings[src + 'MinScore']) {
       NB.Chart.reset();
       NB.Data.getData();
@@ -135,6 +133,7 @@ NB.Settings = (function() {
   function setAll(settings) {
     var keys = Object.keys(settings);
     keys.forEach(function(setting) {
+      //TODO just save the settings directly here, but don't emit saved changes after
       Settings.setSetting(setting, settings[setting], true);
     });
   }
@@ -154,30 +153,30 @@ NB.Settings = (function() {
     closeSettings();
   }
 
-  function getSetting(setting) {
-    if (!settings[setting]) {
+  function getSetting(setting) { //TODO this will be redundant soon with direct access
+    if (!Settings[setting]) {
       console.log(setting + ' is not a setting.');
       return;
     }
-    return settings[setting]();
+    return Settings[setting]();
   }
 
   function setSetting(setting, value, silent) {
     //TODO, if this took an object, then I could use Object.keys and merge this with setAll.
-    if (!settings[setting]) { //TODO test for "typeof function"
+    if (!Settings[setting]) { //TODO test for "typeof function"
       console.log(setting + ' is not something that can be set.');
       return;
     }
-    settings[setting](value);
+    Settings[setting](value);
     saveSettings(silent);
   }
 
   function getColor(source, category) {
-    if (!settings[source + 'CategoryColors']) {
+    if (!Settings[source + 'CategoryColors']) {
       console.log('There are no colours for this source');
       return;
     }
-    var arr = settings[source + 'CategoryColors']();
+    var arr = Settings[source + 'CategoryColors']();
     var defaultColor;
     for (var i = 0; i < arr.length; i++) {
       if (arr[i].category === category) {
@@ -204,7 +203,6 @@ NB.Settings = (function() {
   Settings.setAll         = setAll;
   Settings.setSetting     = setSetting;
   Settings.getColor       = getColor;
-  Settings.settings       = settings;
 
   init();
   return Settings;

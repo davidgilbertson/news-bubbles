@@ -6,7 +6,9 @@ NB.App = (function() {
 
   App.maxiTooltipVis = ko.observable(false);
   App.user = NB.Auth.userModel;
-  App.settings = NB.Settings.settings;
+  App.settings = NB.Settings;
+  App.nav = NB.Nav.navModel;
+  App.currentStory = NB.StoryModel.panelStory;
 
 
   function init() {
