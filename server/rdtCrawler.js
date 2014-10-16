@@ -31,6 +31,7 @@ function goGet(url, cb) {
   };
 
   request.get(options, function(err, response, data) {
+    if (!response) { return; }
     if (response.headers['X-Ratelimit-Used']) {
       prodLog('X-Ratelimit-Used' + response.headers['X-Ratelimit-Used']);
     }

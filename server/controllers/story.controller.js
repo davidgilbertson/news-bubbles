@@ -162,7 +162,7 @@ function emitNow(story) {
 }
 
 function saveNewFbHxnStory(newStory) {
-  devLog('AddingHN story:', newStory.title);
+  // devLog('AddingHN story:', newStory.title);
   //firebase schema:
   // var example = {
   //   by: 'harscoat',
