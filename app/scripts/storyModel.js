@@ -61,7 +61,7 @@ NB.StoryModel = (function() {
       isFav: ko.observable(false),
       userVote: ko.observable(''),
       upVote: function() {
-        if (this.userVote() !== 'up') {
+        if (this.currentStory.userVote() !== 'up') { //'this' refers to NB.App
           rdtVote('up');
         } else {
           rdtVote('');
@@ -69,7 +69,11 @@ NB.StoryModel = (function() {
         
       },
       downVote: function() {
-        rdtVote('down');
+        if (this.currentStory.userVote() !== 'down') { //'this' refers to NB.App
+          rdtVote('down');
+        } else {
+          rdtVote('');
+        }
       }
     };
   }
