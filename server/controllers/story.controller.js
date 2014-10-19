@@ -203,11 +203,13 @@ function saveNewFbHxnStory(newStory) {
   } else {
     category = 'Hacker News Story';
   }
-  if (newStory.title.toLowerCase().indexOf('ask hn') === 0) { //for lack of a better test
+  if (newStory.title.indexOf('Ask HN') === 0) { //for lack of a better test
     category = 'Ask HN';
+    newStory.title = newStory.title.replace('Ask HN: ', '');
   }
-  if (newStory.title.toLowerCase().indexOf('show hn') === 0) { //for lack of a better test
+  if (newStory.title.indexOf('Show HN') === 0) { //for lack of a better test
     category = 'Show HN';
+    newStory.title = newStory.title.replace('Show HN: ', '');
   }
   var commentCount = newStory.kids ? newStory.kids.length : 0;
 

@@ -42,19 +42,20 @@
       fill: $col-text-light;
     }
   }
-/*   &-plot-area { */
-/*     clip-path: url(/#plot-area-clip); */
-/*   } */
 }
 
 .story-circle {
-  transition: opacity 500ms;
+  transition: 1000ms;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   -webkit-tap-highlight-color: transparent;
-  opacity: 0.7;
-  transition: 200ms;
+/*   opacity: 0.7; */
+  fill-opacity: 0.7;
+  stroke-opacity: 0.7;
+/*   transition: 200ms; */
   cursor: pointer;
-  
+/*   .chart-plot-area:not(.moving) { */
+/*     opacity: 0.7; */
+/*   } */
   body:not(.fav) &.read { //yeah that's not confusing AT ALL
     fill-opacity: 0.2;
     stroke-opacity: 0.6;

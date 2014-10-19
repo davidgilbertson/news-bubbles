@@ -8,7 +8,7 @@ NB.App = (function() {
   App.user = NB.Auth.userModel;
   App.settings = NB.Settings;
   App.nav = NB.Nav.navModel;
-  App.currentStory = NB.StoryModel.panelStory;
+  App.storyModel = NB.StoryModel.storyModel;
 
   App.view = {
     showMaxiTooltip: ko.observable(false)

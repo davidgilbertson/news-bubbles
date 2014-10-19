@@ -66,13 +66,6 @@ NB.Chart = (function() {
     //Now select the item just clicked
     el.classed('selected', true);
 
-//     NB.Actions.showTooltip({
-//       story: d,
-//       domEl: el,
-//       chartWidth: w,
-//       chartHeight: h
-//     });
-
     var setting = NB.Settings.getSetting('clickAction');
 
     if (setting === 'storyPanel') {
@@ -217,6 +210,8 @@ NB.Chart = (function() {
 
     console.timeEnd('prepare chart');
 
+//     plotArea.classed('moving', true);
+
     points
       .enter()
       .append('circle')
@@ -230,6 +225,7 @@ NB.Chart = (function() {
       .attr('fill', function(d) {
         return NB.Settings.getColor(d.source, d.category);
       })
+//       .attr('opacity', 1)
       .attr('stroke', function(d) {
         return NB.Settings.getColor(d.source, d.category);
       })
@@ -260,8 +256,11 @@ NB.Chart = (function() {
       .duration(duration)
       .attr('r', function(d) { return z(d.commentCount); })
       .attr('cx', function(d) { return x(d.postDate); })
-      .attr('cy', function(d) { return y(d.score); });
-
+      .attr('cy', function(d) { return y(d.score); })
+//       .each('end', function() {
+//         this.style.opacity = 0.7;
+//       })
+    ;
 
     //DO NOT do points.exit() because the passed in data is only a delta
 //     points
