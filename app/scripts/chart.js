@@ -89,7 +89,7 @@ NB.Chart = (function() {
 
       var thisDims = el.node().getBoundingClientRect();
 
-      var r = z(d.commentCount);
+      var r = z(d.commentCount); //TODO copy the logic for the little tooltip here. Make a function?
       var left = thisDims.left + r - tooltipWidth / 2;
       var maxLeft = w - tooltipWidth - 20;
       left = Math.min(left, maxLeft);
@@ -100,7 +100,8 @@ NB.Chart = (function() {
         top = thisDims.bottom;
       }
 
-      NB.StoryModel.setCurrentStory('tooltip', d); //TODO should this make visible? E.g. control vis in model?
+      NB.StoryModel.setCurrentStory(d);
+//       NB.StoryModel.setCurrentStory(d); //TODO
 
       var readUnreadLink = d3.select('#tooltip-mark-as-read');
       if (el.classed('read')) {
@@ -110,24 +111,29 @@ NB.Chart = (function() {
       }
 
 
-      var duration = maxiTooltipShowing ? 200 : 0;
+      var duration = NB.App.view.showMaxiTooltip() ? 200 : 0;
+//       var duration = maxiTooltipShowing ? 200 : 0;
+
+      NB.App.view.showMaxiTooltip(true);
+
       maxiTooltip
-        .style('display', 'block')
+//         .style('display', 'block')
         .transition()
         .duration(duration)
         .style('left', left + 'px')
         .style('top', top + 'px');
 
-      maxiTooltipShowing = true; //will block little tooltip from showing
+//       maxiTooltipShowing = true; //will block little tooltip from showing
 
       d3.event.stopPropagation(); //TODO I do not know the diff between this and immediate. Immediate stops other events on this el?
 
       $(document).on('click.tooltip', function() { //TODO try .one, still not working?
-        maxiTooltip.style('display', 'none');
+//         maxiTooltip.style('display', 'none');
         $(document).off('click.tooltip');
 
         window.setTimeout(function() {
-          maxiTooltipShowing = false; //wait a bit before allowing the little tooltip to show
+          NB.App.view.showMaxiTooltip(false);
+//           maxiTooltipShowing = false; //wait a bit before allowing the little tooltip to show
         }, 300);
       });
       readUnreadLink.on('click', function() { //D3 will remove any existing listener
@@ -150,7 +156,9 @@ NB.Chart = (function() {
   }
 
   function bubbleMouseover(d) {
-    if (maxiTooltipShowing) { return; }
+//     if (maxiTooltipShowing) { return; }
+    if (NB.App.view.showMaxiTooltip()) { return; }
+
     if (NB.hasTouch) { return; }
 //     var extra = ' - ' + d.category;
 //     tooltip.text(d.name + extra);

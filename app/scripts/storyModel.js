@@ -1,5 +1,4 @@
 'use strict';
-
 var NB = NB || {};
 
 NB.StoryModel = (function() {
@@ -14,7 +13,6 @@ NB.StoryModel = (function() {
     };
 
     StoryModel.panelStory.userVote(upOrDown);
-//     console.log('Voting this way:', data);
 
     $.post('/api/reddit/vote', data, function(res) {
       if (res.err) {
@@ -26,26 +24,27 @@ NB.StoryModel = (function() {
 
   function init() {
     //TODO these really should inherit from a common parent.
-    StoryModel.tooltipStory = {
-      raw: {},
-      name: ko.observable(),
-      url: ko.observable(),
-      sourceUrl: ko.observable(),
-      authorUrl: ko.observable(),
-      domain: ko.observable(),
-      category: ko.observable(),
-      color: ko.observable(),
-      author: ko.observable(),
-      commentCount: ko.observable(),
-      score: ko.observable(),
-      timeString: ko.observable(),
-      dateString: ko.observable(),
-      isFav: ko.observable(false)
-    };
+//     StoryModel.tooltipStory = {
+//       raw: {},
+//       name: ko.observable(),
+//       url: ko.observable(),
+//       sourceUrl: ko.observable(),
+//       authorUrl: ko.observable(),
+//       domain: ko.observable(),
+//       category: ko.observable(),
+//       color: ko.observable(),
+//       author: ko.observable(),
+//       commentCount: ko.observable(),
+//       score: ko.observable(),
+//       timeString: ko.observable(),
+//       dateString: ko.observable(),
+//       isFav: ko.observable(false)
+//     };
 
     StoryModel.panelStory = {
       raw: {},
-      name: ko.observable('News Bubbles'),
+      name: ko.observable(),
+      shortName: ko.observable(),
       url: ko.observable(),
       sourceUrl: ko.observable(),
       authorUrl: ko.observable(),
@@ -66,7 +65,6 @@ NB.StoryModel = (function() {
         } else {
           rdtVote('');
         }
-        
       },
       downVote: function() {
         if (this.currentStory.userVote() !== 'down') { //'this' refers to NB.App
@@ -80,8 +78,9 @@ NB.StoryModel = (function() {
 
   //Code here should normalize data from different sources.
   //Anything else (like comment URLS) should be done on the server at time of processing.
-  StoryModel.setCurrentStory = function(tooltipOrPanel, story) {
-    var storyObj = StoryModel[tooltipOrPanel + 'Story'];
+  StoryModel.setCurrentStory = function(story) {
+//     var storyObj = StoryModel[tooltipOrPanel + 'Story'];
+    var storyObj = StoryModel.panelStory;
     var dateFormatter = d3.time.format('%a, %-e %b %Y');
     var timeFormatter = d3.time.format('%-I:%M%p');
     var domain
@@ -89,6 +88,7 @@ NB.StoryModel = (function() {
       , sourceUrl
       , authorUrl;
     var name = story.name;
+    var shortName = story.name;
     var category = story.category || '';
     var isFav = NB.Favs.isFav(story);
     var color = NB.Settings.getColor(story.source, category);
@@ -123,19 +123,15 @@ NB.StoryModel = (function() {
       }
     }
 
-    if (tooltipOrPanel === 'tooltip' && name.length > 50) {
-      name = name.substr(0, 47).trim() + '...';
+    if (name.length > 50) {
+      shortName = name.substr(0, 47).trim() + '...';
     }
 
-//     if (category) {
-//       console.log('I have a category:', category, story);
-//     }
-
     storyObj.raw = story;
-//     console.log('Fav status:', storyObj.isFav());
 
     storyObj
       .name(name)
+      .shortName(shortName)
       .url(url)
       .sourceUrl(sourceUrl)
       .authorUrl(authorUrl)
@@ -150,17 +146,14 @@ NB.StoryModel = (function() {
       .isFav(isFav);
 
 
-    if (tooltipOrPanel === 'panel') {
-        storyObj.content(story.content)
+//     if (tooltipOrPanel === 'panel') {
+        storyObj //TODO move up three lines
+        .content(story.content)
         .userVote(story.vote);
-    }
+//     }
   };
 
-  // StoryModel.favStory = function(story) {
-  //   toggleFav(story);
-  // };
-
-  StoryModel.clear = function() {
+  function clear() {
     StoryModel.panelStory
       .name('')
       .url('')
@@ -177,8 +170,11 @@ NB.StoryModel = (function() {
       .content('')
       .isFav('')
       .userVote('');
+  }
 
-  };
+
+  //TODO move the rest of the 'exports' stuff down here
+  StoryModel.clear = clear;
 
   init();
   return StoryModel;

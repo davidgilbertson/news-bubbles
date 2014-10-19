@@ -45,7 +45,7 @@ NB.Actions = (function() {
         top = thisDims.bottom;
       }
 
-      NB.StoryModel.setCurrentStory('tooltip', d); //TODO should this make visible? E.g. control vis in model?
+      NB.StoryModel.setCurrentStory(d); //TODO should this make visible? E.g. control vis in model?
 
       var readUnreadLink = d3.select('#tooltip-mark-as-read');
       if (el.classed('read')) {

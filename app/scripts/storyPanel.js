@@ -50,7 +50,7 @@ NB.StoryPanel = (function() {
         //Because a user can click one story, then another before the first story comments are loaded
         //Check that the expected story is still the active one.
         if (story.sourceId === currentStoryId) {
-          NB.StoryModel.setCurrentStory('panel', story);
+          NB.StoryModel.setCurrentStory(story);
         } else {
           console.log('The story has already changed, dumping these comments');
         }
@@ -59,7 +59,7 @@ NB.StoryPanel = (function() {
     }
 
     function done(thenAppendComments) {
-      NB.StoryModel.setCurrentStory('panel', story);
+      NB.StoryModel.setCurrentStory(story);
       if (thenAppendComments) {
         appendComments();
       }
@@ -138,12 +138,12 @@ NB.StoryPanel = (function() {
       NB.Comments.getForHxnStory(story, function(commentTree) {
         story.content += '<h3 class="comment-separator">Comments</h3>';
         story.content += commentTree;
-        NB.StoryModel.setCurrentStory('panel', story);
+        NB.StoryModel.setCurrentStory(story);
       });
     }
 
     function done(thenAppendComments) {
-      NB.StoryModel.setCurrentStory('panel', story);
+      NB.StoryModel.setCurrentStory(story);
       if (thenAppendComments) {
         appendComments();
       }
@@ -178,7 +178,7 @@ NB.StoryPanel = (function() {
 
   function render(story) {
     currentStory = story;
-    NB.StoryModel.setCurrentStory('panel', story); //to get a quick change in the panel.
+    NB.StoryModel.setCurrentStory(story); //to get a quick change in the panel.
 
     //The story panel element is passed into these funciton because if it goes to readability it's an async call
     //and I don't want to mess around with cbs everywhere

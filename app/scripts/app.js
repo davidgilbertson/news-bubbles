@@ -10,6 +10,10 @@ NB.App = (function() {
   App.nav = NB.Nav.navModel;
   App.currentStory = NB.StoryModel.panelStory;
 
+  App.view = {
+    showMaxiTooltip: ko.observable(false)
+  };
+
 
   function init() {
     ko.applyBindings(App, document.body);
