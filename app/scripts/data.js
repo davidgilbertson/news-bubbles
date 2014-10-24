@@ -114,10 +114,12 @@ NB.Data = (function() {
       NB.Auth.setUser(data.user);
 
       if (data.user.settings) {
-        if (NB.Settings.getSetting('source') !== data.user.settings.source) {
-          NB.Nav.navigate(data.user.settings.source); //this handles the setting and resetting of the chart
-          return cb(false); //this prevents the page from drawing further.
-        }
+        //TODO these below four lines seem to cause a loop of loading
+        //removing for now
+//         if (NB.Settings.getSetting('source') !== data.user.settings.source) {
+//           NB.Nav.navigate(data.user.settings.source); //this handles the setting and resetting of the chart
+//           return cb(false); //this prevents the page from drawing further.
+//         }
 
         NB.Settings.setAll(data.user.settings);
       }
