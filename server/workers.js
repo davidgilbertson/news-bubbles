@@ -38,6 +38,12 @@ function startCleanupWorker() {
               {postDate: {$lt: fourDaysAgo}},
               {score:    {$lt: 16}}
             ]
+          },
+          {
+            $and: [
+              {postDate: {$gt: fourDaysAgo}},
+              {score:    {$lt: 32}}
+            ]
           }
         ]
       }
