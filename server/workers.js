@@ -9,9 +9,11 @@ var path = require('path')
 
 function startCleanupWorker() {
 
+
+
   function cull() {
     var now = new Date();
-    // prodLog('  --  Running a cull now  --  ', now);
+    prodLog('  --  Running a cull now  --  ', now);
 
     var oneDayAgo = new Date(now - (1 * 24 * 60 * 60 * 1000));
     var twoDaysAgo = new Date(now - (2 * 24 * 60 * 60 * 1000));
@@ -46,11 +48,17 @@ function startCleanupWorker() {
             ]
           }
         ]
-      }
-    );
+      }, function (err, data) {
+        if (err) {
+          prodLog('Error culling objects:', err);
+        } else {
+          devLog('cull removed', data, 'objects');
+          // console.log('Data:', data);
+        }
+      });
   }
 
-  // cull();
+  cull();
   setInterval(function() {
     cull();
   }, 1 * 60 * 60 * 1000); //hourly
