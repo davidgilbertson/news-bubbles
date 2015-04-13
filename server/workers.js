@@ -26,25 +26,19 @@ function startCleanupWorker() {
           {
             $and: [
               {postDate: {$lt: oneDayAgo}},
-              {score:    {$lt: 4}}
+              {score:    {$lt: 10}}
             ]
           },
           {
             $and: [
               {postDate: {$lt: twoDaysAgo}},
-              {score:    {$lt: 8}}
+              {score:    {$lt: 50}}
             ]
           },
           {
             $and: [
               {postDate: {$lt: fourDaysAgo}},
-              {score:    {$lt: 16}}
-            ]
-          },
-          {
-            $and: [
-              {postDate: {$gt: fourDaysAgo}},
-              {score:    {$lt: 32}}
+              {score:    {$lt: 100}}
             ]
           }
         ]
@@ -53,7 +47,6 @@ function startCleanupWorker() {
           prodLog('Error culling objects:', err);
         } else {
           devLog('cull removed', data, 'objects');
-          // console.log('Data:', data);
         }
       });
   }
