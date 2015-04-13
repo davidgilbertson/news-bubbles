@@ -31,7 +31,7 @@ var prodConfig = {
 var devConfig = {
   // baseUrl: 'http://local.bubblereader.com',
   db: {
-    port: 80,
+    port: 9000,
     conn: 'mongodb://localhost/news_bubbles'
   },
   auth: {
