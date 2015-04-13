@@ -73,8 +73,8 @@ NB.StoryPanel = (function() {
       });
 
     } else if (story.url.match(/\.(gif|png|jpg)\?*.*$/)) { //any old image link, might be imgur
-
-      story.content = '<img src="' + story.url + '">';
+      var url = story.url.replace(/gifv$/, 'gif'); //img tag doesn't like gifv, but will show a gif
+      story.content = '<img src="' + url + '">';
       done(true);
 
     } else if (dom === 'i.imgur.com' || dom === 'imgur.com' || dom === 'm.imgur.com') { //TODO does m. exist, and obviously regex
