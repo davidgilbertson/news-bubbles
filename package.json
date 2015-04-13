@@ -9,7 +9,7 @@
     "express": "^4.8.4",
     "express-session": "^1.8.2",
     "firebase": "^1.1.0",
-    "mongoose": "^3.8.15",
+    "mongoose": "4.0.1",
     "nodetime": "^0.8.15",
     "passport": "^0.2.1",
     "passport-facebook": "^1.0.3",
