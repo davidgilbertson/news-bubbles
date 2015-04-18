@@ -1,6 +1,6 @@
 {
   "name": "bubblereader",
-  "version": "0.4.9",
+  "version": "0.4.10",
   "dependencies": {
     "body-parser": "^1.9.0",
     "compression": "^1.1.0",

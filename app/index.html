@@ -1,6 +1,6 @@
 <!doctype html>
 <html>
-  <head>
+<head>
     <meta charset="utf-8">
     <title>Bubble Reader</title>
     <meta name="description" content="A visual display for news stories.">
@@ -27,11 +27,11 @@
     <meta name="msapplication-TileColor" content="#da532c">
     <meta name="msapplication-TileImage" content="/mstile-144x144.png">
 
-  </head>
-  <body class="no-touch">
-    <!--[if lt IE 10]>
-    <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
-    <![endif]-->
+</head>
+<body class="no-touch">
+<!--[if lt IE 10]>
+<p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+<![endif]-->
 
 
 <!--     <div id="test-modal">
@@ -45,274 +45,274 @@
     </div> -->
 
 
-    <header id="header-wrapper" class="header">
-      <h1 class="header-title">BUBBLE READER <span class="by-line">[pre-beta preview]</span></h1>
-      <div id="open-settings-btn" class="header-icons-wrapper">
+<header id="header-wrapper" class="header">
+    <h1 class="header-title">BUBBLE READER <span class="by-line">[pre-beta preview]</span></h1>
+    <div id="open-settings-btn" class="header-icons-wrapper">
         <button class="nil-style fa fa-cog fa-2x"></button>
-      </div>
-      <div id="user-items" class="user-items header-float">
+    </div>
+    <div id="user-items" class="user-items header-float">
         <div data-bind="visible: !user.signedIn()">
-          <a href class="user-item sign header-float" data-bind="click: user.open">Sign in</a>
+            <a href class="user-item sign header-float" data-bind="click: user.open">Sign in</a>
         </div>
         <div data-bind="visible: user.signedIn()">
-          <span class="user-item name" data-bind="text: user.headerText"></span><button class="nil-style user-item icon fa fa-user fa-2x" data-bind="click: user.open"></button>
+            <span class="user-item name" data-bind="text: user.headerText"></span><button class="nil-style user-item icon fa fa-user fa-2x" data-bind="click: user.open"></button>
         </div>
-      </div>
-      <div id="news-sources" class="news-sources header-float">
+    </div>
+    <div id="news-sources" class="news-sources header-float">
         <button id="news-source-rdt"
-          class="news-sources-source"
-          data-bind="css: {active: nav.currentSource() === 'rdt'}, click: NB.Nav.navigate.bind($data, 'rdt')">REDDIT</button>
+                class="news-sources-source"
+                data-bind="css: {active: nav.currentSource() === 'rdt'}, click: NB.Nav.navigate.bind($data, 'rdt')">REDDIT</button>
         <button id="news-source-hxn"
-          class="news-sources-source"
-          data-bind="css: {active: nav.currentSource() === 'hxn'}, click: NB.Nav.navigate.bind($data, 'hxn')">HACKER NEWS</button>
-      </div>
-    </header>
+                class="news-sources-source"
+                data-bind="css: {active: nav.currentSource() === 'hxn'}, click: NB.Nav.navigate.bind($data, 'hxn')">HACKER NEWS</button>
+    </div>
+</header>
 
 
 
-    <main id="content-wrapper" class="nb-content-wrapper">
-      <div id="chart-wrapper" class="chart-wrapper">
+<main id="content-wrapper" class="nb-content-wrapper">
+    <div id="chart-wrapper" class="chart-wrapper">
         <svg id="svg-bubble-chart"></svg>
-      </div>
-      <div id="story-panel" class="story-panel">
+    </div>
+    <div id="story-panel" class="story-panel">
         <div id="story-panel-resizer" class="story-panel-resizer">
-          <div class="story-panel-resizer-dots"></div>
-          <div class="story-panel-resizer-dots"></div>
-          <div id="story-panel-toggle" class="story-panel-toggle">«</div>
+            <div class="story-panel-resizer-dots"></div>
+            <div class="story-panel-resizer-dots"></div>
+            <div id="story-panel-toggle" class="story-panel-toggle">«</div>
         </div>
         <div id="story-panel-content" class="story-wrapper">
-          <div id="story-title" class="story-title">
-            <h1 data-bind="css: {active: storyModel.isFav()}">
-              <a data-bind="attr: {href: storyModel.url}, text: storyModel.name" target="_blank">...</a>
-            </h1>
-            <div id="story-panel-header" class="sub-title show-vote-btns">
-              <div class="vote-button-wrapper" data-bind="css: storyModel.userVote()">
-                <button class="nil-style vote-button up fa fa-chevron-circle-up fa-3x" data-bind="click: storyModel.upVote"></button>
-                <button class="nil-style vote-button down fa fa-chevron-circle-down fa-3x" data-bind="click: storyModel.downVote"></button>
-              </div>
-              <div class="meta-data">
-                <p><span data-bind="text: storyModel.score">...</span>
-                point<span data-bind="visible: storyModel.score() != 1">s</span>
-                 | <a data-bind="attr: {href: storyModel.sourceUrl}" target="_blank"><span data-bind="text: storyModel.commentCount">...</span>
-                 <span> comment<span data-bind="visible: storyModel.commentCount() != 1">s</span></span>
-                 </a> | posted by <a data-bind="attr: {href: storyModel.authorUrl}, text: storyModel.author" target="_blank">...</a></p>
-                <p><span data-bind="text: storyModel.timeString">...</span> on <span data-bind="text: storyModel.dateString">...</span></p>
-                <p><span class="category-dot" data-bind="style: {backgroundColor: storyModel.color}"></span><span data-bind="text: storyModel.category"></span></p>
-              </div>
+            <div id="story-title" class="story-title">
+                <h1 data-bind="css: {active: storyModel.isFav()}">
+                    <a data-bind="attr: {href: storyModel.url}, text: storyModel.name" target="_blank">...</a>
+                </h1>
+                <div id="story-panel-header" class="sub-title show-vote-btns">
+                    <div class="vote-button-wrapper" data-bind="css: storyModel.userVote()">
+                        <button class="nil-style vote-button up fa fa-chevron-circle-up fa-3x" data-bind="click: storyModel.upVote"></button>
+                        <button class="nil-style vote-button down fa fa-chevron-circle-down fa-3x" data-bind="click: storyModel.downVote"></button>
+                    </div>
+                    <div class="meta-data">
+                        <p><span data-bind="text: storyModel.score">...</span>
+                            point<span data-bind="visible: storyModel.score() != 1">s</span>
+                            | <a data-bind="attr: {href: storyModel.sourceUrl}" target="_blank"><span data-bind="text: storyModel.commentCount">...</span>
+                                <span> comment<span data-bind="visible: storyModel.commentCount() != 1">s</span></span>
+                            </a> | posted by <a data-bind="attr: {href: storyModel.authorUrl}, text: storyModel.author" target="_blank">...</a></p>
+                        <p><span data-bind="text: storyModel.timeString">...</span> on <span data-bind="text: storyModel.dateString">...</span></p>
+                        <p><span class="category-dot" data-bind="style: {backgroundColor: storyModel.color}"></span><span data-bind="text: storyModel.category"></span></p>
+                    </div>
+                </div>
             </div>
-          </div>
-          <hr>
-          <div id="story-content" class="story-content" data-bind="html: storyModel.content">Select a bubble on the left to view the story here.</div>
+            <hr>
+            <div id="story-content" class="story-content" data-bind="html: storyModel.content">Select a bubble on the left to view the story here.</div>
         </div>
 
-      </div>
-    </main>
+    </div>
+</main>
 
 
 
-    <div id="tooltip">tooltip</div>
+<div id="tooltip">tooltip</div>
 
 
 
-    <div id="story-tooltip" class="maxi-tooltip" data-bind="visible: view.showMaxiTooltip">
-      <div class="left table">
+<div id="story-tooltip" class="maxi-tooltip" data-bind="visible: view.showMaxiTooltip">
+    <div class="left table">
         <div class="row">
-          <div id="tooltip-mark-as-read" class="left-top btn cell">Mark as Read (TODO)</div>
-        </div>
-        <div class="row">
-          <div id="tooltip-open-reading-pane" class="left-middle btn cell">Open in reading pane</div>
+            <div id="tooltip-mark-as-read" class="left-top btn cell">Mark as Read (TODO)</div>
         </div>
         <div class="row">
-          <a class="left-bottom btn cell" data-bind="attr: {href: storyModel.url}" target="_blank">Open in new tab</a>
+            <div id="tooltip-open-reading-pane" class="left-middle btn cell">Open in reading pane</div>
         </div>
-      </div>
-      <div class="right">
+        <div class="row">
+            <a class="left-bottom btn cell" data-bind="attr: {href: storyModel.url}" target="_blank">Open in new tab</a>
+        </div>
+    </div>
+    <div class="right">
         <div class="right-top table">
-          <h1 id="maxi-tooltip-title" class="cell" data-bind="text: storyModel.shortName">...</h1>
+            <h1 id="maxi-tooltip-title" class="cell" data-bind="text: storyModel.shortName">...</h1>
         </div>
         <div class="right-bottom">
-          <div class="right-bottom-left">
-            <p data-bind="text: storyModel.category">...</p>
-            <p data-bind="text: storyModel.timeString">...</p>
-            <p data-bind="text: storyModel.dateString">...</p>
-          </div>
-          <div class="right-bottom-right">
-            <p><span data-bind="text: storyModel.score">...</span> points</p>
-            <p><a data-bind="attr: {href: storyModel.sourceUrl}" target="_blank"><span data-bind="text: storyModel.commentCount">...</span> comments</a></p>
-            <p>Posted by <a data-bind="attr: {href: storyModel.authorUrl}, text: storyModel.author" target="_blank">...</a></p>
-          </div>
+            <div class="right-bottom-left">
+                <p data-bind="text: storyModel.category">...</p>
+                <p data-bind="text: storyModel.timeString">...</p>
+                <p data-bind="text: storyModel.dateString">...</p>
+            </div>
+            <div class="right-bottom-right">
+                <p><span data-bind="text: storyModel.score">...</span> points</p>
+                <p><a data-bind="attr: {href: storyModel.sourceUrl}" target="_blank"><span data-bind="text: storyModel.commentCount">...</span> comments</a></p>
+                <p>Posted by <a data-bind="attr: {href: storyModel.authorUrl}, text: storyModel.author" target="_blank">...</a></p>
+            </div>
         </div>
-      </div>
     </div>
+</div>
 
 
-    <!-- This modal is bound to the KO auth model -->
-    <div id="auth-modal" class="modal-wrapper auth">
-      <div class="panel">
+<!-- This modal is bound to the KO auth model -->
+<div id="auth-modal" class="modal-wrapper auth">
+    <div class="panel">
         <div id="cancel-auth-btn" class="close-x" data-bind="click: user.close">×</div>
         <div>
-          <h1>YOUR ACCOUNT</h1>
-          <hr>
+            <h1>YOUR ACCOUNT</h1>
+            <hr>
         </div>
         <div class="body">
-          <div class="row">
-            <p>Sign in to sync your Bubble Reader favourites, settings, and stories marked as read across devices. We will not post on your behalf or store any interesting data about you.</p>
-            <p>We're adding more social providers every day so shut up and be patient.</p>
-            <hr>
-            <p>If you sign in with Reddit, you will also be able to vote and, one day, comment.</p>
-            <!-- TODO: these should be checking WHICH auth provider is used -->
-            <a href="/auth/reddit" class="user-item header-float" data-bind="visible: user.signedIn() === false">Sign in to Reddit</a>
-            <hr>
-            <a href="/auth/facebook" class="user-item header-float" data-bind="visible: user.signedIn() === false">Sign in with Facebook</a>
-            <div data-bind="visible: user.signedIn">
-              <p><span>You're signed in to Facebook as </span><span data-bind="text: user.displayName"></span></p>
+            <div class="row">
+                <p>Sign in to sync your Bubble Reader favourites, settings, and stories marked as read across devices. We will not post on your behalf or store any interesting data about you.</p>
+                <p>We're adding more social providers every day so shut up and be patient.</p>
+                <hr>
+                <p>If you sign in with Reddit, you will also be able to vote and, one day, comment.</p>
+                <!-- TODO: these should be checking WHICH auth provider is used -->
+                <a href="/auth/reddit" class="user-item header-float" data-bind="visible: user.signedIn() === false">Sign in to Reddit</a>
+                <hr>
+                <a href="/auth/facebook" class="user-item header-float" data-bind="visible: user.signedIn() === false">Sign in with Facebook</a>
+                <div data-bind="visible: user.signedIn">
+                    <p><span>You're signed in to Facebook as </span><span data-bind="text: user.displayName"></span></p>
+                </div>
+                <a data-bind="visible: user.signedIn" href="/auth/sign-out">Disconnect all accounts from Bubble Reader.</a>
             </div>
-            <a data-bind="visible: user.signedIn" href="/auth/sign-out">Disconnect all accounts from Bubble Reader.</a>
-          </div>
 
         </div>
-      </div>
     </div>
+</div>
 
 
-    <!-- This modal is bound to the KO settings model -->
-    <div id="settings-modal" class="modal-wrapper settings">
-      <div class="panel">
+<!-- This modal is bound to the KO settings model -->
+<div id="settings-modal" class="modal-wrapper settings">
+    <div class="panel">
         <div class="close-x" id="cancel-settings-btn">×</div>
         <div>
-          <h1>SETTINGS</h1>
-          <hr>
+            <h1>SETTINGS</h1>
+            <hr>
         </div>
         <div class="body">
-          <div class="row">
-            <h2>WHEN I CLICK A BUBBLE</h2>
-            <div class="option">
-              <label>
-                <input type="radio" name="settings-click-bubble-option" value="storyPanel" data-bind="checked: settings.clickAction">
-                Open the story panel
-              </label>
+            <div class="row">
+                <h2>WHEN I CLICK A BUBBLE</h2>
+                <div class="option">
+                    <label>
+                        <input type="radio" name="settings-click-bubble-option" value="storyPanel" data-bind="checked: settings.clickAction">
+                        Open the story panel
+                    </label>
+                </div>
+                <div class="option">
+                    <label>
+                        <input type="radio" name="settings-click-bubble-option" value="storyTooltip" data-bind="checked: settings.clickAction">
+                        Show the story details as a tooltip
+                    </label>
+                </div>
             </div>
-            <div class="option">
-              <label>
-                <input type="radio" name="settings-click-bubble-option" value="storyTooltip" data-bind="checked: settings.clickAction">
-                Show the story details as a tooltip
-              </label>
+            <div class="row">
+                <h2>WHEN I RIGHT CLICK A BUBBLE</h2>
+                <div class="option">
+                    <label>
+                        <input type="radio" name="settings-right-click-bubble-option" value="toggleRead" data-bind="checked: settings.rightClickAction">
+                        Mark the story as read/unread
+                    </label>
+                </div>
+                <div class="option">
+                    <label>
+                        <input type="radio" name="settings-right-click-bubble-option" value="nothing" data-bind="checked: settings.rightClickAction">
+                        Do nothing
+                    </label>
+                </div>
             </div>
-          </div>
-          <div class="row">
-            <h2>WHEN I RIGHT CLICK A BUBBLE</h2>
-            <div class="option">
-              <label>
-                <input type="radio" name="settings-right-click-bubble-option" value="toggleRead" data-bind="checked: settings.rightClickAction">
-                Mark the story as read/unread
-              </label>
-            </div>
-            <div class="option">
-              <label>
-                <input type="radio" name="settings-right-click-bubble-option" value="nothing" data-bind="checked: settings.rightClickAction">
-                Do nothing
-              </label>
-            </div>
-          </div>
 
-          <div class="row">
-            <h2>LIMITS</h2>
-            <div class="option">
-              <p>
-                <label>
-                  Show <input class="inline-input" type="number" min="0" max="500" data-bind="value: settings.hitLimit">
-                  bubble<span data-bind="visible: settings.hitLimit() != 1">s</span> on the page.
-                </label>
-              </p>
-              <p>
-                <label>
-                  Show Hacker News stories over <input class="inline-input" type="number" min="0" data-bind="value: settings.hxnMinScore">
-                  point<span data-bind="visible: settings.hxnMinScore() != 1">s</span>.
-                </label>
-              </p>
-              <p>
-                <label>
-                  Show Reddit stories over <input class="inline-input" type="number" min="0" data-bind="value: settings.rdtMinScore">
-                  point<span data-bind="visible: settings.rdtMinScore() != 1">s</span>.
-                </label>
-              </p>
+            <div class="row">
+                <h2>LIMITS</h2>
+                <div class="option">
+                    <p>
+                        <label>
+                            Show <input class="inline-input" type="number" min="0" max="500" data-bind="value: settings.hitLimit">
+                            bubble<span data-bind="visible: settings.hitLimit() != 1">s</span> on the page.
+                        </label>
+                    </p>
+                    <p>
+                        <label>
+                            Show Hacker News stories over <input class="inline-input" type="number" min="0" data-bind="value: settings.hxnMinScore">
+                            point<span data-bind="visible: settings.hxnMinScore() != 1">s</span>.
+                        </label>
+                    </p>
+                    <p>
+                        <label>
+                            Show Reddit stories over <input class="inline-input" type="number" min="0" data-bind="value: settings.rdtMinScore">
+                            point<span data-bind="visible: settings.rdtMinScore() != 1">s</span>.
+                        </label>
+                    </p>
+                </div>
             </div>
-          </div>
 
-          <div class="row">
-            <h2>HACKER NEWS COLORS</h2>
-            <div class="option">
-              <ul class="color-list" data-bind="foreach: settings.hxnCategoryColors">
-                <li>
-                  <span class="dot" data-bind="style: {background: color}"></span>
-                  <span class="text" data-bind="text: category"></span>
-                </li>
-              </ul>
+            <div class="row">
+                <h2>HACKER NEWS COLORS</h2>
+                <div class="option">
+                    <ul class="color-list" data-bind="foreach: settings.hxnCategoryColors">
+                        <li>
+                            <span class="dot" data-bind="style: {background: color}"></span>
+                            <span class="text" data-bind="text: category"></span>
+                        </li>
+                    </ul>
+                </div>
             </div>
-          </div>
-          <div class="row">
-            <h2>REDDIT COLORS</h2>
-            <div class="option">
-              <ul class="color-list" data-bind="foreach: settings.rdtCategoryColors">
-                <li>
-                  <span class="dot" data-bind="style: {background: color}"></span>
-                  <span class="text" data-bind="text: category"></span>
-                </li>
-              </ul>
+            <div class="row">
+                <h2>REDDIT COLORS</h2>
+                <div class="option">
+                    <ul class="color-list" data-bind="foreach: settings.rdtCategoryColors">
+                        <li>
+                            <span class="dot" data-bind="style: {background: color}"></span>
+                            <span class="text" data-bind="text: category"></span>
+                        </li>
+                    </ul>
+                </div>
             </div>
-          </div>
         </div>
         <div class="footer">
-          <a class="about-link" href="/about.html">About Bubble Reader</a>
-          <div class="save-btn"  id="save-settings-btn">SAVE & CLOSE</div>
+            <a class="about-link" href="/about.html">About Bubble Reader</a>
+            <div class="save-btn"  id="save-settings-btn">SAVE & CLOSE</div>
         </div>
-      </div>
     </div>
+</div>
 
 
 
-    <!-- build:js scripts/vendor.js -->
-      <!-- bower:js -->
-      <script src="bower_components/jquery/dist/jquery.js"></script>
-      <script src="bower_components/d3/d3.js"></script>
-      <script src="bower_components/knockout/dist/knockout.js"></script>
-      <script src="bower_components/moment/moment.js"></script>
-      <script src="bower_components/firebase/firebase.js"></script>
-      <!-- endbower -->
-    <!-- endbuild -->
+<!-- build:js scripts/vendor.js -->
+    <!-- bower:js -->
+        <script src="bower_components/jquery/dist/jquery.js"></script>
+        <script src="bower_components/d3/d3.js"></script>
+        <script src="bower_components/knockout/dist/knockout.js"></script>
+        <script src="bower_components/moment/moment.js"></script>
+        <script src="bower_components/firebase/firebase.js"></script>
+    <!-- endbower -->
+<!-- endbuild -->
 
-    <script src="/socket.io/socket.io.js"></script>
+<script src="/socket.io/socket.io.js"></script>
 
 
-    <!-- build:js scripts/main.js -->
-      <script src="scripts/init.js"></script>
-      <script src="scripts/utils.js"></script>
-      <script src="scripts/settings.js"></script>
-      <script src="scripts/auth.js"></script>
-      <script src="scripts/data.js"></script>
-      <script src="scripts/favs.js"></script>
-      <script src="scripts/layout.js"></script>
-      <script src="scripts/chart.js"></script>
-      <script src="scripts/actions.js"></script>
-      <script src="scripts/events.js"></script>
-      <script src="scripts/comments.js"></script>
-      <script src="scripts/storyPanel.js"></script>
-      <script src="scripts/storyModel.js"></script>
-      <script src="scripts/nav.js"></script>
-      <script src="scripts/app.js"></script>
-      <script src="scripts/main.js"></script>
-    <!-- endbuild -->
+<!-- build:js scripts/main.js -->
+<script src="scripts/init.js"></script>
+<script src="scripts/utils.js"></script>
+<script src="scripts/settings.js"></script>
+<script src="scripts/auth.js"></script>
+<script src="scripts/data.js"></script>
+<script src="scripts/favs.js"></script>
+<script src="scripts/layout.js"></script>
+<script src="scripts/chart.js"></script>
+<script src="scripts/actions.js"></script>
+<script src="scripts/events.js"></script>
+<script src="scripts/comments.js"></script>
+<script src="scripts/storyPanel.js"></script>
+<script src="scripts/storyModel.js"></script>
+<script src="scripts/nav.js"></script>
+<script src="scripts/app.js"></script>
+<script src="scripts/main.js"></script>
+<!-- endbuild -->
 
-    <script>
-      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+<script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 
-      ga('create', 'UA-55576888-1', 'auto');
-      ga('send', 'pageview');
+    ga('create', 'UA-55576888-1', 'auto');
+    ga('send', 'pageview');
 
-    </script>
+</script>
 
-  </body>
+</body>
 </html>
