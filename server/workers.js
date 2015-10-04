@@ -8,9 +8,6 @@ var path = require('path')
 
 
 function startCleanupWorker() {
-
-
-
   function cull() {
     var now = new Date();
     prodLog('  --  Running a cull now  --  ', now);
@@ -18,8 +15,8 @@ function startCleanupWorker() {
     var oneDayAgo = new Date(now - (1 * 24 * 60 * 60 * 1000));
     var twoDaysAgo = new Date(now - (2 * 24 * 60 * 60 * 1000));
     var fourDaysAgo = new Date(now - (4 * 24 * 60 * 60 * 1000));
-    //TODO tweak each of these to keep the db at a reasonable size
-    //2, 4, 8 isn't enough (I don't think, worth revisiting), the DB grow to 500MB in a week
+    var eightDaysAgo = new Date(now - (8 * 24 * 60 * 60 * 1000));
+
     Story.remove(
       {
         $or: [
@@ -32,15 +29,21 @@ function startCleanupWorker() {
           {
             $and: [
               {postDate: {$lt: twoDaysAgo}},
-              {score:    {$lt: 50}}
+              {score:    {$lt: 100}}
             ]
           },
           {
             $and: [
               {postDate: {$lt: fourDaysAgo}},
-              {score:    {$lt: 100}}
+              {score:    {$lt: 1000}}
             ]
-          }
+          },
+            {
+                $and: [
+                    {postDate: {$lt: eightDaysAgo}},
+                    {score:    {$lt: 10000}}
+                ]
+            }
         ]
       }, function (err, data) {
         if (err) {
